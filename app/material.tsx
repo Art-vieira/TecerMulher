@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function MaterialScreen() {
+export default function TelaMateriais() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
 
@@ -84,7 +84,7 @@ export default function MaterialScreen() {
           <TextInput
             value={pesquisa}
             onChangeText={setPesquisa}
-            placeholder="Search.."
+            placeholder="Pesquisar..."
             placeholderTextColor="#A0A0A0"
             style={{
               marginLeft: 8,
@@ -114,7 +114,7 @@ export default function MaterialScreen() {
               key={item.id}
               activeOpacity={0.85}
               style={{
-                backgroundColor: '#D1A3D1', // Cor da barra inferior do card
+                backgroundColor: '#D1A3D1',
                 borderRadius: 24,
                 marginBottom: 24,
                 overflow: 'hidden',
