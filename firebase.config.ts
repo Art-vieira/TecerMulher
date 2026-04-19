@@ -13,13 +13,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAFQnpug8N7b87XuLLP1PxBq_6k_UvtiO0",
-  authDomain: "app-material-test.firebaseapp.com",
-  projectId: "app-material-test",
-  storageBucket: "app-material-test.firebasestorage.app",
-  messagingSenderId: "698779218975",
-  appId: "1:698779218975:web:52670e886a1611c36e912a",
-  measurementId: "G-HEESXPZ5K0"
+  apiKey: "AIzaSyD-fpeEMVXSLidyZwPo9eMmHwH1G0nTmcw",
+  authDomain: "tecer-mulher-app.firebaseapp.com",
+  projectId: "tecer-mulher-app",
+  storageBucket: "tecer-mulher-app.firebasestorage.app",
+  messagingSenderId: "73841184288",
+  appId: "1:73841184288:web:be02d6f907c48232d8b645",
+  measurementId: "G-2ZTS2PSJ5L"
 };
 
 // Evita re-inicializar o app em hot reload
