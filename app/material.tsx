@@ -10,10 +10,12 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { auth } from '../firebase.config';
 
 export default function MaterialScreen() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
+  const isAdmin = !!auth.currentUser;
 
   // Mock de materiais da lista
   const materiais = [
@@ -75,22 +77,23 @@ export default function MaterialScreen() {
             alignItems: 'center',
             backgroundColor: '#FFFFFF',
             borderRadius: 20,
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            width: '60%',
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            width: '65%',
           }}
         >
-          <Ionicons name="search" size={20} color="#A0A0A0" />
+          <Ionicons name="search" size={20} color="#000000" style={{ opacity: 0.3 }} />
           <TextInput
             value={pesquisa}
             onChangeText={setPesquisa}
-            placeholder="Search.."
-            placeholderTextColor="#A0A0A0"
+            placeholder="Procurar..."
+            placeholderTextColor="rgba(0,0,0,0.3)"
             style={{
               marginLeft: 8,
-              fontSize: 14,
+              fontSize: 15,
+              fontFamily: 'Poppins',
               flex: 1,
-              color: '#333333',
+              color: '#000000',
               paddingVertical: 0,
             }}
           />
@@ -114,31 +117,67 @@ export default function MaterialScreen() {
               key={item.id}
               activeOpacity={0.85}
               style={{
-                backgroundColor: '#D1A3D1', // Cor da barra inferior do card
-                borderRadius: 24,
+                backgroundColor: '#F8F8F8',
+                borderRadius: 30,
                 marginBottom: 24,
-                overflow: 'hidden',
+                paddingTop: 7,
+                paddingHorizontal: 7,
+                height: 215,
                 elevation: 4,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
+                shadowColor: '#3C3C3C',
+                shadowOffset: { width: 4, height: 4 },
+                shadowOpacity: 0.15,
+                shadowRadius: 10,
               }}
             >
               {/* Parte Superior do Card (Imagem) */}
-              <View style={{ height: 140 }}>
-                <Image
-                  source={item.image}
-                  style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
-                />
-              </View>
+              <Image
+                source={item.image}
+                style={{ 
+                  width: '100%', 
+                  height: 146, 
+                  borderTopLeftRadius: 30, 
+                  borderTopRightRadius: 30,
+                  resizeMode: 'cover' 
+                }}
+              />
 
-              {/* Parte Inferior do Card (Barra Lilás) */}
-              <View style={{ height: 45, backgroundColor: '#C893C8' }} />
+              {/* Parte Inferior do Card (Texto) */}
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 }}>
+                <Text style={{ color: '#391A65', fontSize: 18, fontFamily: 'Poppins', fontWeight: '600', lineHeight: 18, textAlign: 'center' }}>
+                  {item.title}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
+
+      {/* Botão flutuante Adicionar (Admin) */}
+      {isAdmin ? (
+        <TouchableOpacity
+          onPress={() => router.push('/admin/add-material')}
+          activeOpacity={0.8}
+          style={{
+            position: 'absolute',
+            bottom: 30,
+            right: 30,
+            backgroundColor: '#CF96D5',
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.3,
+            shadowRadius: 3,
+          }}
+        >
+          <Ionicons name="add" size={36} color="#FFFFFF" />
+        </TouchableOpacity>
+      ) : null}
     </SafeAreaView>
   );
 }

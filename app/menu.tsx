@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Link, Stack, useRouter } from 'expo-router';
+import { signOut } from 'firebase/auth';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { auth } from '../firebase.config';
 
 export default function MenuScreen() {
   const router = useRouter();
@@ -14,7 +16,12 @@ export default function MenuScreen() {
       {/* Cabeçalho Voltar */}
       <View className="flex-row items-center px-6 py-4 mt-2">
         <TouchableOpacity 
-          onPress={() => router.back()}
+          onPress={async () => {
+            if (auth.currentUser) {
+              await signOut(auth);
+            }
+            router.back();
+          }}
           activeOpacity={0.8}
           className="flex-row items-center"
         >
@@ -47,19 +54,21 @@ export default function MenuScreen() {
           </Link>
 
           {/* Botão Dúvidas */}
-          <TouchableOpacity 
-            className="w-full max-w-[300px] h-[190px] bg-[#391A65] rounded-[30px] items-center justify-center"
-            activeOpacity={0.8}
-          >
-            <Image
-              source={require("../assets/images/duvidas.svg")}
-              style={{ width: 60, height: 50, marginBottom: 16 }}
-              contentFit="contain"
-            />
-            <Text className="text-white text-[30px] font-bold" style={{ fontFamily: 'Poppins' }}>
-              Dúvidas
-            </Text>
-          </TouchableOpacity>
+          <Link href="/duvidas" asChild>
+            <TouchableOpacity 
+              className="w-full max-w-[300px] h-[190px] bg-[#391A65] rounded-[30px] items-center justify-center"
+              activeOpacity={0.8}
+            >
+              <Image
+                source={require("../assets/images/duvidas.svg")}
+                style={{ width: 60, height: 50, marginBottom: 16 }}
+                contentFit="contain"
+              />
+              <Text className="text-white text-[30px] font-bold" style={{ fontFamily: 'Poppins' }}>
+                Dúvidas
+              </Text>
+            </TouchableOpacity>
+          </Link>
         </View>
 
         {/* Logo Tecer-C */}
