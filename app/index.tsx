@@ -1,20 +1,26 @@
 import { Image } from "expo-image";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function LoginScreen() {
+export default function HomeScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView className="flex-1 bg-[#391A65]">
       <View className="flex-1 relative items-center">
-        {/*login superior*/}
-        <View className="absolute top-6 right-6">
+        {/* Ícone de configuração / login */}
+        <TouchableOpacity
+          className="absolute top-6 right-6"
+          onPress={() => router.push('/login')}
+          activeOpacity={0.75}
+        >
           <Image
             source={require("../assets/images/login.svg")}
             style={{ width: 35, height: 35 }}
             contentFit="contain"
           />
-        </View>
+        </TouchableOpacity>
 
         {/* texto central*/}
         <View className="items-center mt-[120px]">

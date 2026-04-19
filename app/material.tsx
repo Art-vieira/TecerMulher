@@ -1,77 +1,143 @@
-import React, { useMemo } from 'react';
-import { View, Text, ScrollView, SafeAreaView } from 'react-native';
-import { Image } from 'expo-image';
-import { Stack } from 'expo-router';
-import SpeechButton from '../components/SpeechButton';
-
-// Mock de dados que viriam do Firebase
-const firebaseMaterialMock = [
-  { id: '1', type: 'title', content: 'Módulo 1: O que é Cidadania?' },
-  { id: '2', type: 'text', content: 'A cidadania é o exercício dos direitos e deveres civis, políticos e sociais estabelecidos na Constituição. É a forma como o indivíduo se relaciona com o Estado e com a sociedade.' },
-  { id: '3', type: 'image', url: require('../assets/images/Logo.png'), alt: 'Logotipo do Tecer Mulher com fios entrelaçados.' },
-  { id: '4', type: 'text', content: 'Ser cidadão é ter direito à vida, à liberdade, à propriedade, à igualdade perante a lei. Mas também envolve deveres como respeitar as leis e o próximo.' },
-];
+import { Ionicons } from '@expo/vector-icons';
+import { Stack, useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function MaterialScreen() {
-  // Constrói a string completa de leitura juntando textos e propriedades "alt" das imagens
-  const textToRead = useMemo(() => {
-    return firebaseMaterialMock
-      .map((block) => {
-        if (block.type === 'title' || block.type === 'text') {
-          return block.content;
-        }
-        if (block.type === 'image' && block.alt) {
-          // Adicionamos um pequeno contexto na fala para identificar que é uma imagem
-          return `Imagem: ${block.alt}`;
-        }
-        return '';
-      })
-      .filter((text) => text.length > 0)
-      .join('. '); // Adiciona uma pausa entre os blocos
-  }, []);
+  const router = useRouter();
+  const [pesquisa, setPesquisa] = useState('');
+
+  // Mock de materiais da lista
+  const materiais = [
+    {
+      id: '1',
+      title: 'Aplicativos de transporte',
+      image: require('../assets/images/aplicativo-transporte.png'),
+    },
+    {
+      id: '2',
+      title: 'Segurança Digital',
+      image: require('../assets/images/seguranca-digital.png'),
+    },
+  ];
+
+  // Filtra os materiais de acordo com o texto digitado na pesquisa
+  const materiaisFiltrados = materiais.filter((item) =>
+    item.title.toLowerCase().includes(pesquisa.toLowerCase())
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <Stack.Screen options={{ title: 'Material de Aula', headerBackTitle: 'Voltar' }} />
-      
-      <ScrollView className="flex-1 p-6 pb-24">
-        {firebaseMaterialMock.map((block) => {
-          if (block.type === 'title') {
-            return (
-              <Text key={block.id} className="text-[#391A65] text-3xl font-bold mb-6 mt-4">
-                {block.content}
-              </Text>
-            );
-          }
-          if (block.type === 'text') {
-            return (
-              <Text key={block.id} className="text-gray-700 text-lg mb-6 leading-relaxed">
-                {block.content}
-              </Text>
-            );
-          }
-          if (block.type === 'image') {
-            return (
-              <View key={block.id} className="items-center mb-6">
-                <Image
-                  source={block.url}
-                  style={{ width: '100%', height: 200, borderRadius: 12 }}
-                  contentFit="contain"
-                  accessibilityLabel={block.alt} // Ajuda também leitores de tela nativos (TalkBack/VoiceOver)
-                />
-                <Text className="text-sm text-gray-400 mt-2 italic text-center">
-                  {block.alt}
-                </Text>
-              </View>
-            );
-          }
-          return null;
-        })}
-      </ScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
+      <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Botão flutuante de Leitura de Tela */}
-      <View className="absolute bottom-10 right-6 z-50">
-        <SpeechButton textToRead={textToRead} />
+      {/* ───── CABEÇALHO ROXO ───── */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          backgroundColor: '#391A65',
+        }}
+      >
+        {/* Botão Voltar */}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          activeOpacity={0.8}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
+          <Text
+            style={{
+              color: '#FFFFFF',
+              fontSize: 18,
+              fontWeight: '600',
+              marginLeft: 8,
+            }}
+          >
+            Voltar
+          </Text>
+        </TouchableOpacity>
+
+        {/* Barra de Pesquisa */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#FFFFFF',
+            borderRadius: 20,
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            width: '60%',
+          }}
+        >
+          <Ionicons name="search" size={20} color="#A0A0A0" />
+          <TextInput
+            value={pesquisa}
+            onChangeText={setPesquisa}
+            placeholder="Search.."
+            placeholderTextColor="#A0A0A0"
+            style={{
+              marginLeft: 8,
+              fontSize: 14,
+              flex: 1,
+              color: '#333333',
+              paddingVertical: 0,
+            }}
+          />
+        </View>
+      </View>
+
+      {/* ───── CORPO DA LISTA (Fundo Cinza Claro) ───── */}
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#E8E5ED',
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          paddingHorizontal: 24,
+          paddingTop: 32,
+        }}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+          {materiaisFiltrados.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              activeOpacity={0.85}
+              style={{
+                backgroundColor: '#D1A3D1', // Cor da barra inferior do card
+                borderRadius: 24,
+                marginBottom: 24,
+                overflow: 'hidden',
+                elevation: 4,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+              }}
+            >
+              {/* Parte Superior do Card (Imagem) */}
+              <View style={{ height: 140 }}>
+                <Image
+                  source={item.image}
+                  style={{ width: '100%', height: '100%', resizeMode: 'cover' }}
+                />
+              </View>
+
+              {/* Parte Inferior do Card (Barra Lilás) */}
+              <View style={{ height: 45, backgroundColor: '#C893C8' }} />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
