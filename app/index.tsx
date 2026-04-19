@@ -36,7 +36,7 @@ export default function LoginScreen() {
 
         {/*botao de entra*/}
         <View className="absolute bottom-[100px]">
-          <Link href="/(tabs)" asChild>
+          <Link href="/menu" asChild>
             <TouchableOpacity
               className="w-[291px] h-[80px] bg-[#E8E5ED] rounded-[16px] border-[5px] border-[#CF96D5] items-center justify-center"
               activeOpacity={0.8}
