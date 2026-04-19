@@ -7,7 +7,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth } from '../firebase.config';
 
-export default function MenuScreen() {
+export default function TelaMenu() {
   const router = useRouter();
 
   return (

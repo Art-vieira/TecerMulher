@@ -18,7 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { auth } from '../firebase.config';
 
-export default function LoginScreen() {
+export default function TelaLogin() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');

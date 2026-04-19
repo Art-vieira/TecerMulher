@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth } from '../firebase.config';
 
-export default function MaterialScreen() {
+export default function TelaMateriais() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
   const isAdmin = !!auth.currentUser;
