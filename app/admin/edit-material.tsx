@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import React, { useState } from 'react';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -26,40 +26,58 @@ type Bloco = BlocoTexto | BlocoImagem | BlocoSubtitulo | BlocoVideo | BlocoSepar
 // ─── Utilitário para gerar ID único ──────────────────
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-export default function AddMaterialScreen() {
+export default function EditMaterialScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const materialId = typeof params.id === 'string' ? params.id : '';
+
   const [titulo, setTitulo] = useState('');
   const [imagemCapa, setImagemCapa] = useState('');
   const [blocos, setBlocos] = useState<Bloco[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(true);
+
+  // ── Buscar Material ──
+  useEffect(() => {
+    if (!materialId) {
+      Alert.alert('Erro', 'ID do material inválido', [{ text: 'OK', onPress: () => router.back() }]);
+      return;
+    }
+
+    const fetchMaterial = async () => {
+      try {
+        const docRef = doc(db, 'materiais', materialId);
+        const snapshot = await getDoc(docRef);
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setTitulo(data.title || '');
+          setImagemCapa(data.imagemCapa || '');
+          setBlocos(data.blocos || []);
+        } else {
+          Alert.alert('Erro', 'Material não encontrado');
+          router.back();
+        }
+      } catch (error) {
+        console.error('Erro ao buscar material:', error);
+        Alert.alert('Erro', 'Não foi possível carregar o material.');
+      } finally {
+        setLoadingInitial(false);
+      }
+    };
+    fetchMaterial();
+  }, [materialId]);
 
   // ── Adicionar blocos ──
-  const addBlocoTexto = () =>
-    setBlocos((prev) => [...prev, { id: uid(), tipo: 'texto', conteudo: '' }]);
+  const addBlocoTexto = () => setBlocos((prev) => [...prev, { id: uid(), tipo: 'texto', conteudo: '' }]);
+  const addBlocoImagem = () => setBlocos((prev) => [...prev, { id: uid(), tipo: 'imagem', url: '', alt: '' }]);
+  const addBlocoSubtitulo = () => setBlocos((prev) => [...prev, { id: uid(), tipo: 'subtitulo', conteudo: '' }]);
+  const addBlocoVideo = () => setBlocos((prev) => [...prev, { id: uid(), tipo: 'video', url: '' }]);
+  const addBlocoSeparador = () => setBlocos((prev) => [...prev, { id: uid(), tipo: 'separador' }]);
 
-  const addBlocoImagem = () =>
-    setBlocos((prev) => [...prev, { id: uid(), tipo: 'imagem', url: '', alt: '' }]);
-
-  const addBlocoSubtitulo = () =>
-    setBlocos((prev) => [...prev, { id: uid(), tipo: 'subtitulo', conteudo: '' }]);
-
-  const addBlocoVideo = () =>
-    setBlocos((prev) => [...prev, { id: uid(), tipo: 'video', url: '' }]);
-
-  const addBlocoSeparador = () =>
-    setBlocos((prev) => [...prev, { id: uid(), tipo: 'separador' }]);
-
-  // ── Remover bloco ──
-  const removeBloco = (id: string) =>
-    setBlocos((prev) => prev.filter((b) => b.id !== id));
-
-  // ── Atualizar campo de bloco ──
+  const removeBloco = (id: string) => setBlocos((prev) => prev.filter((b) => b.id !== id));
   const updateBloco = (id: string, campo: string, valor: string) =>
-    setBlocos((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, [campo]: valor } : b))
-    );
-
-  // ── Mover bloco (cima/baixo) ──
+    setBlocos((prev) => prev.map((b) => (b.id === id ? { ...b, [campo]: valor } : b)));
+  
   const moverBloco = (id: string, direcao: 'up' | 'down') => {
     setBlocos((prev) => {
       const idx = prev.findIndex((b) => b.id === id);
@@ -72,8 +90,7 @@ export default function AddMaterialScreen() {
     });
   };
 
-  // ── Salvar no Firebase ──
-  const handleSave = async () => {
+  const handleUpdate = async () => {
     if (!titulo.trim()) {
       Alert.alert('Atenção', 'Por favor, preencha o título da aula.');
       return;
@@ -85,38 +102,46 @@ export default function AddMaterialScreen() {
 
     setLoading(true);
     try {
-      await addDoc(collection(db, 'materiais'), {
+      const docRef = doc(db, 'materiais', materialId);
+      await updateDoc(docRef, {
         title: titulo.trim(),
         imagemCapa: imagemCapa.trim(),
-        blocos,
-        createdAt: serverTimestamp(),
+        blocos: blocos,
+        // Não atualiza createdAt
       });
 
-      Alert.alert('Sucesso! 🎉', 'Material salvo com sucesso!', [
+      Alert.alert('Sucesso! 🎉', 'Material atualizado com sucesso!', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (err: any) {
-      console.error('Erro ao salvar:', err);
-      Alert.alert('Erro', 'Não foi possível salvar. Verifique sua conexão.');
+      console.error('Erro ao atualizar:', err);
+      Alert.alert('Erro', 'Não foi possível atualizar. Verifique sua conexão.');
     } finally {
       setLoading(false);
     }
   };
 
+  if (loadingInitial) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator color="#FFFFFF" size="large" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* ── Cabeçalho ── */}
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
           <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600', marginLeft: 8 }}>Cancelar</Text>
         </TouchableOpacity>
         <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold', flex: 1, textAlign: 'center' }}>
-          Novo Material
+          Editar Material
         </Text>
-        <TouchableOpacity onPress={handleSave} disabled={loading}>
+        <TouchableOpacity onPress={handleUpdate} disabled={loading}>
           {loading
             ? <ActivityIndicator color="#CF96D5" size="small" />
             : <Text style={{ color: '#CF96D5', fontSize: 16, fontWeight: 'bold' }}>Salvar</Text>
@@ -124,14 +149,12 @@ export default function AddMaterialScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* ── Corpo ── */}
       <View style={{ flex: 1, backgroundColor: '#E8E5ED', borderTopLeftRadius: 30, borderTopRightRadius: 30 }}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 160 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Campo Título */}
           <Text style={{ color: '#2D1B50', fontSize: 16, fontWeight: 'bold', marginBottom: 8 }}>Título da Aula</Text>
           <TextInput
             value={titulo}
@@ -148,7 +171,6 @@ export default function AddMaterialScreen() {
             }}
           />
 
-          {/* ─ Campo Fixo: Imagem de Capa ─ */}
           <Text style={{ color: '#2D1B50', fontSize: 16, fontWeight: 'bold', marginBottom: 8 }}>Imagem de Capa</Text>
           <TextInput
             value={imagemCapa}
@@ -173,7 +195,7 @@ export default function AddMaterialScreen() {
               style={{ width: '100%', height: 180, borderRadius: 14, marginBottom: 28, resizeMode: 'cover' }}
             />
           ) : (
-            <View style={{
+             <View style={{
               width: '100%', height: 100, borderRadius: 14, marginBottom: 28,
               backgroundColor: '#EDE9F5', justifyContent: 'center', alignItems: 'center',
               borderWidth: 1, borderStyle: 'dashed', borderColor: '#CF96D5',
@@ -183,7 +205,6 @@ export default function AddMaterialScreen() {
             </View>
           )}
 
-          {/* Blocos de Conteúdo */}
           {blocos.length > 0 && (
             <Text style={{ color: '#2D1B50', fontSize: 16, fontWeight: 'bold', marginBottom: 12 }}>
               Conteúdo da Aula
@@ -202,7 +223,6 @@ export default function AddMaterialScreen() {
                 borderColor: bloco.tipo === 'imagem' ? '#CF96D5' : '#C5BFD0',
               }}
             >
-              {/* Cabeçalho do Bloco */}
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Ionicons
@@ -225,7 +245,6 @@ export default function AddMaterialScreen() {
                   </Text>
                 </View>
 
-                {/* Controles */}
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <TouchableOpacity onPress={() => moverBloco(bloco.id, 'up')} disabled={idx === 0}>
                     <Ionicons name="chevron-up-outline" size={22} color={idx === 0 ? '#CCCCCC' : '#391A65'} />
@@ -239,7 +258,6 @@ export default function AddMaterialScreen() {
                 </View>
               </View>
 
-              {/* Conteúdo do Bloco: Texto */}
               {bloco.tipo === 'texto' && (
                 <TextInput
                   value={bloco.conteudo}
@@ -261,7 +279,6 @@ export default function AddMaterialScreen() {
                 />
               )}
 
-              {/* Conteúdo do Bloco: Subtítulo */}
               {bloco.tipo === 'subtitulo' && (
                 <TextInput
                   value={bloco.conteudo}
@@ -280,7 +297,6 @@ export default function AddMaterialScreen() {
                 />
               )}
 
-              {/* Conteúdo do Bloco: Vídeo */}
               {bloco.tipo === 'video' && (
                 <>
                   <TextInput
@@ -305,20 +321,18 @@ export default function AddMaterialScreen() {
                 </>
               )}
 
-              {/* Conteúdo do Bloco: Separador */}
               {bloco.tipo === 'separador' && (
                 <View style={{ height: 20, justifyContent: 'center', alignItems: 'center' }}>
                   <View style={{ width: '80%', height: 2, backgroundColor: '#E0DCE8', borderRadius: 2 }} />
                 </View>
               )}
 
-              {/* Conteúdo do Bloco: Imagem */}
               {bloco.tipo === 'imagem' && (
                 <>
                   <TextInput
                     value={bloco.url}
                     onChangeText={(v) => updateBloco(bloco.id, 'url', v)}
-                    placeholder="Link da Imagem (Ex: https://...)"
+                    placeholder="Cole o link da imagem aqui (https://...)"
                     autoCapitalize="none"
                     keyboardType="url"
                     style={{
@@ -361,7 +375,6 @@ export default function AddMaterialScreen() {
         </ScrollView>
       </View>
 
-      {/* ── Botões Flutuantes: Adicionar Bloco em Horizontal ── */}
       <View
         style={{
           position: 'absolute',
@@ -467,4 +480,3 @@ export default function AddMaterialScreen() {
     </SafeAreaView>
   );
 }
-

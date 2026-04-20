@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Modal,
   ScrollView,
   Text,
@@ -14,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth, db } from '../firebase.config';
 
@@ -95,13 +95,6 @@ export default function TelaMateriais() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Fechar menu ao tocar fora */}
-      {menuAberto && (
-        <TouchableWithoutFeedback onPress={() => setMenuAberto(null)}>
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }} />
-        </TouchableWithoutFeedback>
-      )}
-
       {/* ── Cabeçalho ── */}
       <View
         style={{
@@ -165,7 +158,15 @@ export default function TelaMateriais() {
         ) : (
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
             {materiaisFiltrados.map((item) => (
-              <View key={item.id} style={{ marginBottom: 24 }}>
+              <View 
+                key={item.id} 
+                style={{ 
+                  marginBottom: 24, 
+                  position: 'relative',
+                  zIndex: menuAberto === item.id ? 100 : 1,
+                  elevation: menuAberto === item.id ? 100 : 1
+                }}
+              >
                 {/* Card */}
                 <TouchableOpacity
                   activeOpacity={0.85}
@@ -229,31 +230,30 @@ export default function TelaMateriais() {
                       {item.title}
                     </Text>
                   </View>
-
-                  {/* Três pontinhos (só para admin) */}
-                  {isAdmin && (
-                    <TouchableOpacity
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        setMenuAberto(menuAberto === item.id ? null : item.id);
-                      }}
-                      style={{
-                        position: 'absolute',
-                        bottom: 10,
-                        right: 16,
-                        backgroundColor: 'transparent',
-                        borderRadius: 20,
-                        width: 36,
-                        height: 36,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 20,
-                      }}
-                    >
-                      <Ionicons name="ellipsis-horizontal" size={22} color="#391A65" />
-                    </TouchableOpacity>
-                  )}
                 </TouchableOpacity>
+
+                {/* Três pontinhos (só para admin) - Movido para fora para não conflitar toques */}
+                {isAdmin && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setMenuAberto(menuAberto === item.id ? null : item.id);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      bottom: 10,
+                      right: 16,
+                      backgroundColor: 'transparent',
+                      borderRadius: 20,
+                      width: 36,
+                      height: 36,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      zIndex: 20,
+                    }}
+                  >
+                    <Ionicons name="ellipsis-horizontal" size={22} color="#391A65" />
+                  </TouchableOpacity>
+                )}
 
                 {/* Dropdown do menu (aparece abaixo do card) */}
                 {menuAberto === item.id && (
