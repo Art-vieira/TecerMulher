@@ -5,13 +5,13 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db } from '../../firebase.config';
 
@@ -40,7 +40,7 @@ export default function AddMaterialScreen() {
     }
   };
 
-  const { addBlocoTexto, addBlocoImagem, removeBloco, updateBloco, moverBloco } = acoesBloco;
+  const { addBlocoTexto, addBlocoImagem, addBlocoSubtitulo, addBlocoVideo, addBlocoSeparador, removeBloco, updateBloco, moverBloco } = acoesBloco;
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -62,6 +62,7 @@ export default function AddMaterialScreen() {
         <Text className="text-white text-lg font-bold flex-1 text-center">
           Novo Material
         </Text>
+<<<<<<< HEAD
         
         {/* Botão Salvar no cabeçalho */}
         <TouchableOpacity
@@ -73,6 +74,10 @@ export default function AddMaterialScreen() {
           accessibilityRole="button"
         >
           {salvando
+=======
+        <TouchableOpacity onPress={handleSave} disabled={loading}>
+          {loading
+>>>>>>> 6f6d2b6b5fb0b77c3709a91d51a3e687edd9f389
             ? <ActivityIndicator color="#CF96D5" size="small" />
             : <Text className="text-accent text-lg font-bold">Salvar</Text>
           }
@@ -142,15 +147,24 @@ export default function AddMaterialScreen() {
               <View className="flex-row justify-between items-center mb-3">
                 <View className="flex-row items-center gap-2">
                   <Ionicons
-                    name={bloco.tipo === 'imagem' ? 'image-outline' : 'text-outline'}
+                    name={
+                      bloco.tipo === 'imagem' ? 'image-outline' :
+                      bloco.tipo === 'subtitulo' ? 'text' :
+                      bloco.tipo === 'video' ? 'videocam-outline' :
+                      bloco.tipo === 'separador' ? 'remove-outline' :
+                      'text-outline'
+                    }
                     size={20}
-                    color={bloco.tipo === 'imagem' ? '#CF96D5' : '#391A65'}
+                    color={bloco.tipo === 'imagem' || bloco.tipo === 'video' ? '#CF96D5' : '#391A65'}
                   />
                   <Text className={`font-bold text-base ${
-                    bloco.tipo === 'imagem' ? 'text-accent' : 'text-primary'
+                    bloco.tipo === 'imagem' || bloco.tipo === 'video' ? 'text-accent' : 'text-primary'
                   }`}>
-                    {bloco.tipo === 'imagem' ? 'Bloco de Imagem' : 'Bloco de Texto'}
-                  </Text>
+                    {bloco.tipo === 'imagem' ? 'Bloco de Imagem' :
+                     bloco.tipo === 'subtitulo' ? 'Bloco de Subtítulo' :
+                     bloco.tipo === 'video' ? 'Bloco de Vídeo' :
+                     bloco.tipo === 'separador' ? 'Separador Visual' :
+                     'Bloco de Texto'}                  </Text>
                 </View>
 
                 {/* Controles */}
@@ -200,6 +214,57 @@ export default function AddMaterialScreen() {
                 />
               )}
 
+              {/* Conteúdo do Bloco: Subtítulo */}
+              {bloco.tipo === 'subtitulo' && (
+                <TextInput
+                  value={bloco.conteudo}
+                  onChangeText={(v) => updateBloco(bloco.id, 'conteudo', v)}
+                  placeholder="Digite o subtítulo aqui..."
+                  style={{
+                    backgroundColor: '#F8F8F8',
+                    borderRadius: 10,
+                    padding: 12,
+                    fontSize: 16,
+                    fontWeight: '600',
+                    color: '#2D1B50',
+                    borderWidth: 1,
+                    borderColor: '#E0DCE8',
+                  }}
+                />
+              )}
+
+              {/* Conteúdo do Bloco: Vídeo */}
+              {bloco.tipo === 'video' && (
+                <>
+                  <TextInput
+                    value={bloco.url}
+                    onChangeText={(v) => updateBloco(bloco.id, 'url', v)}
+                    placeholder="Cole o link do YouTube aqui..."
+                    autoCapitalize="none"
+                    keyboardType="url"
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: 10,
+                      padding: 12,
+                      fontSize: 14,
+                      color: '#2D1B50',
+                      borderWidth: 1,
+                      borderColor: '#CF96D5',
+                    }}
+                  />
+                  {bloco.url ? (
+                     <Text style={{ fontSize: 12, color: '#7A6E8A', marginTop: 8 }}>O vídeo será carregado no aplicativo pelo YouTube.</Text>
+                  ) : null}
+                </>
+              )}
+
+              {/* Conteúdo do Bloco: Separador */}
+              {bloco.tipo === 'separador' && (
+                <View style={{ height: 20, justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={{ width: '80%', height: 2, backgroundColor: '#E0DCE8', borderRadius: 2 }} />
+                </View>
+              )}
+
               {/* Conteúdo do Bloco: Imagem */}
               {bloco.tipo === 'imagem' && (
                 <>
@@ -213,7 +278,6 @@ export default function AddMaterialScreen() {
                     className="bg-white rounded-xl p-4 text-base text-text-dark mb-3 border border-border-light"
                   />
 
-                  {/* Preview da imagem se o link estiver preenchido */}
                   {bloco.url.startsWith('http') && (
                      <Image
                      source={{ uri: bloco.url }}
@@ -236,30 +300,56 @@ export default function AddMaterialScreen() {
         </ScrollView>
       </View>
 
-      {/* ── Botões Flutuantes: Adicionar Bloco ── */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white px-6 py-4 pb-8 flex-row gap-3 border-t border-[#E0DCE8]">
-        <TouchableOpacity
-          onPress={addBlocoTexto}
-          className="flex-1 bg-primary rounded-[14px] py-4 flex-row justify-center items-center gap-2 min-h-[58px]"
-          accessible={true}
-          accessibilityLabel="Adicionar bloco de texto"
-          accessibilityRole="button"
+      {/* ── Botões Flutuantes: Adicionar Bloco em Horizontal ── */}
+      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-[#E0DCE8]">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="px-4 py-3 pb-8 gap-3"
         >
-          <Ionicons name="text-outline" size={22} color="#FFFFFF" />
-          <Text className="text-white font-bold text-[17px]">+ Texto</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={addBlocoSubtitulo}
+            className="bg-[#ECE7F2] rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="text" size={18} color="#391A65" />
+            <Text className="text-primary font-bold text-[13px]">+ Subtítulo</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={addBlocoImagem}
-          className="flex-1 bg-accent rounded-[14px] py-4 flex-row justify-center items-center gap-2 min-h-[58px]"
-          accessible={true}
-          accessibilityLabel="Adicionar bloco de imagem"
-          accessibilityRole="button"
-        >
-          <Ionicons name="image-outline" size={22} color="#FFFFFF" />
-          <Text className="text-white font-bold text-[17px]">+ Imagem</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={addBlocoTexto}
+            className="bg-primary rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="document-text-outline" size={18} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[13px]">+ Texto</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={addBlocoImagem}
+            className="bg-accent rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="image-outline" size={18} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[13px]">+ Imagem</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={addBlocoVideo}
+            className="bg-[#FF0000] rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="logo-youtube" size={18} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[13px]">+ Vídeo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={addBlocoSeparador}
+            className="bg-[#D1CDDA] rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="remove-outline" size={18} color="#391A65" />
+            <Text className="text-primary font-bold text-[13px]">+ Separador</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
       </View>
     </SafeAreaView>
   );
 }
+
