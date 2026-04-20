@@ -5,17 +5,16 @@ import {
   Image,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../firebase.config';
+import { useAuth } from '../hooks/useAuth';
 
 export default function DuvidasScreen() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
-  const isAdmin = !!auth.currentUser;
+  const { isAdmin } = useAuth();
 
   // Mock
   const duvidas = [
@@ -30,65 +29,46 @@ export default function DuvidasScreen() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ───── CABEÇALHO ROXO ───── */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          backgroundColor: '#391A65',
-        }}
-      >
+      <View className="flex-row items-center justify-between px-5 py-4 bg-primary">
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.8}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
+          className="flex-row items-center min-h-[44px]"
+          accessible={true}
+          accessibilityLabel="Voltar"
+          accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text
-            style={{
-              color: '#FFFFFF',
-              fontSize: 18,
-              fontWeight: '600',
-              marginLeft: 8,
-            }}
-          >
+          <Text className="text-white text-lg font-semibold ml-2">
             Voltar
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* ───── CORPO ───── */}
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: '#E8E5ED',
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          paddingHorizontal: 24,
-          paddingTop: 32,
-        }}
-      >
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
-          <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#391A65', marginBottom: 20 }}>Dúvidas Frequentes</Text>
+      <View className="flex-1 bg-background rounded-t-[24px] px-6 pt-8">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+          <Text className="text-2xl font-bold text-primary mb-5">
+            Dúvidas Frequentes
+          </Text>
+          
           {duvidas.map((item) => (
-            <View
+            <TouchableOpacity
               key={item.id}
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: 16,
-                padding: 20,
-                marginBottom: 16,
-                elevation: 2,
-              }}
+              className="bg-white rounded-[16px] p-5 mb-4 shadow-sm shadow-black/10 elevation-2"
+              activeOpacity={0.8}
+              accessible={true}
+              accessibilityLabel={`Dúvida: ${item.title}`}
+              accessibilityRole="button"
             >
-              <Text style={{ fontSize: 18, fontWeight: '600', color: '#2D1B50' }}>{item.title}</Text>
-            </View>
+              <Text className="text-lg font-semibold text-text-dark">
+                {item.title}
+              </Text>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
@@ -98,22 +78,10 @@ export default function DuvidasScreen() {
         <TouchableOpacity
           onPress={() => alert('Em breve: Adicionar dúvida!')}
           activeOpacity={0.8}
-          style={{
-            position: 'absolute',
-            bottom: 30,
-            right: 30,
-            backgroundColor: '#CF96D5',
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            justifyContent: 'center',
-            alignItems: 'center',
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.3,
-            shadowRadius: 3,
-          }}
+          className="absolute bottom-8 right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
+          accessible={true}
+          accessibilityLabel="Adicionar nova dúvida"
+          accessibilityRole="button"
         >
           <Ionicons name="add" size={36} color="#FFFFFF" />
         </TouchableOpacity>

@@ -11,7 +11,7 @@ export default function TelaMenu() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-[#391A65]">
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
       {/* Cabeçalho Voltar */}
       <View className="flex-row items-center px-6 py-4 mt-2">
@@ -23,24 +23,30 @@ export default function TelaMenu() {
             router.back();
           }}
           activeOpacity={0.8}
-          className="flex-row items-center"
+          className="flex-row items-center min-h-[50px] pr-4"
+          accessible={true}
+          accessibilityLabel="Deslogar e voltar"
+          accessibilityRole="button"
         >
-          <Ionicons name="arrow-back" size={28} color="#F8F8F8" />
-          <Text className="text-white text-[18px] font-semibold ml-3" style={{ fontFamily: 'Poppins' }}>
+          <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
+          <Text className="text-white text-lg font-semibold ml-3" style={{ fontFamily: 'Poppins' }}>
             Voltar
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Container Principal */}
-      <View className="flex-1 bg-[#E8E5ED] rounded-t-[30px] mt-2 px-8 pt-10 pb-8 items-center justify-between">
+      <View className="flex-1 bg-background rounded-t-[30px] mt-2 px-8 pt-10 pb-8 items-center justify-between">
         
         <View className="w-full items-center">
           {/* Botão Materiais */}
           <Link href="/material" asChild>
             <TouchableOpacity 
-              className="w-full max-w-[300px] h-[190px] bg-[#391A65] rounded-[30px] items-center justify-center mb-8"
+              className="w-full max-w-[300px] h-[190px] bg-primary rounded-[30px] items-center justify-center mb-8 shadow-md shadow-primary/30"
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityLabel="Acessar sessão de Materiais"
+              accessibilityRole="button"
             >
               <Image
                 source={require("../assets/images/aula.svg")}
@@ -56,8 +62,11 @@ export default function TelaMenu() {
           {/* Botão Dúvidas */}
           <Link href="/duvidas" asChild>
             <TouchableOpacity 
-              className="w-full max-w-[300px] h-[190px] bg-[#391A65] rounded-[30px] items-center justify-center"
+              className="w-full max-w-[300px] h-[190px] bg-primary rounded-[30px] items-center justify-center shadow-md shadow-primary/30"
               activeOpacity={0.8}
+              accessible={true}
+              accessibilityLabel="Acessar sessão de Dúvidas"
+              accessibilityRole="button"
             >
               <Image
                 source={require("../assets/images/duvidas.svg")}
@@ -76,6 +85,8 @@ export default function TelaMenu() {
           source={require("../assets/images/Tecer-C.png")}
           style={{ width: 250, height: 180, marginBottom: 10 }}
           contentFit="contain"
+          accessible={true}
+          accessibilityLabel="Logo Unifesspa Tecer"
         />
 
       </View>

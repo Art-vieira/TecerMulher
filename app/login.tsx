@@ -5,7 +5,6 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -62,175 +61,103 @@ export default function TelaLogin() {
     }
   };
 
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerClassName="flex-grow"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* ───── CABEÇALHO ROXO ───── */}
-          <View style={{ backgroundColor: '#391A65' }}>
+          <View className="bg-primary">
             {/* Botão Voltar */}
             <TouchableOpacity
               onPress={() => router.back()}
               activeOpacity={0.8}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 24,
-                paddingTop: 16,
-                paddingBottom: 8,
-              }}
+              className="flex-row items-center px-6 pt-4 pb-2"
+              accessible={true}
+              accessibilityLabel="Voltar para a tela anterior"
+              accessibilityRole="button"
             >
               <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-              <Text
-                style={{
-                  color: '#FFFFFF',
-                  fontSize: 18,
-                  fontWeight: '600',
-                  marginLeft: 10,
-                }}
-              >
+              <Text className="text-white text-lg font-semibold ml-2">
                 Voltar
               </Text>
             </TouchableOpacity>
 
             {/* Logo e Título */}
-            <View style={{ alignItems: 'center', paddingVertical: 28 }}>
+            <View className="items-center py-7">
               <Image
                 source={require('../assets/images/Logo.png')}
                 style={{ width: 130, height: 130 }}
                 contentFit="contain"
+                accessible={true}
+                accessibilityLabel="Logo Tecer Mulher"
               />
-              <Text
-                style={{
-                  color: '#FFFFFF',
-                  fontSize: 42,
-                  fontWeight: '800',
-                  letterSpacing: 2,
-                  marginTop: 8,
-                  lineHeight: 44,
-                }}
-              >
+              <Text className="text-white text-[42px] font-extrabold tracking-widest mt-2 leading-[44px]">
                 TECER
               </Text>
-              <Text
-                style={{
-                  color: '#FFFFFF',
-                  fontSize: 30,
-                  fontWeight: '400',
-                  letterSpacing: 6,
-                  lineHeight: 34,
-                }}
-              >
+              <Text className="text-white text-[30px] font-normal tracking-[6px] leading-[34px]">
                 MULHER
               </Text>
             </View>
           </View>
 
           {/* ───── PAINEL BRANCO ───── */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: '#E8E5ED',
-              borderTopLeftRadius: 30,
-              borderTopRightRadius: 30,
-              paddingHorizontal: 28,
-              paddingTop: 36,
-              paddingBottom: 40,
-            }}
-          >
+          <View className="flex-1 bg-background rounded-t-[30px] px-7 pt-9 pb-10">
             {/* Campo Email */}
-            <Text
-              style={{
-                color: '#2D1B50',
-                fontSize: 16,
-                fontWeight: '600',
-                marginBottom: 8,
-              }}
-            >
+            <Text className="text-text-dark text-lg font-semibold mb-2">
               Email :
             </Text>
-            <View
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: '#C5BFD0',
-                marginBottom: 22,
-              }}
-            >
+            <View className="bg-white rounded-xl border border-border-light mb-6">
               <TextInput
                 value={email}
                 onChangeText={setEmail}
                 placeholder="facilitador@gmail.com"
-                placeholderTextColor="#AAAAAA"
+                placeholderTextColor="#6B5E80"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                style={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 14,
-                  fontSize: 16,
-                  color: '#2D1B50',
-                }}
+                className="px-4 py-4 text-lg text-text-dark"
+                accessible={true}
+                accessibilityLabel="Campo de entrada de email"
               />
             </View>
 
             {/* Campo Senha */}
-            <Text
-              style={{
-                color: '#2D1B50',
-                fontSize: 16,
-                fontWeight: '600',
-                marginBottom: 8,
-              }}
-            >
+            <Text className="text-text-dark text-lg font-semibold mb-2">
               Senha :
             </Text>
-            <View
-              style={{
-                backgroundColor: '#FFFFFF',
-                borderRadius: 10,
-                borderWidth: 1,
-                borderColor: '#C5BFD0',
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 12,
-              }}
-            >
+            <View className="bg-white rounded-xl border border-border-light flex-row items-center mb-3">
               <TextInput
                 value={senha}
                 onChangeText={setSenha}
                 placeholder="••••••••••••"
-                placeholderTextColor="#AAAAAA"
+                placeholderTextColor="#6B5E80"
                 secureTextEntry={!mostrarSenha}
                 autoCapitalize="none"
                 autoCorrect={false}
-                style={{
-                  flex: 1,
-                  paddingHorizontal: 16,
-                  paddingVertical: 14,
-                  fontSize: 16,
-                  color: '#2D1B50',
-                }}
+                className="flex-1 px-4 py-4 text-lg text-text-dark"
+                accessible={true}
+                accessibilityLabel="Campo de entrada de senha"
               />
               <TouchableOpacity
                 onPress={() => setMostrarSenha(!mostrarSenha)}
                 activeOpacity={0.7}
-                style={{ paddingHorizontal: 14 }}
+                className="px-4 py-4"
+                accessible={true}
+                accessibilityLabel={mostrarSenha ? "Esconder senha" : "Mostrar senha"}
+                accessibilityRole="button"
               >
                 <Ionicons
                   name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
-                  size={22}
+                  size={24}
                   color="#7A6E8A"
                 />
               </TouchableOpacity>
@@ -238,49 +165,27 @@ export default function TelaLogin() {
 
             {/* Mensagem de erro */}
             {erro !== '' && (
-              <Text
-                style={{
-                  color: '#C0392B',
-                  fontSize: 13,
-                  marginBottom: 8,
-                  textAlign: 'center',
-                }}
-              >
+              <Text className="text-error text-sm mb-2 text-center font-medium">
                 {erro}
               </Text>
             )}
 
-            <View style={{ marginBottom: 20 }} />
+            <View className="mb-5" />
 
             {/* Botão ENTRAR */}
             <TouchableOpacity
               onPress={handleEntrar}
               activeOpacity={0.85}
               disabled={carregando}
-              style={{
-                backgroundColor: '#391A65',
-                borderRadius: 12,
-                paddingVertical: 18,
-                alignItems: 'center',
-                justifyContent: 'center',
-                shadowColor: '#391A65',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.4,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
+              className="bg-primary rounded-xl py-4 items-center justify-center shadow-md shadow-primary/40 min-h-[58px]"
+              accessible={true}
+              accessibilityLabel="Botão de Entrar"
+              accessibilityRole="button"
             >
               {carregando ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
-                <Text
-                  style={{
-                    color: '#FFFFFF',
-                    fontSize: 18,
-                    fontWeight: '800',
-                    letterSpacing: 3,
-                  }}
-                >
+                <Text className="text-white text-[18px] font-extrabold tracking-widest">
                   ENTRAR
                 </Text>
               )}

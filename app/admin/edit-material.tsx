@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import React, { useState } from 'react';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -17,30 +17,42 @@ import { db } from '../../firebase.config';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
 
-export default function AddMaterialScreen() {
+export default function EditMaterialScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams();
   
   const {
     titulo, setTitulo,
     imagemCapa, setImagemCapa,
     blocos,
     salvando,
+    carregandoDados,
     acoesBloco,
     salvarMaterial
-  } = useMaterialForm();
+  } = useMaterialForm(id);
 
+  // ── Salvar Edições no Firebase ──
   const handleSave = async () => {
     const res = await salvarMaterial();
     if (res.success) {
-      Alert.alert('Sucesso! 🎉', 'Material salvo com sucesso!', [
+      Alert.alert('Sucesso! 🎉', 'Edições salvas com sucesso!', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } else {
-      Alert.alert('Atenção', res.error || 'Erro desconhecido.');
+      Alert.alert('Erro', res.error || 'Ocorreu um erro.');
     }
   };
 
   const { addBlocoTexto, addBlocoImagem, removeBloco, updateBloco, moverBloco } = acoesBloco;
+
+  if (carregandoDados) {
+    return (
+      <SafeAreaView className="flex-1 bg-primary justify-center items-center">
+        <ActivityIndicator size="large" color="#FFFFFF" />
+        <Text className="text-white mt-4 text-base font-semibold">Carregando dados...</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -52,7 +64,7 @@ export default function AddMaterialScreen() {
           onPress={() => router.back()}
           className="flex-row items-center min-h-[44px]"
           accessible={true}
-          accessibilityLabel="Cancelar criação"
+          accessibilityLabel="Cancelar edições"
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
@@ -60,16 +72,16 @@ export default function AddMaterialScreen() {
         </TouchableOpacity>
         
         <Text className="text-white text-lg font-bold flex-1 text-center">
-          Novo Material
+          Editando Material
         </Text>
         
-        {/* Botão Salvar no cabeçalho */}
+        {/* Botão Atualizar no cabeçalho */}
         <TouchableOpacity
           onPress={handleSave}
           disabled={salvando}
           className="min-h-[44px] justify-center ml-2"
           accessible={true}
-          accessibilityLabel="Salvar material"
+          accessibilityLabel="Salvar edições"
           accessibilityRole="button"
         >
           {salvando
@@ -95,7 +107,7 @@ export default function AddMaterialScreen() {
             placeholderTextColor="#6B5E80"
             className="bg-white rounded-xl p-4 text-lg mb-5 border border-border-light text-text-dark"
             accessible={true}
-            accessibilityLabel="Digite o título da aula"
+            accessibilityLabel="Edite o título da aula"
           />
 
           {/* ─ Campo Fixo: Imagem de Capa ─ */}
@@ -109,9 +121,9 @@ export default function AddMaterialScreen() {
             keyboardType="url"
             className="bg-white rounded-xl p-4 text-base text-text-dark mb-3 border border-border-light"
             accessible={true}
-            accessibilityLabel="Link da imagem de capa"
+            accessibilityLabel="Edite o link da imagem de capa"
           />
-          {imagemCapa.startsWith('http') ? (
+          {imagemCapa && imagemCapa.startsWith('http') ? (
              <Image
              source={{ uri: imagemCapa }}
              style={{ height: 180, resizeMode: 'cover' }}
@@ -196,7 +208,7 @@ export default function AddMaterialScreen() {
                   textAlignVertical="top"
                   className="bg-[#F8F8F8] rounded-xl p-4 text-[17px] text-text-dark min-h-[120px] border border-[#E0DCE8]"
                   accessible={true}
-                  accessibilityLabel="Campo de entrada de texto longo para a aula"
+                  accessibilityLabel="Editar texto"
                 />
               )}
 
@@ -214,7 +226,7 @@ export default function AddMaterialScreen() {
                   />
 
                   {/* Preview da imagem se o link estiver preenchido */}
-                  {bloco.url.startsWith('http') && (
+                  {bloco.url && bloco.url.startsWith('http') && (
                      <Image
                      source={{ uri: bloco.url }}
                      style={{ height: 160, resizeMode: 'contain' }}
@@ -242,7 +254,7 @@ export default function AddMaterialScreen() {
           onPress={addBlocoTexto}
           className="flex-1 bg-primary rounded-[14px] py-4 flex-row justify-center items-center gap-2 min-h-[58px]"
           accessible={true}
-          accessibilityLabel="Adicionar bloco de texto"
+          accessibilityLabel="Adicionar novo bloco de texto"
           accessibilityRole="button"
         >
           <Ionicons name="text-outline" size={22} color="#FFFFFF" />
@@ -253,7 +265,7 @@ export default function AddMaterialScreen() {
           onPress={addBlocoImagem}
           className="flex-1 bg-accent rounded-[14px] py-4 flex-row justify-center items-center gap-2 min-h-[58px]"
           accessible={true}
-          accessibilityLabel="Adicionar bloco de imagem"
+          accessibilityLabel="Adicionar novo bloco de imagem"
           accessibilityRole="button"
         >
           <Ionicons name="image-outline" size={22} color="#FFFFFF" />

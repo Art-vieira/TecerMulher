@@ -1,12 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { collection, deleteDoc, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Image,
-  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -15,44 +14,18 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth, db } from '../firebase.config';
+import { db } from '../firebase.config';
 
-// ─── Tipo do Material ───
-type Material = {
-  id: string;
-  title: string;
-  imagemCapa?: string;
-};
+import { useMateriaisList } from '../hooks/useMateriais';
+import { useAuth } from '../hooks/useAuth';
 
 export default function TelaMateriais() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
-  const [materiais, setMateriais] = useState<Material[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [menuAberto, setMenuAberto] = useState<string | null>(null); // ID do card com menu aberto
-  const isAdmin = !!auth.currentUser;
+  const [menuAberto, setMenuAberto] = useState<string | null>(null);
+  const { isAdmin } = useAuth();
 
-  // ── Listener em tempo real ──
-  useEffect(() => {
-    const q = query(collection(db, 'materiais'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const dados: Material[] = snapshot.docs.map((d) => ({
-          id: d.id,
-          title: d.data().title ?? 'Sem título',
-          imagemCapa: d.data().imagemCapa ?? '',
-        }));
-        setMateriais(dados);
-        setCarregando(false);
-      },
-      (err) => {
-        console.error('Erro ao buscar materiais:', err);
-        setCarregando(false);
-      }
-    );
-    return () => unsubscribe();
-  }, []);
+  const { materiais, carregando, apagarMaterial } = useMateriaisList();
 
   // ── Apagar material ──
   const handleApagar = (id: string, titulo: string) => {
@@ -66,14 +39,11 @@ export default function TelaMateriais() {
           text: 'Apagar',
           style: 'destructive',
           onPress: async () => {
-            try {
-              console.log('Apagando material com ID:', id);
-              await deleteDoc(doc(db, 'materiais', id));
-              console.log('Material apagado com sucesso!');
+            const { success, error } = await apagarMaterial(id);
+            if (success) {
               Alert.alert('✅ Apagado', `"${titulo}" foi removido com sucesso.`);
-            } catch (e: any) {
-              console.error('Erro ao apagar:', e.code, e.message);
-              Alert.alert('Erro', `Não foi possível apagar.\n\nDetalhe: ${e.message}`);
+            } else {
+              Alert.alert('Erro', `Não foi possível apagar.\n\nDetalhe: ${error.message}`);
             }
           },
         },
@@ -84,7 +54,7 @@ export default function TelaMateriais() {
   // ── Editar material ──
   const handleEditar = (id: string) => {
     setMenuAberto(null);
-    router.push({ pathname: '/admin/edit-material', params: { id } });
+    router.push({ pathname: '/admin/edit-material', params: { id } } as any);
   };
 
   const materiaisFiltrados = materiais.filter((item) =>
@@ -92,138 +62,89 @@ export default function TelaMateriais() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Fechar menu ao tocar fora */}
-      {menuAberto && (
-        <TouchableWithoutFeedback onPress={() => setMenuAberto(null)}>
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 }} />
-        </TouchableWithoutFeedback>
-      )}
 
       {/* ── Cabeçalho ── */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-        }}
-      >
-        <TouchableOpacity onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <View className="flex-row items-center justify-between px-5 py-4">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="flex-row items-center min-h-[44px]"
+          accessible={true}
+          accessibilityLabel="Voltar"
+          accessibilityRole="button"
+        >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600', marginLeft: 8 }}>Voltar</Text>
+          <Text className="text-white text-lg font-semibold ml-2">Voltar</Text>
         </TouchableOpacity>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#FFFFFF',
-            borderRadius: 20,
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            width: '65%',
-          }}
-        >
+        <View className="flex-row items-center bg-white rounded-full px-4 py-2 w-[65%] shadow-sm">
           <Ionicons name="search" size={20} color="#000000" style={{ opacity: 0.3 }} />
           <TextInput
             value={pesquisa}
             onChangeText={setPesquisa}
             placeholder="Procurar..."
-            placeholderTextColor="rgba(0,0,0,0.3)"
-            style={{ marginLeft: 8, fontSize: 15, flex: 1, color: '#000000', paddingVertical: 0 }}
+            placeholderTextColor="#6B5E80"
+            className="ml-2 text-base flex-1 text-black py-1"
+            accessible={true}
+            accessibilityLabel="Campo de pesquisa"
           />
         </View>
       </View>
 
       {/* ── Corpo ── */}
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: '#E8E5ED',
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          paddingHorizontal: 24,
-          paddingTop: 32,
-        }}
-      >
+      <View className="flex-1 bg-background rounded-t-[24px] px-6 pt-8">
         {carregando ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="#391A65" />
-            <Text style={{ color: '#391A65', marginTop: 12 }}>Carregando materiais...</Text>
+            <Text className="text-primary mt-3 text-base font-semibold">Carregando materiais...</Text>
           </View>
         ) : materiaisFiltrados.length === 0 ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View className="flex-1 justify-center items-center">
             <Ionicons name="book-outline" size={60} color="#C5BFD0" />
-            <Text style={{ color: '#7A6E8A', marginTop: 16, fontSize: 16, textAlign: 'center' }}>
+            <Text className="text-text-muted mt-4 text-base text-center font-medium">
               {pesquisa ? 'Nenhum material encontrado.' : 'Nenhum material disponível ainda.'}
             </Text>
           </View>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+          <ScrollView 
+            showsVerticalScrollIndicator={false} 
+            contentContainerStyle={{ paddingBottom: 100 }}
+            onScroll={() => setMenuAberto(null)}
+            scrollEventThrottle={16}
+          >
             {materiaisFiltrados.map((item) => (
-              <View key={item.id} style={{ marginBottom: 24 }}>
+              <View key={item.id} className="mb-6 relative">
                 {/* Card */}
                 <TouchableOpacity
                   activeOpacity={0.85}
                   onPress={() => {
                     if (menuAberto) { setMenuAberto(null); return; }
-                    router.push({ pathname: '/aula', params: { id: item.id } });
+                    router.push({ pathname: '/aula', params: { id: item.id } } as any);
                   }}
-                  style={{
-                    backgroundColor: '#F8F8F8',
-                    borderRadius: 30,
-                    paddingTop: 7,
-                    paddingHorizontal: 7,
-                    height: 215,
-                    elevation: 4,
-                    shadowColor: '#3C3C3C',
-                    shadowOffset: { width: 4, height: 4 },
-                    shadowOpacity: 0.15,
-                    shadowRadius: 10,
-                  }}
+                  className="bg-[#F8F8F8] rounded-[30px] pt-1.5 px-1.5 h-[215px] shadow-md shadow-[#3C3C3C]/20 elevation-4"
+                  accessible={true}
+                  accessibilityLabel={`Material: ${item.title}`}
+                  accessibilityRole="button"
                 >
                   {/* Imagem de Capa */}
                   {item.imagemCapa ? (
                     <Image
                       source={{ uri: item.imagemCapa }}
-                      style={{
-                        width: '100%',
-                        height: 146,
-                        borderTopLeftRadius: 30,
-                        borderTopRightRadius: 30,
-                        resizeMode: 'cover',
-                      }}
+                      style={{ height: 146, resizeMode: 'cover' }}
+                      className="w-full rounded-t-[26px]"
                     />
                   ) : (
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 146,
-                        borderTopLeftRadius: 30,
-                        borderTopRightRadius: 30,
-                        backgroundColor: '#EDE9F5',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
+                    <View className="w-full h-[146px] rounded-t-[26px] bg-[#EDE9F5] justify-center items-center">
                       <Ionicons name="image-outline" size={40} color="#C5BFD0" />
                     </View>
                   )}
 
                   {/* Título */}
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 10 }}>
+                  <View className="flex-1 justify-center items-center px-3">
                     <Text
-                      style={{
-                        color: '#391A65',
-                        fontSize: 18,
-                        fontWeight: '600',
-                        lineHeight: 22,
-                        textAlign: 'center',
-                      }}
+                      className="text-primary text-lg font-bold leading-6 text-center"
                       numberOfLines={2}
                     >
                       {item.title}
@@ -237,59 +158,42 @@ export default function TelaMateriais() {
                         e.stopPropagation();
                         setMenuAberto(menuAberto === item.id ? null : item.id);
                       }}
-                      style={{
-                        position: 'absolute',
-                        bottom: 10,
-                        right: 16,
-                        backgroundColor: 'transparent',
-                        borderRadius: 20,
-                        width: 36,
-                        height: 36,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 20,
-                      }}
+                      className="absolute bottom-2 right-4 bg-transparent rounded-full w-10 h-10 justify-center items-center z-20"
+                      accessible={true}
+                      accessibilityLabel="Opções do material"
+                      accessibilityRole="button"
                     >
-                      <Ionicons name="ellipsis-horizontal" size={22} color="#391A65" />
+                      <Ionicons name="ellipsis-horizontal" size={24} color="#391A65" />
                     </TouchableOpacity>
                   )}
                 </TouchableOpacity>
 
                 {/* Dropdown do menu (aparece abaixo do card) */}
                 {menuAberto === item.id && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      top: 20,
-                      right: 14,
-                      backgroundColor: '#FFFFFF',
-                      borderRadius: 14,
-                      paddingVertical: 6,
-                      zIndex: 30,
-                      elevation: 10,
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 4 },
-                      shadowOpacity: 0.15,
-                      shadowRadius: 8,
-                      minWidth: 150,
-                    }}
+                  <View 
+                    style={{ position: 'absolute', top: 50, right: 12, zIndex: 999, elevation: 10 }}
+                    className="bg-white rounded-2xl py-2 shadow-xl min-w-[160px] border border-gray-100"
                   >
                     <TouchableOpacity
                       onPress={() => handleEditar(item.id)}
-                      style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 10 }}
+                      className="flex-row items-center px-4 py-3 gap-2 bg-white"
+                      accessible={true}
+                      accessibilityLabel="Editar Material"
                     >
                       <Ionicons name="create-outline" size={20} color="#391A65" />
-                      <Text style={{ color: '#391A65', fontSize: 15, fontWeight: '600' }}>Editar</Text>
+                      <Text className="text-primary text-base font-semibold">Editar</Text>
                     </TouchableOpacity>
 
-                    <View style={{ height: 1, backgroundColor: '#F0EDF5', marginHorizontal: 12 }} />
+                    <View className="h-[1px] bg-[#F0EDF5] mx-3" />
 
                     <TouchableOpacity
                       onPress={() => handleApagar(item.id, item.title)}
-                      style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 10 }}
+                      className="flex-row items-center px-4 py-3 gap-2 bg-white"
+                      accessible={true}
+                      accessibilityLabel="Apagar Material"
                     >
                       <Ionicons name="trash-outline" size={20} color="#E74C3C" />
-                      <Text style={{ color: '#E74C3C', fontSize: 15, fontWeight: '600' }}>Apagar</Text>
+                      <Text className="text-error text-base font-semibold">Apagar</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -304,22 +208,10 @@ export default function TelaMateriais() {
         <TouchableOpacity
           onPress={() => router.push('/admin/add-material')}
           activeOpacity={0.8}
-          style={{
-            position: 'absolute',
-            bottom: 30,
-            right: 30,
-            backgroundColor: '#CF96D5',
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            justifyContent: 'center',
-            alignItems: 'center',
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.3,
-            shadowRadius: 3,
-          }}
+          className="absolute bottom-8 right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
+          accessible={true}
+          accessibilityLabel="Adicionar novo material"
+          accessibilityRole="button"
         >
           <Ionicons name="add" size={36} color="#FFFFFF" />
         </TouchableOpacity>
