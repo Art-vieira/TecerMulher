@@ -62,8 +62,6 @@ export default function AddMaterialScreen() {
         <Text className="text-white text-lg font-bold flex-1 text-center">
           Novo Material
         </Text>
-<<<<<<< HEAD
-        
         {/* Botão Salvar no cabeçalho */}
         <TouchableOpacity
           onPress={handleSave}
@@ -74,10 +72,6 @@ export default function AddMaterialScreen() {
           accessibilityRole="button"
         >
           {salvando
-=======
-        <TouchableOpacity onPress={handleSave} disabled={loading}>
-          {loading
->>>>>>> 6f6d2b6b5fb0b77c3709a91d51a3e687edd9f389
             ? <ActivityIndicator color="#CF96D5" size="small" />
             : <Text className="text-accent text-lg font-bold">Salvar</Text>
           }
@@ -308,14 +302,6 @@ export default function AddMaterialScreen() {
           contentContainerClassName="px-4 py-3 pb-8 gap-3"
         >
           <TouchableOpacity
-            onPress={addBlocoSubtitulo}
-            className="bg-[#ECE7F2] rounded-xl py-2 px-3 flex-row items-center gap-2"
-          >
-            <Ionicons name="text" size={18} color="#391A65" />
-            <Text className="text-primary font-bold text-[13px]">+ Subtítulo</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
             onPress={addBlocoTexto}
             className="bg-primary rounded-xl py-2 px-3 flex-row items-center gap-2"
           >
@@ -330,24 +316,7 @@ export default function AddMaterialScreen() {
             <Ionicons name="image-outline" size={18} color="#FFFFFF" />
             <Text className="text-white font-bold text-[13px]">+ Imagem</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={addBlocoVideo}
-            className="bg-[#FF0000] rounded-xl py-2 px-3 flex-row items-center gap-2"
-          >
-            <Ionicons name="logo-youtube" size={18} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[13px]">+ Vídeo</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={addBlocoSeparador}
-            className="bg-[#D1CDDA] rounded-xl py-2 px-3 flex-row items-center gap-2"
-          >
-            <Ionicons name="remove-outline" size={18} color="#391A65" />
-            <Text className="text-primary font-bold text-[13px]">+ Separador</Text>
-          </TouchableOpacity>
         </ScrollView>
-      </View>
       </View>
     </SafeAreaView>
   );

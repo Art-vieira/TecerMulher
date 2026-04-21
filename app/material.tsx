@@ -5,11 +5,6 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-<<<<<<< HEAD
-  Image,
-=======
-  Modal,
->>>>>>> 6f6d2b6b5fb0b77c3709a91d51a3e687edd9f389
   ScrollView,
   Text,
   TextInput,
@@ -70,10 +65,6 @@ export default function TelaMateriais() {
     <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 6f6d2b6b5fb0b77c3709a91d51a3e687edd9f389
       {/* ── Cabeçalho ── */}
       <View className="flex-row items-center justify-between px-5 py-4">
         <TouchableOpacity
@@ -123,19 +114,10 @@ export default function TelaMateriais() {
             scrollEventThrottle={16}
           >
             {materiaisFiltrados.map((item) => (
-<<<<<<< HEAD
-              <View key={item.id} className="mb-6 relative">
-=======
               <View 
                 key={item.id} 
-                style={{ 
-                  marginBottom: 24, 
-                  position: 'relative',
-                  zIndex: menuAberto === item.id ? 100 : 1,
-                  elevation: menuAberto === item.id ? 100 : 1
-                }}
+                className={`mb-6 relative ${menuAberto === item.id ? 'z-50 elevation-5' : 'z-1'}`}
               >
->>>>>>> 6f6d2b6b5fb0b77c3709a91d51a3e687edd9f389
                 {/* Card */}
                 <TouchableOpacity
                   activeOpacity={0.85}
@@ -152,11 +134,12 @@ export default function TelaMateriais() {
                   {item.imagemCapa ? (
                     <Image
                       source={{ uri: item.imagemCapa }}
-                      style={{ height: 146, resizeMode: 'cover' }}
-                      className="w-full rounded-t-[26px]"
+                      style={{ height: 146, borderTopLeftRadius: 26, borderTopRightRadius: 26 }}
+                      contentFit="cover"
+                      className="w-full"
                     />
                   ) : (
-                    <View className="w-full h-[146px] rounded-t-[26px] bg-[#EDE9F5] justify-center items-center">
+                    <View style={{ height: 146, borderTopLeftRadius: 26, borderTopRightRadius: 26 }} className="w-full bg-[#EDE9F5] justify-center items-center">
                       <Ionicons name="image-outline" size={40} color="#C5BFD0" />
                     </View>
                   )}
@@ -170,25 +153,6 @@ export default function TelaMateriais() {
                       {item.title}
                     </Text>
                   </View>
-<<<<<<< HEAD
-
-                  {/* Três pontinhos (só para admin) */}
-                  {isAdmin && (
-                    <TouchableOpacity
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        setMenuAberto(menuAberto === item.id ? null : item.id);
-                      }}
-                      className="absolute bottom-2 right-4 bg-transparent rounded-full w-10 h-10 justify-center items-center z-20"
-                      accessible={true}
-                      accessibilityLabel="Opções do material"
-                      accessibilityRole="button"
-                    >
-                      <Ionicons name="ellipsis-horizontal" size={24} color="#391A65" />
-                    </TouchableOpacity>
-                  )}
-=======
->>>>>>> 6f6d2b6b5fb0b77c3709a91d51a3e687edd9f389
                 </TouchableOpacity>
 
                 {/* Três pontinhos (só para admin) - Movido para fora para não conflitar toques */}
@@ -197,20 +161,9 @@ export default function TelaMateriais() {
                     onPress={() => {
                       setMenuAberto(menuAberto === item.id ? null : item.id);
                     }}
-                    style={{
-                      position: 'absolute',
-                      bottom: 10,
-                      right: 16,
-                      backgroundColor: 'transparent',
-                      borderRadius: 20,
-                      width: 36,
-                      height: 36,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      zIndex: 20,
-                    }}
+                    className="absolute bottom-2 right-4 bg-transparent rounded-full w-10 h-10 justify-center items-center z-20"
                   >
-                    <Ionicons name="ellipsis-horizontal" size={22} color="#391A65" />
+                    <Ionicons name="ellipsis-horizontal" size={24} color="#391A65" />
                   </TouchableOpacity>
                 )}
 
