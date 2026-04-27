@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,27 +29,39 @@ export default function TelaMateriais() {
   const { materiais, carregando, apagarMaterial } = useMateriaisList();
 
   // ── Apagar material ──
-  const handleApagar = (id: string, titulo: string) => {
+  const handleApagar = async (id: string, titulo: string) => {
     setMenuAberto(null);
-    Alert.alert(
-      'Apagar Material',
-      `Tem certeza que deseja apagar "${titulo}"?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Apagar',
-          style: 'destructive',
-          onPress: async () => {
-            const { success, error } = await apagarMaterial(id);
-            if (success) {
-              Alert.alert('✅ Apagado', `"${titulo}" foi removido com sucesso.`);
-            } else {
-              Alert.alert('Erro', `Não foi possível apagar.\n\nDetalhe: ${error.message}`);
-            }
+    if (Platform.OS === 'web') {
+      const confirm = window.confirm(`Tem certeza que deseja apagar "${titulo}"?`);
+      if (confirm) {
+        const { success, error } = await apagarMaterial(id);
+        if (success) {
+          window.alert(`✅ "${titulo}" foi removido com sucesso.`);
+        } else {
+          window.alert(`Erro: Não foi possível apagar.\n\nDetalhe: ${error.message}`);
+        }
+      }
+    } else {
+      Alert.alert(
+        'Apagar Material',
+        `Tem certeza que deseja apagar "${titulo}"?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Apagar',
+            style: 'destructive',
+            onPress: async () => {
+              const { success, error } = await apagarMaterial(id);
+              if (success) {
+                Alert.alert('✅ Apagado', `"${titulo}" foi removido com sucesso.`);
+              } else {
+                Alert.alert('Erro', `Não foi possível apagar.\n\nDetalhe: ${error.message}`);
+              }
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   // ── Editar material ──

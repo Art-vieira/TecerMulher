@@ -9,6 +9,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -32,11 +33,20 @@ export default function EditMaterialScreen() {
   const handleSave = async () => {
     const res = await salvarMaterial();
     if (res.success) {
-      Alert.alert('Sucesso! 🎉', 'Edições salvas com sucesso!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      if (Platform.OS === 'web') {
+        window.alert('Sucesso! 🎉 Edições salvas com sucesso!');
+        router.back();
+      } else {
+        Alert.alert('Sucesso! 🎉', 'Edições salvas com sucesso!', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      }
     } else {
-      Alert.alert('Erro', res.error || 'Ocorreu um erro.');
+      if (Platform.OS === 'web') {
+        window.alert('Erro: ' + (res.error || 'Ocorreu um erro.'));
+      } else {
+        Alert.alert('Erro', res.error || 'Ocorreu um erro.');
+      }
     }
   };
 
