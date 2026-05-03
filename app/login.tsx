@@ -62,7 +62,7 @@ export default function TelaLogin() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
       <KeyboardAvoidingView
@@ -74,121 +74,119 @@ export default function TelaLogin() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ───── CABEÇALHO ───── */}
-          <View className="px-8 pt-6 pb-10">
+          {/* ───── CABEÇALHO ROXO ───── */}
+          <View className="bg-primary">
             {/* Botão Voltar */}
             <TouchableOpacity
               onPress={() => router.back()}
-              activeOpacity={0.7}
-              className="flex-row items-center mb-10"
+              activeOpacity={0.8}
+              className="flex-row items-center px-6 pt-4 pb-2"
               accessible={true}
-              accessibilityLabel="Voltar"
+              accessibilityLabel="Voltar para a tela anterior"
               accessibilityRole="button"
             >
-              <View className="bg-primary/10 p-2 rounded-full mr-3">
-                <Ionicons name="arrow-back" size={24} color="#4C1D95" />
-              </View>
-              <Text className="text-primary text-lg font-bold">
+              <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
+              <Text className="text-white text-lg font-semibold ml-2">
                 Voltar
               </Text>
             </TouchableOpacity>
 
             {/* Logo e Título */}
-            <View className="items-center">
-              <View className="bg-surface p-6 rounded-[40px] shadow-xl shadow-primary/10 border border-primary/5 mb-8">
-                <Image
-                  source={require('../assets/images/Logo.png')}
-                  style={{ width: 100, height: 100 }}
-                  contentFit="contain"
-                />
-              </View>
-              <Text className="text-text-dark text-[48px] font-bold tracking-tighter leading-[48px]">
+            <View className="items-center py-7">
+              <Image
+                source={require('../assets/images/Logo.png')}
+                style={{ width: 130, height: 130 }}
+                contentFit="contain"
+                accessible={true}
+                accessibilityLabel="Logo Tecer Mulher"
+              />
+              <Text className="text-white text-[42px] font-extrabold tracking-widest mt-2 leading-[44px]">
                 TECER
               </Text>
-              <Text className="text-accent text-[24px] font-light tracking-[12px] leading-[24px] -mt-1">
+              <Text className="text-white text-[30px] font-normal tracking-[6px] leading-[34px]">
                 MULHER
               </Text>
             </View>
           </View>
 
-          {/* ───── FORMULÁRIO ───── */}
-          <View className="flex-1 bg-surface rounded-t-[48px] px-8 pt-12 pb-12 shadow-2xl shadow-primary/20">
-            <Text className="text-text-dark text-3xl font-bold mb-8">Login Administrativo</Text>
-            
+          {/* ───── PAINEL BRANCO ───── */}
+          <View className="flex-1 bg-background rounded-t-[30px] px-7 pt-9 pb-10">
             {/* Campo Email */}
-            <View className="mb-6">
-              <Text className="text-text-dark text-base font-bold mb-3 ml-1">
-                E-mail
-              </Text>
-              <View className="bg-background rounded-2xl border border-primary/5 flex-row items-center px-5">
-                <Ionicons name="mail-outline" size={20} color="#4C1D95" style={{ opacity: 0.5 }} />
-                <TextInput
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="exemplo@gmail.com"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  className="flex-1 py-5 ml-3 text-lg text-text-dark font-medium"
-                />
-              </View>
+            <Text className="text-text-dark text-lg font-semibold mb-2">
+              Email :
+            </Text>
+            <View className="bg-white rounded-xl border border-border-light mb-6">
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="facilitador@gmail.com"
+                placeholderTextColor="#6B5E80"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                className="px-4 py-4 text-lg text-text-dark"
+                accessible={true}
+                accessibilityLabel="Campo de entrada de email"
+              />
             </View>
 
             {/* Campo Senha */}
-            <View className="mb-8">
-              <Text className="text-text-dark text-base font-bold mb-3 ml-1">
-                Senha
-              </Text>
-              <View className="bg-background rounded-2xl border border-primary/5 flex-row items-center px-5">
-                <Ionicons name="lock-closed-outline" size={20} color="#4C1D95" style={{ opacity: 0.5 }} />
-                <TextInput
-                  value={senha}
-                  onChangeText={setSenha}
-                  placeholder="••••••••••••"
-                  placeholderTextColor="#9CA3AF"
-                  secureTextEntry={!mostrarSenha}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  className="flex-1 py-5 ml-3 text-lg text-text-dark font-medium"
+            <Text className="text-text-dark text-lg font-semibold mb-2">
+              Senha :
+            </Text>
+            <View className="bg-white rounded-xl border border-border-light flex-row items-center mb-3">
+              <TextInput
+                value={senha}
+                onChangeText={setSenha}
+                placeholder="••••••••••••"
+                placeholderTextColor="#6B5E80"
+                secureTextEntry={!mostrarSenha}
+                autoCapitalize="none"
+                autoCorrect={false}
+                className="flex-1 px-4 py-4 text-lg text-text-dark"
+                accessible={true}
+                accessibilityLabel="Campo de entrada de senha"
+              />
+              <TouchableOpacity
+                onPress={() => setMostrarSenha(!mostrarSenha)}
+                activeOpacity={0.7}
+                className="px-4 py-4"
+                accessible={true}
+                accessibilityLabel={mostrarSenha ? "Esconder senha" : "Mostrar senha"}
+                accessibilityRole="button"
+              >
+                <Ionicons
+                  name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
+                  size={24}
+                  color="#7A6E8A"
                 />
-                <TouchableOpacity
-                  onPress={() => setMostrarSenha(!mostrarSenha)}
-                  activeOpacity={0.7}
-                  className="p-2"
-                >
-                  <Ionicons
-                    name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
-                    size={24}
-                    color="#4C1D95"
-                    style={{ opacity: 0.5 }}
-                  />
-                </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
             </View>
 
             {/* Mensagem de erro */}
             {erro !== '' && (
-              <View className="bg-error/10 p-4 rounded-2xl mb-6 flex-row items-center">
-                <Ionicons name="alert-circle" size={20} color="#EF4444" />
-                <Text className="text-error text-sm ml-2 font-bold flex-1">
-                  {erro}
-                </Text>
-              </View>
+              <Text className="text-error text-sm mb-2 text-center font-medium">
+                {erro}
+              </Text>
             )}
+
+            <View className="mb-5" />
 
             {/* Botão ENTRAR */}
             <TouchableOpacity
               onPress={handleEntrar}
-              activeOpacity={0.9}
+              activeOpacity={0.85}
               disabled={carregando}
-              className="bg-primary rounded-2xl py-6 items-center justify-center shadow-xl shadow-primary/30 min-h-[72px]"
+              className="bg-primary rounded-xl py-4 items-center justify-center shadow-md shadow-primary/40 min-h-[58px]"
+              accessible={true}
+              accessibilityLabel="Botão de Entrar"
+              accessibilityRole="button"
             >
               {carregando ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
-                <Text className="text-white text-xl font-bold tracking-widest uppercase">
-                  Acessar Painel
+                <Text className="text-white text-[18px] font-extrabold tracking-widest">
+                  ENTRAR
                 </Text>
               )}
             </TouchableOpacity>

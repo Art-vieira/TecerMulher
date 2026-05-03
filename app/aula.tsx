@@ -41,41 +41,37 @@ export default function AulaScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ── Cabeçalho ── */}
-      <View className="flex-row items-center px-6 py-4">
+      <View className="flex-row items-center px-5 py-4 bg-primary">
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center min-h-[44px]"
           accessible={true}
-          accessibilityLabel="Voltar"
+          accessibilityLabel="Voltar para a página anterior"
           accessibilityRole="button"
         >
-          <View className="bg-primary/10 p-2 rounded-full mr-3">
-            <Ionicons name="arrow-back" size={24} color="#4C1D95" />
-          </View>
-          <Text className="text-primary text-lg font-bold">Voltar</Text>
+          <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
+          <Text className="text-white text-lg font-semibold ml-2">Voltar</Text>
         </TouchableOpacity>
-        <Text className="text-text-dark text-lg font-bold flex-1 text-center pr-10" numberOfLines={1}>
-          Aula
+        <Text className="text-white text-lg font-bold flex-1 text-center pr-10" numberOfLines={1}>
+          Visualizando Aula
         </Text>
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1">
+      <View className="flex-1 bg-background rounded-t-[24px]">
         {carregando ? (
           <View className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" color="#4C1D95" />
-            <Text className="text-primary mt-4 text-lg font-bold">Carregando aula...</Text>
+            <ActivityIndicator size="large" color="#391A65" />
+            <Text className="text-primary mt-3 text-base font-semibold">Carregando aula...</Text>
           </View>
         ) : !material ? (
-          <View className="flex-1 justify-center items-center px-8">
-             <View className="bg-error/10 p-6 rounded-full mb-6">
-                <Ionicons name="alert-circle-outline" size={60} color="#EF4444" />
-             </View>
-             <Text className="text-text-dark text-xl font-bold text-center">
+          <View className="flex-1 justify-center items-center px-6">
+             <Ionicons name="alert-circle-outline" size={60} color="#E74C3C" />
+             <Text className="text-text-dark text-lg font-bold text-center mt-4">
                Material não encontrado.
              </Text>
              <Text className="text-text-muted text-base text-center mt-2">
@@ -88,25 +84,23 @@ export default function AulaScreen() {
             onScroll={handleScroll}
             scrollEventThrottle={16}
             contentContainerClassName="pb-40"
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
           >
             {/* Capa */}
             {material.imagemCapa ? (
-              <View className="px-6 mb-8">
-                <Image
-                  source={{ uri: material.imagemCapa }}
-                  style={{ height: 240 }}
-                  contentFit="cover"
-                  className="w-full rounded-[32px] shadow-xl shadow-primary/10"
-                  accessible={true}
-                  accessibilityLabel="Imagem de capa da aula"
-                />
-              </View>
+              <Image
+                source={{ uri: material.imagemCapa }}
+                style={{ height: 200, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+                contentFit="cover"
+                className="w-full"
+                accessible={true}
+                accessibilityLabel="Imagem de capa da aula"
+              />
             ) : null}
 
-            <View className="px-8">
+            <View className="px-6 pt-6">
               {/* Titulo */}
-              <Text className="text-text-dark text-[32px] leading-[40px] font-bold mb-10" accessible={true} accessibilityRole="header">
+              <Text className="text-primary text-[28px] leading-[34px] font-extrabold mb-8" accessible={true} accessibilityRole="header">
                 {material.title}
               </Text>
 
@@ -116,7 +110,7 @@ export default function AulaScreen() {
                   return (
                     <Text
                       key={bloco.id}
-                      className="text-text-dark text-[18px] leading-[30px] mb-8 font-medium"
+                      className="text-text-dark text-[18px] leading-[28px] mb-6 font-medium text-justify"
                       accessible={true}
                       accessibilityLabel={bloco.conteudo}
                     >
@@ -127,22 +121,20 @@ export default function AulaScreen() {
 
                 if (bloco.tipo === 'subtitulo') {
                   return (
-                    <View key={bloco.id} className="mb-6 mt-4">
-                      <Text
-                        className="text-primary text-[24px] font-bold"
-                        accessible={true}
-                        accessibilityRole="header"
-                      >
-                        {bloco.conteudo}
-                      </Text>
-                      <View className="h-1 w-10 bg-accent mt-2 rounded-full" />
-                    </View>
+                    <Text
+                      key={bloco.id}
+                      className="text-primary text-[22px] leading-[28px] font-bold mt-2 mb-4"
+                      accessible={true}
+                      accessibilityRole="header"
+                    >
+                      {bloco.conteudo}
+                    </Text>
                   );
                 }
 
                 if (bloco.tipo === 'separador') {
                   return (
-                    <View key={bloco.id} className="h-[1px] bg-border-light my-10 mx-auto w-full" />
+                    <View key={bloco.id} className="h-[2px] bg-border-light my-6 mx-auto w-[80%] rounded" />
                   );
                 }
 
@@ -151,18 +143,16 @@ export default function AulaScreen() {
                   if (!hasUrl) return null;
                   
                   return (
-                    <View key={bloco.id} className="mb-8">
-                      <View className="bg-surface p-2 rounded-[24px] shadow-lg shadow-primary/5 border border-primary/5">
-                        <Image
-                          source={{ uri: bloco.url }}
-                          style={{ height: 240, resizeMode: 'contain' }}
-                          className="w-full rounded-[20px] bg-primary/5"
-                          accessible={true}
-                          accessibilityLabel={bloco.alt || "Imagem ilustrativa da aula"}
-                        />
-                      </View>
+                    <View key={bloco.id} className="mb-6">
+                      <Image
+                        source={{ uri: bloco.url }}
+                        style={{ height: 220, resizeMode: 'contain' }}
+                        className="w-full rounded-xl shadow-sm elevation-2 bg-[#EDE9F5]"
+                        accessible={true}
+                        accessibilityLabel={bloco.alt || "Imagem ilustrativa da aula"}
+                      />
                       {bloco.alt ? (
-                        <Text className="text-text-muted text-sm text-center mt-3 italic font-medium">
+                        <Text className="text-text-muted text-sm text-center mt-2 italic font-medium">
                           {bloco.alt}
                         </Text>
                       ) : null}
@@ -174,7 +164,7 @@ export default function AulaScreen() {
                   const videoId = extractYouTubeId(bloco.url);
                   if (videoId) {
                     return (
-                      <View key={bloco.id} className="w-full h-[220px] mb-8 rounded-[24px] overflow-hidden shadow-xl shadow-primary/10 border border-primary/5 bg-black">
+                      <View key={bloco.id} className="w-full h-[210px] mb-6 rounded-xl overflow-hidden shadow-sm elevation-2 bg-black">
                         <WebView
                           source={{ uri: `https://www.youtube.com/embed/${videoId}?rel=0` }}
                           style={{ flex: 1 }}
@@ -189,10 +179,10 @@ export default function AulaScreen() {
                       <TouchableOpacity
                         key={bloco.id}
                         onPress={() => Linking.openURL(bloco.url)}
-                        className="bg-[#FF0000] rounded-2xl p-5 flex-row items-center justify-center mb-8 gap-3 shadow-lg shadow-red-500/20"
+                        className="bg-[#FF0000] rounded-xl p-4 flex-row items-center justify-center mb-6 gap-2"
                       >
                         <Ionicons name="logo-youtube" size={24} color="#FFFFFF" />
-                        <Text className="text-white text-lg font-bold">Assistir no YouTube</Text>
+                        <Text className="text-white text-base font-bold">Assistir Vídeo Externo</Text>
                       </TouchableOpacity>
                     );
                   }
@@ -210,12 +200,12 @@ export default function AulaScreen() {
         <TouchableOpacity
           onPress={scrollToTop}
           activeOpacity={0.8}
-          className="absolute bottom-10 right-8 bg-primary w-14 h-14 rounded-full justify-center items-center shadow-2xl shadow-primary/40 z-50"
+          className="absolute bottom-8 right-8 bg-accent w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50"
           accessible={true}
           accessibilityLabel="Voltar ao início da página"
           accessibilityRole="button"
         >
-          <Ionicons name="arrow-up" size={28} color="#FFFFFF" />
+          <Ionicons name="arrow-up" size={32} color="#FFFFFF" />
         </TouchableOpacity>
       )}
     </SafeAreaView>

@@ -29,60 +29,47 @@ export default function DuvidasScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* ── Cabeçalho ── */}
-      <View className="px-6 py-6">
+      {/* ───── CABEÇALHO ROXO ───── */}
+      <View className="flex-row items-center justify-between px-5 py-4 bg-primary">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="flex-row items-center mb-6"
+          activeOpacity={0.8}
+          className="flex-row items-center min-h-[44px]"
           accessible={true}
           accessibilityLabel="Voltar"
           accessibilityRole="button"
         >
-          <View className="bg-primary/10 p-2 rounded-full mr-3">
-            <Ionicons name="arrow-back" size={24} color="#4C1D95" />
-          </View>
-          <Text className="text-primary text-lg font-bold">Voltar</Text>
+          <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
+          <Text className="text-white text-lg font-semibold ml-2">
+            Voltar
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {/* ── Corpo ── */}
-      <View className="flex-1 px-6">
+      {/* ───── CORPO ───── */}
+      <View className="flex-1 bg-background rounded-t-[24px] px-6 pt-8">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-          <Text className="text-text-dark text-3xl font-bold mb-8">
+          <Text className="text-2xl font-bold text-primary mb-5">
             Dúvidas Frequentes
           </Text>
           
           {duvidas.map((item) => (
             <TouchableOpacity
               key={item.id}
-              className="bg-surface rounded-[24px] p-6 mb-4 shadow-xl shadow-primary/5 border border-primary/5 flex-row items-center justify-between"
-              activeOpacity={0.9}
+              className="bg-white rounded-[16px] p-5 mb-4 shadow-sm shadow-black/10 elevation-2"
+              activeOpacity={0.8}
               accessible={true}
               accessibilityLabel={`Dúvida: ${item.title}`}
               accessibilityRole="button"
             >
-              <Text className="text-lg font-bold text-text-dark flex-1 mr-4">
+              <Text className="text-lg font-semibold text-text-dark">
                 {item.title}
               </Text>
-              <View className="bg-accent/10 p-2 rounded-full">
-                <Ionicons name="chevron-forward" size={20} color="#EC4899" />
-              </View>
             </TouchableOpacity>
           ))}
-
-          <View className="mt-12 bg-primary/5 p-8 rounded-[32px] border border-primary/5 items-center">
-            <View className="bg-primary/10 p-4 rounded-full mb-4">
-              <Ionicons name="help-circle" size={32} color="#4C1D95" />
-            </View>
-            <Text className="text-text-dark text-xl font-bold text-center mb-2">Ainda tem dúvidas?</Text>
-            <Text className="text-text-muted text-center mb-6">Nossa equipe está pronta para te ajudar com qualquer questão.</Text>
-            <TouchableOpacity className="bg-primary px-8 py-4 rounded-2xl shadow-lg shadow-primary/20">
-              <Text className="text-white font-bold">Falar com Suporte</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </View>
 
@@ -91,7 +78,7 @@ export default function DuvidasScreen() {
         <TouchableOpacity
           onPress={() => alert('Em breve: Adicionar dúvida!')}
           activeOpacity={0.8}
-          className="absolute bottom-10 right-8 bg-primary w-16 h-16 rounded-full justify-center items-center shadow-2xl shadow-primary/40"
+          className="absolute bottom-8 right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
           accessible={true}
           accessibilityLabel="Adicionar nova dúvida"
           accessibilityRole="button"
