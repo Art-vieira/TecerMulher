@@ -7,11 +7,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../hooks/useAuth';
 import BottomNav from '../components/BottomNav';
 import { useMateriaisList } from '../hooks/useMateriais';
+import { useDuvidasList } from '../hooks/useDuvidas';
 
 export default function TelaMenu() {
   const router = useRouter();
   const { logoutLocal, isAdmin } = useAuth();
   const { materiais } = useMateriaisList();
+  const { duvidas } = useDuvidasList();
 
   return (
     <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`} edges={['top']}>
@@ -20,18 +22,28 @@ export default function TelaMenu() {
       {/* ── Cabeçalho ── */}
       {isAdmin ? (
         <View className="flex-row items-center justify-between px-6 py-4 mt-2">
-          <Text className="text-[#8E8E93] text-[14px] font-semibold" style={{ fontFamily: 'Poppins' }}>
-            Menu principal - ADM
-          </Text>
           <TouchableOpacity 
             onPress={async () => {
               await logoutLocal();
               router.back();
             }}
             activeOpacity={0.8}
+            className="flex-row items-center min-h-[50px]"
+            accessible={true}
+            accessibilityLabel="Deslogar e voltar"
+            accessibilityRole="button"
+          >
+            <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
+            <Text className="text-white text-lg font-semibold ml-3" style={{ fontFamily: 'Poppins' }}>
+              Voltar
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => alert('Configurações em breve!')}
+            activeOpacity={0.8}
             className="min-h-[44px] justify-center pl-4"
             accessible={true}
-            accessibilityLabel="Configurações e Logout"
+            accessibilityLabel="Configurações"
             accessibilityRole="button"
           >
             <Ionicons name="settings-sharp" size={26} color="#FFFFFF" />
@@ -77,44 +89,44 @@ export default function TelaMenu() {
                   <Text className="text-white text-base font-normal">Materiais</Text>
                 </View>
                 <View className="bg-primary rounded-[16px] p-5 w-[48%] min-h-[110px] justify-center shadow-sm">
-                  <Text className="text-white text-[32px] font-bold" style={{ fontFamily: 'Poppins' }}>24</Text>
+                  <Text className="text-white text-[32px] font-bold" style={{ fontFamily: 'Poppins' }}>{duvidas.length}</Text>
                   <Text className="text-white text-base font-normal">Dúvidas</Text>
                 </View>
               </View>
 
-              <Link href="/material" asChild>
-                <TouchableOpacity className="bg-white w-full rounded-[20px] p-5 flex-row items-center mb-4 shadow-sm elevation-2" activeOpacity={0.8}>
-                  <View className="w-14 h-14 bg-primary rounded-[14px] items-center justify-center mr-4">
-                    <Ionicons name="book" size={28} color="#FFF" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-primary text-[17px] font-bold mb-0.5" style={{ fontFamily: 'Poppins' }}>Gerenciar Materiais</Text>
-                    <Text className="text-primary text-[13px] opacity-70">Adicione ou edite aulas</Text>
-                  </View>
-                </TouchableOpacity>
-              </Link>
+            <Link href="/material" asChild>
+              <TouchableOpacity className="bg-white w-full rounded-[20px] p-5 flex-row items-center mb-4 shadow-sm elevation-2" activeOpacity={0.8}>
+                <View className="w-14 h-14 bg-primary rounded-[14px] items-center justify-center mr-4">
+                  <Ionicons name="book" size={28} color="#FFF" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-primary text-[17px] font-bold mb-0.5" style={{ fontFamily: 'Poppins' }}>Gerenciar Materiais</Text>
+                  <Text className="text-primary text-[13px] opacity-70">Adicione ou edite aulas</Text>
+                </View>
+              </TouchableOpacity>
+            </Link>
 
-              <Link href="/duvidas" asChild>
-                <TouchableOpacity className="bg-white w-full rounded-[20px] p-5 flex-row items-center mb-4 shadow-sm elevation-2" activeOpacity={0.8}>
-                  <View className="w-14 h-14 bg-primary rounded-[14px] items-center justify-center mr-4">
-                    <Ionicons name="chatbubbles" size={28} color="#FFF" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-primary text-[17px] font-bold mb-0.5" style={{ fontFamily: 'Poppins' }}>Gerenciar Dúvidas</Text>
-                    <Text className="text-primary text-[13px] opacity-70">Edite ou crie novas dúvidas</Text>
-                  </View>
-                </TouchableOpacity>
-              </Link>
+            <Link href="/duvidas" asChild>
+              <TouchableOpacity className="bg-white w-full rounded-[20px] p-5 flex-row items-center mb-4 shadow-sm elevation-2" activeOpacity={0.8}>
+                <View className="w-14 h-14 bg-primary rounded-[14px] items-center justify-center mr-4">
+                  <Ionicons name="chatbubbles" size={28} color="#FFF" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-primary text-[17px] font-bold mb-0.5" style={{ fontFamily: 'Poppins' }}>Gerenciar Dúvidas</Text>
+                  <Text className="text-primary text-[13px] opacity-70">Edite ou crie novas dúvidas</Text>
+                </View>
+              </TouchableOpacity>
+            </Link>
 
-              <View className="flex-1 items-center justify-end pb-2">
-                <Image
-                  source={require("../assets/images/Tecer-C.png")}
-                  style={{ width: 160, height: 80 }}
-                  contentFit="contain"
-                />
-              </View>
+            <View className="flex-1 items-center justify-end pb-2">
+              <Image
+                source={require("../assets/images/LogoTecerP.svg")}
+                style={{ width: 160, height: 80 }}
+                contentFit="contain"
+              />
             </View>
-          </ScrollView>
+          </View>
+        </ScrollView>
         ) : (
           /* ── Layout Estudante ── */
           <ScrollView 

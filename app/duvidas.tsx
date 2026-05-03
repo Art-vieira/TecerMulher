@@ -12,22 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomNav from '../components/BottomNav';
 import { useAuth } from '../hooks/useAuth';
 
+import { useDuvidasList } from '../hooks/useDuvidas';
+
 export default function DuvidasScreen() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
   const { isAdmin } = useAuth();
-
-  // Mock
-  const duvidas = [
-    {
-      id: '1',
-      title: 'Como resetar a senha?',
-    },
-    {
-      id: '2',
-      title: 'Não consigo ver a imagem da aula',
-    },
-  ];
+  const { duvidas, carregando } = useDuvidasList();
 
   return (
     <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`} edges={['top']}>

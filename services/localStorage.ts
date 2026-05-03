@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEYS = {
   MATERIAIS: '@TecerMulher:materiais',
+  DUVIDAS: '@TecerMulher:duvidas',
   USER_SESSION: '@TecerMulher:user_session',
 };
 
@@ -18,6 +19,13 @@ export type Material = {
   title: string;
   imagemCapa?: string;
   blocos: Bloco[];
+  createdAt: string;
+};
+
+export type Duvida = {
+  id: string;
+  title: string;
+  resposta?: string;
   createdAt: string;
 };
 
@@ -42,6 +50,21 @@ const MOCK_MATERIAIS: Material[] = [
       { id: 'b4', tipo: 'texto', conteudo: 'Nunca compartilhe suas senhas com estranhos.' },
     ]
   }
+];
+
+const MOCK_DUVIDAS: Duvida[] = [
+  {
+    id: '1',
+    title: 'Como resetar a senha?',
+    resposta: 'Para resetar a senha, clique em "Esqueci minha senha" na tela de login e siga as instruções.',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    title: 'Não consigo ver a imagem da aula',
+    resposta: 'Verifique sua conexão com a internet ou tente recarregar o aplicativo.',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export const LocalStorage = {
@@ -94,6 +117,45 @@ export const LocalStorage = {
     const materiais = await this.getMateriais();
     const filtered = materiais.filter(m => m.id !== id);
     await this.saveMateriais(filtered);
+  },
+
+  // --- DUVIDAS ---
+  async getDuvidas(): Promise<Duvida[]> {
+    try {
+      const data = await AsyncStorage.getItem(KEYS.DUVIDAS);
+      if (data) return JSON.parse(data);
+      
+      await this.saveDuvidas(MOCK_DUVIDAS);
+      return MOCK_DUVIDAS;
+    } catch (e) {
+      console.error('Error getting duvidas:', e);
+      return [];
+    }
+  },
+
+  async saveDuvidas(duvidas: Duvida[]): Promise<void> {
+    try {
+      await AsyncStorage.setItem(KEYS.DUVIDAS, JSON.stringify(duvidas));
+    } catch (e) {
+      console.error('Error saving duvidas:', e);
+    }
+  },
+
+  async addDuvida(duvida: Omit<Duvida, 'id' | 'createdAt'>): Promise<Duvida> {
+    const duvidas = await this.getDuvidas();
+    const newDuvida: Duvida = {
+      ...duvida,
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date().toISOString(),
+    };
+    await this.saveDuvidas([newDuvida, ...duvidas]);
+    return newDuvida;
+  },
+
+  async deleteDuvida(id: string): Promise<void> {
+    const duvidas = await this.getDuvidas();
+    const filtered = duvidas.filter(d => d.id !== id);
+    await this.saveDuvidas(filtered);
   },
 
   // --- AUTH ---
