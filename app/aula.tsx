@@ -62,7 +62,7 @@ export default function AulaScreen() {
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-background rounded-t-[24px]">
+      <View className="flex-1 bg-background rounded-t-[24px] overflow-hidden">
         {carregando ? (
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="#391A65" />

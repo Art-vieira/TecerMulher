@@ -105,14 +105,14 @@ export default function TelaMateriais() {
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-background rounded-t-[24px] px-6 pt-8">
+      <View className="flex-1 bg-background rounded-t-[24px] overflow-hidden">
         {carregando ? (
-          <View className="flex-1 justify-center items-center">
+          <View className="flex-1 justify-center items-center pt-8">
             <ActivityIndicator size="large" color="#391A65" />
             <Text className="text-primary mt-3 text-base font-semibold">Carregando materiais...</Text>
           </View>
         ) : materiaisFiltrados.length === 0 ? (
-          <View className="flex-1 justify-center items-center">
+          <View className="flex-1 justify-center items-center pt-8">
             <Ionicons name="book-outline" size={60} color="#C5BFD0" />
             <Text className="text-text-muted mt-4 text-base text-center font-medium">
               {pesquisa ? 'Nenhum material encontrado.' : 'Nenhum material disponível ainda.'}
@@ -121,7 +121,7 @@ export default function TelaMateriais() {
         ) : (
           <ScrollView 
             showsVerticalScrollIndicator={false} 
-            contentContainerStyle={{ paddingBottom: 140 }}
+            contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 24, paddingTop: 32 }}
             onScroll={() => setMenuAberto(null)}
             scrollEventThrottle={16}
           >

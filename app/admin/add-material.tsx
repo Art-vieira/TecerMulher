@@ -16,8 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
 
-import { useMaterialForm } from '../../hooks/useMaterialForm';
-
 export default function AddMaterialScreen() {
   const router = useRouter();
   
