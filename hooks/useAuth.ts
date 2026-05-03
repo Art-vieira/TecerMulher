@@ -1,24 +1,37 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../firebase.config';
+import { LocalStorage } from '../services/localStorage';
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ email: string } | null>(null);
   const [carregandoAuth, setCarregandoAuth] = useState(true);
 
   useEffect(() => {
-    // Inscreve-se nas mudanças de estado de login
-    const unsubscribe = onAuthStateChanged(auth, (usr) => {
-      setUser(usr);
+    // Verifica sessão local ao carregar
+    const checkSession = async () => {
+      const session = await LocalStorage.getUserSession();
+      setUser(session);
       setCarregandoAuth(false);
-    });
+    };
 
-    return () => unsubscribe();
+    checkSession();
   }, []);
+
+  const loginLocal = async (email: string) => {
+    const session = { email };
+    await LocalStorage.saveUserSession(session);
+    setUser(session);
+  };
+
+  const logoutLocal = async () => {
+    await LocalStorage.saveUserSession(null);
+    setUser(null);
+  };
 
   return {
     user,
     isAdmin: !!user,
     carregandoAuth,
+    loginLocal,
+    logoutLocal,
   };
 }

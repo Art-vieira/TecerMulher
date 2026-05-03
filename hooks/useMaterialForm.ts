@@ -1,14 +1,5 @@
-import {
-    addDoc,
-    collection,
-    doc,
-    getDoc,
-    serverTimestamp,
-    updateDoc,
-} from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firebase.config";
-import { Bloco } from "./useMateriais";
+import { LocalStorage, Bloco } from "../services/localStorage";
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -28,18 +19,11 @@ export function useMaterialForm(id?: string | string[]) {
 
     const carregarMaterial = async () => {
       try {
-        const docRef = doc(db, "materiais", id);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        const data = await LocalStorage.getMaterialById(id);
+        if (data) {
           setTitulo(data.title || "");
           setImagemCapa(data.imagemCapa || "");
           setBlocos(data.blocos || []);
-        } else {
-          setTitulo("");
-          setImagemCapa("");
-          setBlocos([]);
         }
       } catch (error) {
         console.error("Erro ao buscar material:", error);
@@ -55,11 +39,20 @@ export function useMaterialForm(id?: string | string[]) {
   const addBlocoTexto = () =>
     setBlocos((prev) => [...prev, { id: uid(), tipo: "texto", conteudo: "" }]);
 
+  const addBlocoSubtitulo = () =>
+    setBlocos((prev) => [...prev, { id: uid(), tipo: "subtitulo", conteudo: "" }]);
+
   const addBlocoImagem = () =>
     setBlocos((prev) => [
       ...prev,
       { id: uid(), tipo: "imagem", url: "", alt: "" },
     ]);
+
+  const addBlocoVideo = () =>
+    setBlocos((prev) => [...prev, { id: uid(), tipo: "video", url: "" }]);
+
+  const addBlocoSeparador = () =>
+    setBlocos((prev) => [...prev, { id: uid(), tipo: "separador" }]);
 
   const removeBloco = (idToRemove: string) =>
     setBlocos((prev) => prev.filter((b) => b.id !== idToRemove));
@@ -81,7 +74,7 @@ export function useMaterialForm(id?: string | string[]) {
     });
   };
 
-  // Salvar no Firebase (Criação ou Edição)
+  // Salvar Localmente
   const salvarMaterial = async () => {
     if (!titulo.trim()) {
       return { success: false, error: "Por favor, preencha o título da aula." };
@@ -96,18 +89,16 @@ export function useMaterialForm(id?: string | string[]) {
     setSalvando(true);
     try {
       if (id && typeof id === "string") {
-        const docRef = doc(db, "materiais", id);
-        await updateDoc(docRef, {
+        await LocalStorage.updateMaterial(id, {
           title: titulo.trim(),
           imagemCapa: imagemCapa.trim(),
           blocos,
         });
       } else {
-        await addDoc(collection(db, "materiais"), {
+        await LocalStorage.addMaterial({
           title: titulo.trim(),
           imagemCapa: imagemCapa.trim(),
           blocos,
-          createdAt: serverTimestamp(),
         });
       }
       return { success: true };
@@ -130,7 +121,10 @@ export function useMaterialForm(id?: string | string[]) {
     carregandoDados,
     acoesBloco: {
       addBlocoTexto,
+      addBlocoSubtitulo,
       addBlocoImagem,
+      addBlocoVideo,
+      addBlocoSeparador,
       removeBloco,
       updateBloco,
       moverBloco,

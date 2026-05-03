@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -14,7 +13,8 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { db } from '../../firebase.config';
+
+import { useMaterialForm } from '../../hooks/useMaterialForm';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
 
@@ -320,15 +320,38 @@ export default function AddMaterialScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            onPress={addBlocoSubtitulo}
+            className="bg-primary rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="text-outline" size={18} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[13px]">+ Subtítulo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={addBlocoImagem}
             className="bg-accent rounded-xl py-2 px-3 flex-row items-center gap-2"
           >
             <Ionicons name="image-outline" size={18} color="#FFFFFF" />
             <Text className="text-white font-bold text-[13px]">+ Imagem</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={addBlocoVideo}
+            className="bg-[#FF0000] rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="logo-youtube" size={18} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[13px]">+ Vídeo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={addBlocoSeparador}
+            className="bg-gray-400 rounded-xl py-2 px-3 flex-row items-center gap-2"
+          >
+            <Ionicons name="remove-outline" size={18} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[13px]">+ Separador</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </SafeAreaView>
   );
 }
-

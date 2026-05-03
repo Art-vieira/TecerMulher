@@ -1,14 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Link, Stack, useRouter } from 'expo-router';
-import { signOut } from 'firebase/auth';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../firebase.config';
+import { useAuth } from '../hooks/useAuth';
 
 export default function TelaMenu() {
   const router = useRouter();
+  const { logoutLocal } = useAuth();
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -17,9 +17,7 @@ export default function TelaMenu() {
       <View className="flex-row items-center px-6 py-4 mt-2">
         <TouchableOpacity 
           onPress={async () => {
-            if (auth.currentUser) {
-              await signOut(auth);
-            }
+            await logoutLocal();
             router.back();
           }}
           activeOpacity={0.8}

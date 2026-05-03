@@ -1,13 +1,5 @@
-import {
-    collection,
-    deleteDoc,
-    doc,
-    onSnapshot,
-    orderBy,
-    query,
-} from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../firebase.config";
+import { LocalStorage, Material, MaterialDetail } from "../services/localStorage";
 
 export type BlocoTexto = { id: string; tipo: "texto"; conteudo: string };
 export type BlocoImagem = {
@@ -18,44 +10,25 @@ export type BlocoImagem = {
 };
 export type Bloco = BlocoTexto | BlocoImagem;
 
-export type Material = {
-  id: string;
-  title: string;
-  imagemCapa?: string;
-};
-
-export type MaterialDetail = Material & {
-  blocos: Bloco[];
-};
-
 export function useMateriaisList() {
   const [materiais, setMateriais] = useState<Material[]>([]);
   const [carregando, setCarregando] = useState(true);
 
+  const carregarDados = async () => {
+    setCarregando(true);
+    const data = await LocalStorage.getMateriais();
+    setMateriais(data);
+    setCarregando(false);
+  };
+
   useEffect(() => {
-    const q = query(collection(db, "materiais"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const dados: Material[] = snapshot.docs.map((d) => ({
-          id: d.id,
-          title: d.data().title ?? "Sem título",
-          imagemCapa: d.data().imagemCapa ?? "",
-        }));
-        setMateriais(dados);
-        setCarregando(false);
-      },
-      (err) => {
-        console.error("Erro ao buscar materiais:", err);
-        setCarregando(false);
-      },
-    );
-    return () => unsubscribe();
+    carregarDados();
   }, []);
 
   const apagarMaterial = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "materiais", id));
+      await LocalStorage.deleteMaterial(id);
+      await carregarDados(); // Atualiza lista local
       return { success: true };
     } catch (error: any) {
       console.error("Erro ao apagar material:", error);
@@ -63,7 +36,7 @@ export function useMateriaisList() {
     }
   };
 
-  return { materiais, carregando, apagarMaterial };
+  return { materiais, carregando, apagarMaterial, refresh: carregarDados };
 }
 
 export function useMaterial(id?: string | string[]) {
@@ -76,30 +49,14 @@ export function useMaterial(id?: string | string[]) {
       return;
     }
 
-    const docRef = doc(db, "materiais", id);
-    const unsubscribe = onSnapshot(
-      docRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setMaterial({
-            id: docSnap.id,
-            title: data.title || "Sem título",
-            imagemCapa: data.imagemCapa || "",
-            blocos: data.blocos || [],
-          });
-        } else {
-          setMaterial(null);
-        }
-        setCarregando(false);
-      },
-      (error) => {
-        console.error("Erro ao carregar aula:", error);
-        setCarregando(false);
-      },
-    );
+    const fetchDetail = async () => {
+      setCarregando(true);
+      const data = await LocalStorage.getMaterialById(id);
+      setMaterial(data);
+      setCarregando(false);
+    };
 
-    return () => unsubscribe();
+    fetchDetail();
   }, [id]);
 
   return { material, carregando };

@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -14,35 +13,16 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { auth } from '../firebase.config';
+import { useAuth } from '../hooks/useAuth';
 
 export default function TelaLogin() {
   const router = useRouter();
+  const { loginLocal } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-
-  const mensagemErro = (code: string) => {
-    switch (code) {
-      case 'auth/invalid-email':
-        return 'E-mail inválido.';
-      case 'auth/user-not-found':
-        return 'Usuário não encontrado.';
-      case 'auth/wrong-password':
-        return 'Senha incorreta.';
-      case 'auth/invalid-credential':
-        return 'E-mail ou senha incorretos.';
-      case 'auth/too-many-requests':
-        return 'Muitas tentativas. Tente novamente mais tarde.';
-      case 'auth/network-request-failed':
-        return 'Sem conexão com a internet.';
-      default:
-        return 'Erro ao entrar. Verifique suas credenciais.';
-    }
-  };
 
   const handleEntrar = async () => {
     if (!email.trim() || !senha.trim()) {
@@ -51,14 +31,23 @@ export default function TelaLogin() {
     }
     setErro('');
     setCarregando(true);
-    try {
-      await signInWithEmailAndPassword(auth, email.trim(), senha);
-      router.replace('/menu');
-    } catch (e: any) {
-      setErro(mensagemErro(e.code));
-    } finally {
-      setCarregando(false);
-    }
+    
+    // Simulação de login local
+    setTimeout(async () => {
+      try {
+        // Aceita qualquer login para facilitar localmente, ou um específico
+        if (email.trim() === 'facilitador@gmail.com' && senha === '123456') {
+          await loginLocal(email.trim());
+          router.replace('/menu');
+        } else {
+          setErro('E-mail ou senha incorretos (Local).');
+        }
+      } catch (e) {
+        setErro('Erro ao entrar localmente.');
+      } finally {
+        setCarregando(false);
+      }
+    }, 1000);
   };
 
   return (
