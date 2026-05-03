@@ -30,11 +30,11 @@ export default function DuvidasScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
+    <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* ───── CABEÇALHO ROXO ───── */}
-      <View className="flex-row items-center justify-between px-5 py-4 bg-primary">
+      {/* ───── CABEÇALHO ROXO/PRETO ───── */}
+      <View className={`flex-row items-center justify-between px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.8}
