@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import BottomNav from '../components/BottomNav';
 import { useAuth } from '../hooks/useAuth';
 
 export default function DuvidasScreen() {
@@ -29,7 +30,7 @@ export default function DuvidasScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ───── CABEÇALHO ROXO ───── */}
@@ -78,7 +79,7 @@ export default function DuvidasScreen() {
         <TouchableOpacity
           onPress={() => alert('Em breve: Adicionar dúvida!')}
           activeOpacity={0.8}
-          className="absolute bottom-8 right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
+          className="absolute bottom-[140px] right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
           accessible={true}
           accessibilityLabel="Adicionar nova dúvida"
           accessibilityRole="button"
@@ -86,6 +87,8 @@ export default function DuvidasScreen() {
           <Ionicons name="add" size={36} color="#FFFFFF" />
         </TouchableOpacity>
       ) : null}
+      
+      <BottomNav currentRoute="duvidas" />
     </SafeAreaView>
   );
 }

@@ -5,13 +5,14 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../hooks/useAuth';
+import BottomNav from '../components/BottomNav';
 
 export default function TelaMenu() {
   const router = useRouter();
   const { logoutLocal } = useAuth();
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
       {/* Cabeçalho Voltar */}
       <View className="flex-row items-center px-6 py-4 mt-2">
@@ -88,6 +89,7 @@ export default function TelaMenu() {
         />
 
       </View>
+      <BottomNav currentRoute="menu" />
     </SafeAreaView>
   );
 }

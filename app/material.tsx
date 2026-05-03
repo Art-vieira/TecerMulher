@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import BottomNav from '../components/BottomNav';
 
 import { useMateriaisList } from '../hooks/useMateriais';
 import { useAuth } from '../hooks/useAuth';
@@ -73,7 +74,7 @@ export default function TelaMateriais() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ── Cabeçalho ── */}
@@ -218,7 +219,7 @@ export default function TelaMateriais() {
         <TouchableOpacity
           onPress={() => router.push('/admin/add-material')}
           activeOpacity={0.8}
-          className="absolute bottom-8 right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
+          className="absolute bottom-[140px] right-8 bg-accent w-16 h-16 rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
           accessible={true}
           accessibilityLabel="Adicionar novo material"
           accessibilityRole="button"
@@ -226,6 +227,8 @@ export default function TelaMateriais() {
           <Ionicons name="add" size={36} color="#FFFFFF" />
         </TouchableOpacity>
       ) : null}
+      
+      <BottomNav currentRoute="material" />
     </SafeAreaView>
   );
 }
