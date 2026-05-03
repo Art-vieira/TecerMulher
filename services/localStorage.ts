@@ -25,7 +25,11 @@ export type Material = {
 export type Duvida = {
   id: string;
   title: string;
-  resposta?: string;
+  resposta?: string; // Mantido para retrocompatibilidade
+  tipoResposta?: 'curta' | 'expandida';
+  respostaCurta?: string;
+  respostaExpandida?: string;
+  imagemDuvida?: string;
   createdAt: string;
 };
 
@@ -141,6 +145,11 @@ export const LocalStorage = {
     }
   },
 
+  async getDuvidaById(id: string): Promise<Duvida | null> {
+    const duvidas = await this.getDuvidas();
+    return duvidas.find(d => d.id === id) || null;
+  },
+
   async addDuvida(duvida: Omit<Duvida, 'id' | 'createdAt'>): Promise<Duvida> {
     const duvidas = await this.getDuvidas();
     const newDuvida: Duvida = {
@@ -150,6 +159,12 @@ export const LocalStorage = {
     };
     await this.saveDuvidas([newDuvida, ...duvidas]);
     return newDuvida;
+  },
+
+  async updateDuvida(id: string, updates: Partial<Duvida>): Promise<void> {
+    const duvidas = await this.getDuvidas();
+    const updated = duvidas.map(d => d.id === id ? { ...d, ...updates } : d);
+    await this.saveDuvidas(updated);
   },
 
   async deleteDuvida(id: string): Promise<void> {
