@@ -52,7 +52,7 @@ export default function DuvidasScreen() {
 
       {/* ───── CORPO ───── */}
       <View className="flex-1 bg-background rounded-t-[24px] px-6 pt-8">
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 140 }}>
           <Text className="text-2xl font-bold text-primary mb-5">
             Dúvidas Frequentes
           </Text>

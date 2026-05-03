@@ -32,9 +32,10 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
       <TouchableOpacity
         onPress={() => handlePress(route)}
         activeOpacity={0.8}
-        className={`w-[110px] h-[85px] rounded-[16px] flex-col justify-center items-center ${
+        className={`rounded-[16px] flex-col justify-center items-center ${
           isActive ? 'bg-[#F8F8F8]' : 'bg-transparent'
         }`}
+        style={{ width: 110, height: 85 }}
       >
         <View className="mb-1 items-center justify-center">
           <Ionicons
@@ -57,8 +58,14 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
 
   return (
     <View 
-      className="w-full h-[120px] bg-primary flex-row justify-center items-center gap-2"
+      className="bg-primary flex-row justify-center items-center gap-2"
       style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        height: 120,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -5 },
         shadowOpacity: 0.25,
@@ -66,6 +73,7 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
         elevation: 20,
         borderTopWidth: 1,
         borderTopColor: 'rgba(255, 255, 255, 0.10)',
+        zIndex: 50,
       }}
     >
       <NavItem route="menu" label="INÍCIO" iconName="home" />

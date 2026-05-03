@@ -35,7 +35,7 @@ export default function TelaMenu() {
       </View>
 
       {/* Container Principal */}
-      <View className="flex-1 bg-background rounded-t-[30px] mt-2 px-8 pt-10 pb-8 items-center justify-between">
+      <View className="flex-1 bg-background rounded-t-[30px] mt-2 px-8 pt-10 pb-[140px] items-center justify-between">
         
         <View className="w-full items-center">
           {/* Botão Materiais */}

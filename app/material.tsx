@@ -121,7 +121,7 @@ export default function TelaMateriais() {
         ) : (
           <ScrollView 
             showsVerticalScrollIndicator={false} 
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: 140 }}
             onScroll={() => setMenuAberto(null)}
             scrollEventThrottle={16}
           >
