@@ -5,14 +5,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#391A65',
-        background: '#E8E5ED',
-        'text-dark': '#2D1B50',
-        accent: '#CF96D5',
-        'border-light': '#C5BFD0',
-        'text-muted': '#7A6E8A',
+        primary: '#4C1D95',    // Deep Violet
+        secondary: '#8B5CF6',  // Soft Violet
+        accent: '#EC4899',     // Pink/Magenta Accent
+        background: '#F5F3FF', // Very Light Lavender
+        surface: '#FFFFFF',    // Card background
+        'text-dark': '#1F2937',// Neutral Cool Dark
+        'text-muted': '#6B7280',// Neutral Cool Gray
+        'border-light': '#E5E7EB',
         white: '#FFFFFF',
-        error: '#C0392B',
+        error: '#EF4444',
       }
     },
   },

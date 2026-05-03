@@ -11,10 +11,10 @@ export default function TelaMenu() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-background">
       <Stack.Screen options={{ headerShown: false }} />
       {/* Cabeçalho Voltar */}
-      <View className="flex-row items-center px-6 py-4 mt-2">
+      <View className="flex-row items-center px-8 py-6">
         <TouchableOpacity 
           onPress={async () => {
             if (auth.currentUser) {
@@ -22,72 +22,89 @@ export default function TelaMenu() {
             }
             router.back();
           }}
-          activeOpacity={0.8}
-          className="flex-row items-center min-h-[50px] pr-4"
+          activeOpacity={0.7}
+          className="flex-row items-center min-h-[44px]"
           accessible={true}
           accessibilityLabel="Deslogar e voltar"
           accessibilityRole="button"
         >
-          <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
-          <Text className="text-white text-lg font-semibold ml-3" style={{ fontFamily: 'Poppins' }}>
+          <View className="bg-primary/10 p-2 rounded-full mr-3">
+            <Ionicons name="arrow-back" size={24} color="#4C1D95" />
+          </View>
+          <Text className="text-primary text-lg font-bold">
             Voltar
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Container Principal */}
-      <View className="flex-1 bg-background rounded-t-[30px] mt-2 px-8 pt-10 pb-8 items-center justify-between">
+      <View className="flex-1 px-8 pt-4 pb-8 items-center">
         
-        <View className="w-full items-center">
+        <View className="w-full mb-10">
+          <Text className="text-text-dark text-4xl font-bold mb-2">Bem-vinda!</Text>
+          <Text className="text-text-muted text-lg">O que vamos aprender hoje?</Text>
+        </View>
+
+        <View className="w-full flex-1">
           {/* Botão Materiais */}
           <Link href="/material" asChild>
             <TouchableOpacity 
-              className="w-full max-w-[300px] h-[190px] bg-primary rounded-[30px] items-center justify-center mb-8 shadow-md shadow-primary/30"
-              activeOpacity={0.8}
+              className="w-full bg-surface rounded-[32px] p-8 mb-6 shadow-xl shadow-primary/10 flex-row items-center border border-primary/5"
+              activeOpacity={0.9}
               accessible={true}
               accessibilityLabel="Acessar sessão de Materiais"
               accessibilityRole="button"
             >
-              <Image
-                source={require("../assets/images/aula.svg")}
-                style={{ width: 50, height: 60, marginBottom: 16 }}
-                contentFit="contain"
-              />
-              <Text className="text-white text-[30px] font-bold" style={{ fontFamily: 'Poppins' }}>
-                Materiais
-              </Text>
+              <View className="bg-primary/10 p-5 rounded-3xl mr-6">
+                <Image
+                  source={require("../assets/images/aula.svg")}
+                  style={{ width: 40, height: 40 }}
+                  contentFit="contain"
+                  tintColor="#4C1D95"
+                />
+              </View>
+              <View>
+                <Text className="text-text-dark text-2xl font-bold">Materiais</Text>
+                <Text className="text-text-muted text-sm mt-1">Acesse suas aulas</Text>
+              </View>
             </TouchableOpacity>
           </Link>
 
           {/* Botão Dúvidas */}
           <Link href="/duvidas" asChild>
             <TouchableOpacity 
-              className="w-full max-w-[300px] h-[190px] bg-primary rounded-[30px] items-center justify-center shadow-md shadow-primary/30"
-              activeOpacity={0.8}
+              className="w-full bg-surface rounded-[32px] p-8 shadow-xl shadow-primary/10 flex-row items-center border border-primary/5"
+              activeOpacity={0.9}
               accessible={true}
               accessibilityLabel="Acessar sessão de Dúvidas"
               accessibilityRole="button"
             >
-              <Image
-                source={require("../assets/images/duvidas.svg")}
-                style={{ width: 60, height: 50, marginBottom: 16 }}
-                contentFit="contain"
-              />
-              <Text className="text-white text-[30px] font-bold" style={{ fontFamily: 'Poppins' }}>
-                Dúvidas
-              </Text>
+              <View className="bg-accent/10 p-5 rounded-3xl mr-6">
+                <Image
+                  source={require("../assets/images/duvidas.svg")}
+                  style={{ width: 40, height: 40 }}
+                  contentFit="contain"
+                  tintColor="#EC4899"
+                />
+              </View>
+              <View>
+                <Text className="text-text-dark text-2xl font-bold">Dúvidas</Text>
+                <Text className="text-text-muted text-sm mt-1">Suporte e ajuda</Text>
+              </View>
             </TouchableOpacity>
           </Link>
         </View>
 
         {/* Logo Tecer-C */}
-        <Image
-          source={require("../assets/images/Tecer-C.png")}
-          style={{ width: 250, height: 180, marginBottom: 10 }}
-          contentFit="contain"
-          accessible={true}
-          accessibilityLabel="Logo Unifesspa Tecer"
-        />
+        <View className="opacity-40">
+          <Image
+            source={require("../assets/images/Tecer-C.png")}
+            style={{ width: 200, height: 120 }}
+            contentFit="contain"
+            accessible={true}
+            accessibilityLabel="Logo Unifesspa Tecer"
+          />
+        </View>
 
       </View>
     </SafeAreaView>
