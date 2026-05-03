@@ -16,7 +16,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
 
-
 export default function AddMaterialScreen() {
   const router = useRouter();
   
@@ -65,7 +64,6 @@ export default function AddMaterialScreen() {
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text className="text-white text-lg font-semibold ml-2">Cancelar</Text>
         </TouchableOpacity>
         
         <Text className="text-white text-lg font-bold flex-1 text-center">
@@ -82,59 +80,67 @@ export default function AddMaterialScreen() {
         >
           {salvando
             ? <ActivityIndicator color="#CF96D5" size="small" />
-            : <Text className="text-accent text-lg font-bold">Salvar</Text>
+            : <Text className="text-[#CF96D5] text-[16px] font-bold">Salvar</Text>
           }
         </TouchableOpacity>
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-background rounded-t-[30px]">
+      <View className="flex-1 bg-[#1A1A1A] rounded-t-[20px]">
         <ScrollView
           contentContainerClassName="p-6 pb-36"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Campo Título */}
-          <Text className="text-text-dark text-lg font-bold mb-2">Título da Aula</Text>
+          <Text className="text-white text-[15px] font-bold mb-2">Titulo</Text>
           <TextInput
             value={titulo}
             onChangeText={setTitulo}
-            placeholder="Ex: Aplicativos de Transporte"
+            placeholder="Digite o titulo principal..."
             placeholderTextColor="#6B5E80"
-            className="bg-white rounded-xl p-4 text-lg mb-5 border border-border-light text-text-dark"
+            className="bg-transparent rounded-xl p-4 text-[15px] mb-6 border border-[#3C3C3C] text-white"
             accessible={true}
             accessibilityLabel="Digite o título da aula"
           />
 
           {/* ─ Campo Fixo: Imagem de Capa ─ */}
-          <Text className="text-text-dark text-lg font-bold mb-2">Imagem de Capa</Text>
-          <TextInput
-            value={imagemCapa}
-            onChangeText={setImagemCapa}
-            placeholder="Cole o link da imagem de capa (https://...)"
-            placeholderTextColor="#6B5E80"
-            autoCapitalize="none"
-            keyboardType="url"
-            className="bg-white rounded-xl p-4 text-base text-text-dark mb-3 border border-border-light"
-            accessible={true}
-            accessibilityLabel="Link da imagem de capa"
-          />
           {imagemCapa.startsWith('http') ? (
-             <Image
-             source={{ uri: imagemCapa }}
-             style={{ height: 180, resizeMode: 'cover' }}
-             className="w-full rounded-xl mb-7"
-           />
+            <View className="relative mb-6">
+              <Image
+                source={{ uri: imagemCapa }}
+                style={{ height: 180, resizeMode: 'cover' }}
+                className="w-full rounded-xl"
+              />
+              <TextInput
+                value={imagemCapa}
+                onChangeText={setImagemCapa}
+                placeholder="Link da imagem..."
+                placeholderTextColor="#6B5E80"
+                autoCapitalize="none"
+                keyboardType="url"
+                className="absolute bottom-2 left-2 right-2 bg-black/60 rounded-lg p-2 text-[12px] text-white"
+              />
+            </View>
           ) : (
-            <View className="w-full h-24 rounded-xl mb-7 bg-[#EDE9F5] justify-center items-center border border-dashed border-accent">
-              <Ionicons name="image-outline" size={36} color="#CF96D5" />
-              <Text className="text-text-muted text-[15px] mt-1 font-medium">Prévia da capa aparecerá aqui</Text>
+            <View className="w-full h-[180px] rounded-xl mb-6 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C] relative">
+              <Ionicons name="image-outline" size={32} color="#FFFFFF" />
+              <Text className="text-white text-[13px] mt-2 font-medium">Upload Imagem de Capa</Text>
+              <TextInput
+                value={imagemCapa}
+                onChangeText={setImagemCapa}
+                placeholder="Cole o link da imagem..."
+                placeholderTextColor="#6B5E80"
+                autoCapitalize="none"
+                keyboardType="url"
+                className="absolute bottom-2 left-2 right-2 bg-transparent text-[12px] text-white px-2 py-1 border-b border-[#3C3C3C]"
+              />
             </View>
           )}
 
           {/* Blocos de Conteúdo */}
           {blocos.length > 0 && (
-            <Text className="text-text-dark text-lg font-bold mb-3">
+            <Text className="text-white text-[15px] font-bold mb-3">
               Conteúdo da Aula
             </Text>
           )}
@@ -142,32 +148,20 @@ export default function AddMaterialScreen() {
           {blocos.map((bloco, idx) => (
             <View
               key={bloco.id}
-              className={`bg-white rounded-[16px] p-4 mb-4 border ${
-                bloco.tipo === 'imagem' ? 'border-accent' : 'border-border-light'
+              className={`bg-transparent rounded-xl p-4 mb-4 border ${
+                bloco.tipo === 'imagem' ? 'border-[#CF96D5]' : 'border-[#3C3C3C]'
               }`}
             >
               {/* Cabeçalho do Bloco */}
               <View className="flex-row justify-between items-center mb-3">
                 <View className="flex-row items-center gap-2">
-                  <Ionicons
-                    name={
-                      bloco.tipo === 'imagem' ? 'image-outline' :
-                      bloco.tipo === 'subtitulo' ? 'text' :
-                      bloco.tipo === 'video' ? 'videocam-outline' :
-                      bloco.tipo === 'separador' ? 'remove-outline' :
-                      'text-outline'
-                    }
-                    size={20}
-                    color={bloco.tipo === 'imagem' || bloco.tipo === 'video' ? '#CF96D5' : '#391A65'}
-                  />
-                  <Text className={`font-bold text-base ${
-                    bloco.tipo === 'imagem' || bloco.tipo === 'video' ? 'text-accent' : 'text-primary'
-                  }`}>
-                    {bloco.tipo === 'imagem' ? 'Bloco de Imagem' :
-                     bloco.tipo === 'subtitulo' ? 'Bloco de Subtítulo' :
-                     bloco.tipo === 'video' ? 'Bloco de Vídeo' :
+                  <Text className="text-white font-bold text-[14px]">
+                    {bloco.tipo === 'imagem' ? 'Imagem' :
+                     bloco.tipo === 'subtitulo' ? 'Subtítulo' :
+                     bloco.tipo === 'video' ? 'Link do YT' :
                      bloco.tipo === 'separador' ? 'Separador Visual' :
-                     'Bloco de Texto'}                  </Text>
+                     'Conteúdo'}                  
+                  </Text>
                 </View>
 
                 {/* Controles */}
@@ -179,7 +173,7 @@ export default function AddMaterialScreen() {
                     accessible={true}
                     accessibilityLabel="Mover bloco para cima"
                   >
-                    <Ionicons name="chevron-up-outline" size={24} color={idx === 0 ? '#C5BFD0' : '#391A65'} />
+                    <Ionicons name="arrow-up-outline" size={20} color={idx === 0 ? '#555555' : '#FFFFFF'} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => moverBloco(bloco.id, 'down')}
@@ -188,7 +182,7 @@ export default function AddMaterialScreen() {
                     accessible={true}
                     accessibilityLabel="Mover bloco para baixo"
                   >
-                    <Ionicons name="chevron-down-outline" size={24} color={idx === blocos.length - 1 ? '#C5BFD0' : '#391A65'} />
+                    <Ionicons name="arrow-down-outline" size={20} color={idx === blocos.length - 1 ? '#555555' : '#FFFFFF'} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => removeBloco(bloco.id)}
@@ -196,7 +190,7 @@ export default function AddMaterialScreen() {
                     accessible={true}
                     accessibilityLabel="Remover bloco"
                   >
-                    <Ionicons name="trash-outline" size={22} color="#E74C3C" />
+                    <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -211,7 +205,7 @@ export default function AddMaterialScreen() {
                   multiline
                   numberOfLines={5}
                   textAlignVertical="top"
-                  className="bg-[#F8F8F8] rounded-xl p-4 text-[17px] text-text-dark min-h-[120px] border border-[#E0DCE8]"
+                  className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-[#3C3C3C]"
                   accessible={true}
                   accessibilityLabel="Campo de entrada de texto longo para a aula"
                 />
@@ -223,78 +217,76 @@ export default function AddMaterialScreen() {
                   value={bloco.conteudo}
                   onChangeText={(v) => updateBloco(bloco.id, 'conteudo', v)}
                   placeholder="Digite o subtítulo aqui..."
+                  placeholderTextColor="#6B5E80"
                   style={{
-                    backgroundColor: '#F8F8F8',
-                    borderRadius: 10,
+                    backgroundColor: 'transparent',
+                    borderRadius: 8,
                     padding: 12,
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: '600',
-                    color: '#2D1B50',
+                    color: '#FFFFFF',
                     borderWidth: 1,
-                    borderColor: '#E0DCE8',
+                    borderColor: '#3C3C3C',
                   }}
                 />
               )}
 
               {/* Conteúdo do Bloco: Vídeo */}
               {bloco.tipo === 'video' && (
-                <>
+                <View className="flex-row items-center gap-3">
+                  <View className="w-10 h-10 rounded-lg bg-[#2D1B50] items-center justify-center">
+                     <Ionicons name="play-outline" size={20} color="#FFFFFF" />
+                  </View>
                   <TextInput
                     value={bloco.url}
                     onChangeText={(v) => updateBloco(bloco.id, 'url', v)}
-                    placeholder="Cole o link do YouTube aqui..."
+                    placeholder="https://youtube.com/watch?v="
+                    placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      borderRadius: 10,
-                      padding: 12,
-                      fontSize: 14,
-                      color: '#2D1B50',
-                      borderWidth: 1,
-                      borderColor: '#CF96D5',
-                    }}
+                    className="flex-1 bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C]"
                   />
-                  {bloco.url ? (
-                     <Text style={{ fontSize: 12, color: '#7A6E8A', marginTop: 8 }}>O vídeo será carregado no aplicativo pelo YouTube.</Text>
-                  ) : null}
-                </>
+                </View>
               )}
 
               {/* Conteúdo do Bloco: Separador */}
               {bloco.tipo === 'separador' && (
                 <View style={{ height: 20, justifyContent: 'center', alignItems: 'center' }}>
-                  <View style={{ width: '80%', height: 2, backgroundColor: '#E0DCE8', borderRadius: 2 }} />
+                  <View style={{ width: '80%', height: 2, backgroundColor: '#3C3C3C', borderRadius: 2 }} />
                 </View>
               )}
 
               {/* Conteúdo do Bloco: Imagem */}
               {bloco.tipo === 'imagem' && (
                 <>
+                  {bloco.url && bloco.url.startsWith('http') ? (
+                    <Image
+                      source={{ uri: bloco.url }}
+                      style={{ height: 160, resizeMode: 'cover' }}
+                      className="w-full rounded-xl mb-3"
+                    />
+                  ) : (
+                    <View className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
+                      <Ionicons name="image-outline" size={28} color="#FFFFFF" />
+                      <Text className="text-white text-[12px] mt-2 font-medium">Upload Imagem de Capa</Text>
+                    </View>
+                  )}
                   <TextInput
                     value={bloco.url}
                     onChangeText={(v) => updateBloco(bloco.id, 'url', v)}
-                    placeholder="Cole o link da imagem aqui (https://...)"
+                    placeholder="Cole o link da imagem..."
                     placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"
-                    className="bg-white rounded-xl p-4 text-base text-text-dark mb-3 border border-border-light"
+                    className="bg-transparent rounded-lg p-3 text-[13px] text-white mb-3 border border-[#3C3C3C]"
                   />
-
-                  {bloco.url.startsWith('http') && (
-                     <Image
-                     source={{ uri: bloco.url }}
-                     style={{ height: 160, resizeMode: 'contain' }}
-                     className="w-full rounded-xl mb-3 bg-[#EDE9F5]"
-                   />
-                  )}
-
+                  <Text className="text-white text-[13px] mb-1">Legenda da imagem (opcional)</Text>
                   <TextInput
                     value={bloco.alt}
                     onChangeText={(v) => updateBloco(bloco.id, 'alt', v)}
-                    placeholder="Descrição da imagem (Acessibilidade ALT)"
+                    placeholder="Descrição da imagem"
                     placeholderTextColor="#6B5E80"
-                    className="bg-[#F8F8F8] rounded-xl p-4 text-base text-text-dark border border-[#E0DCE8]"
+                    className="bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C]"
                   />
                 </>
               )}
@@ -304,50 +296,50 @@ export default function AddMaterialScreen() {
       </View>
 
       {/* ── Botões Flutuantes: Adicionar Bloco em Horizontal ── */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-[#E0DCE8]">
+      <View className="absolute bottom-0 left-0 right-0 bg-primary border-t border-white/20">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerClassName="px-4 py-3 pb-8 gap-3"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
         >
           <TouchableOpacity
             onPress={addBlocoTexto}
-            className="bg-primary rounded-xl py-2 px-3 flex-row items-center gap-2"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
           >
-            <Ionicons name="document-text-outline" size={18} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[13px]">+ Texto</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={addBlocoSubtitulo}
-            className="bg-primary rounded-xl py-2 px-3 flex-row items-center gap-2"
-          >
-            <Ionicons name="text-outline" size={18} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[13px]">+ Subtítulo</Text>
+            <Ionicons name="document-text-outline" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">CONTEÚDO</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={addBlocoImagem}
-            className="bg-accent rounded-xl py-2 px-3 flex-row items-center gap-2"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
           >
-            <Ionicons name="image-outline" size={18} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[13px]">+ Imagem</Text>
+            <Ionicons name="image-outline" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">IMAGEM</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={addBlocoVideo}
-            className="bg-[#FF0000] rounded-xl py-2 px-3 flex-row items-center gap-2"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
           >
-            <Ionicons name="logo-youtube" size={18} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[13px]">+ Vídeo</Text>
+            <Ionicons name="logo-youtube" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">YT</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            onPress={addBlocoSubtitulo}
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
+          >
+            <Ionicons name="text-outline" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">SUBTÍTULO</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={addBlocoSeparador}
-            className="bg-gray-400 rounded-xl py-2 px-3 flex-row items-center gap-2"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50]"
           >
-            <Ionicons name="remove-outline" size={18} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[13px]">+ Separador</Text>
+            <Ionicons name="remove-outline" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">SEPARADOR</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

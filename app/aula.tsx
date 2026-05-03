@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
 import { useMaterial } from '../hooks/useMateriais';
+import { useAuth } from '../hooks/useAuth';
 
 const extractYouTubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -25,6 +26,7 @@ export default function AulaScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const [mostrarVoltarTopo, setMostrarVoltarTopo] = useState(false);
+  const { isAdmin } = useAuth();
   
   const scrollViewRef = useRef<ScrollView>(null);
   
@@ -41,11 +43,11 @@ export default function AulaScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ── Cabeçalho ── */}
-      <View className="flex-row items-center px-5 py-4 bg-primary">
+      <View className={`flex-row items-center px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center min-h-[44px]"
@@ -200,7 +202,7 @@ export default function AulaScreen() {
         <TouchableOpacity
           onPress={scrollToTop}
           activeOpacity={0.8}
-          className="absolute bottom-8 right-8 bg-accent w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50"
+          className={`absolute bottom-8 right-8 ${isAdmin ? 'bg-[#391A65]' : 'bg-accent'} w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50`}
           accessible={true}
           accessibilityLabel="Voltar ao início da página"
           accessibilityRole="button"
