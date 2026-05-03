@@ -74,11 +74,11 @@ export default function TelaMateriais() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-primary" edges={['top']}>
+    <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`} edges={['top']}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ── Cabeçalho ── */}
-      <View className="flex-row items-center justify-between px-5 py-4">
+      <View className={`flex-row items-center justify-between px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
           className="flex-row items-center min-h-[44px]"

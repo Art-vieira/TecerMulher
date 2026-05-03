@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../hooks/useAuth';
 
 type Route = 'menu' | 'material' | 'duvidas';
 
@@ -11,6 +12,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ currentRoute }: BottomNavProps) {
   const router = useRouter();
+  const { isAdmin } = useAuth();
 
   const handlePress = (route: Route) => {
     if (route === currentRoute) return;
@@ -41,12 +43,12 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
           <Ionicons
             name={iconName}
             size={28}
-            color={isActive ? '#391A65' : '#F8F8F8'}
+            color={isActive ? (isAdmin ? '#1A1A1A' : '#391A65') : '#F8F8F8'}
           />
         </View>
         <Text
           className={`text-[14px] font-bold uppercase tracking-[0.35px] ${
-            isActive ? 'text-primary' : 'text-[#F8F8F8]'
+            isActive ? (isAdmin ? 'text-[#1A1A1A]' : 'text-primary') : 'text-[#F8F8F8]'
           }`}
           style={{ fontFamily: 'Montserrat' }}
         >
@@ -58,7 +60,7 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
 
   return (
     <View 
-      className="bg-primary flex-row justify-center items-center gap-2"
+      className={`flex-row justify-center items-center gap-2 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}
       style={{
         position: 'absolute',
         bottom: 0,
