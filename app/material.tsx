@@ -240,18 +240,17 @@ export default function TelaMateriais() {
       </View>
 
       {/* Botão + (admin) */}
-      {isAdmin ? (
+      {isAdmin && (
         <TouchableOpacity
           onPress={() => router.push('/admin/add-material')}
           activeOpacity={0.8}
-          className="absolute bottom-[130px] right-6 bg-[#391A65] w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
+          className="absolute right-6 bottom-[140px] w-14 h-14 bg-[#1A1A1A] rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
           accessible={true}
-          accessibilityLabel="Adicionar novo material"
-          accessibilityRole="button"
+          accessibilityLabel="Adicionar nova aula"
         >
-          <Ionicons name="add" size={32} color="#FFFFFF" />
+          <Ionicons name="add" size={32} color="#FFF" />
         </TouchableOpacity>
-      ) : null}
+      )}
       
       <BottomNav currentRoute="material" />
     </SafeAreaView>

@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import * as Speech from 'expo-speech';
 import {
   Image,
   ScrollView,
@@ -24,6 +25,21 @@ export default function DuvidasScreen() {
   
   const { isAdmin } = useAuth();
   const { duvidas, carregando, apagarDuvida } = useDuvidasList();
+
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
+
+  const lerDuvida = async (titulo: string, resposta: string) => {
+    const isSpeaking = await Speech.isSpeakingAsync();
+    if (isSpeaking) {
+      Speech.stop();
+    } else if (resposta) {
+      Speech.speak(`${titulo}. ${resposta}`, { language: 'pt-BR' });
+    }
+  };
 
   const duvidasFiltradas = duvidas.filter((item) =>
     item.title.toLowerCase().includes(pesquisa.toLowerCase())
@@ -91,10 +107,20 @@ export default function DuvidasScreen() {
           {item.title}
         </Text>
         
-        <Text className="text-[14px] text-text-dark mb-4 leading-[22px]">
-          <Text className="font-semibold text-text-dark">Resposta: </Text>
-          {respostaText}
-        </Text>
+        <View className="flex-row items-start justify-between mb-4 gap-2">
+          <Text className="text-[14px] text-text-dark leading-[22px] flex-1">
+            <Text className="font-semibold text-text-dark">Resposta: </Text>
+            {respostaText}
+          </Text>
+          <TouchableOpacity
+            onPress={() => lerDuvida(item.title, respostaText)}
+            className="w-10 h-10 bg-[#E0DCE8] rounded-full items-center justify-center"
+            accessible={true}
+            accessibilityLabel="Ouvir resposta"
+          >
+            <Ionicons name="volume-high" size={20} color="#391A65" />
+          </TouchableOpacity>
+        </View>
 
         <View className="flex-row gap-3">
           <TouchableOpacity 
@@ -141,9 +167,19 @@ export default function DuvidasScreen() {
 
         {isExpanded && !isExpandidaType && (
           <View className="px-5 pb-5">
-            <Text className="text-[15px] text-text-dark leading-[24px]">
-              {item.respostaCurta || item.resposta || ''}
-            </Text>
+            <View className="flex-row items-start justify-between gap-2">
+              <Text className="text-[15px] text-text-dark leading-[24px] flex-1">
+                {item.respostaCurta || item.resposta || ''}
+              </Text>
+              <TouchableOpacity
+                onPress={() => lerDuvida(item.title, item.respostaCurta || item.resposta || '')}
+                className="w-10 h-10 bg-[#E0DCE8] rounded-full items-center justify-center ml-2"
+                accessible={true}
+                accessibilityLabel="Ouvir resposta"
+              >
+                <Ionicons name="volume-high" size={20} color="#391A65" />
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -231,13 +267,11 @@ export default function DuvidasScreen() {
       {isAdmin && (
         <TouchableOpacity
           onPress={() => router.push('/admin/add-duvida')}
-          activeOpacity={0.8}
-          className="absolute bottom-[140px] right-6 bg-[#391A65] w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5"
+          className="absolute right-6 bottom-[140px] w-14 h-14 bg-[#1A1A1A] rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
           accessible={true}
           accessibilityLabel="Adicionar nova dúvida"
-          accessibilityRole="button"
         >
-          <Ionicons name="add" size={32} color="#FFFFFF" />
+          <Ionicons name="add" size={32} color="#FFF" />
         </TouchableOpacity>
       )}
       

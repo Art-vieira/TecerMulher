@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import * as Speech from 'expo-speech';
 import {
   ActivityIndicator,
   Linking,
@@ -31,9 +32,49 @@ export default function AulaScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   
   const { material, carregando } = useMaterial(id);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
+
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
+
+  const toggleSpeech = async () => {
+    if (isSpeaking) {
+      Speech.stop();
+      setIsSpeaking(false);
+    } else {
+      const textoParaLer = material?.blocos
+        ?.filter((b: any) => b.tipo === 'texto' || b.tipo === 'subtitulo')
+        .map((b: any) => b.conteudo)
+        .join('. ') || '';
+
+      if (textoParaLer) {
+        Speech.speak(`${material?.title}. ${textoParaLer}`, {
+          language: 'pt-BR',
+          onDone: () => setIsSpeaking(false),
+          onStopped: () => setIsSpeaking(false),
+          onError: () => setIsSpeaking(false),
+        });
+        setIsSpeaking(true);
+      }
+    }
+  };
 
   const handleScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
+    const contentHeight = event.nativeEvent.contentSize.height;
+    const layoutHeight = event.nativeEvent.layoutMeasurement.height;
+
+    if (contentHeight > layoutHeight) {
+      const progress = Math.max(0, Math.min(100, (offsetY / (contentHeight - layoutHeight)) * 100));
+      setReadingProgress(Math.round(progress));
+    } else {
+      setReadingProgress(100);
+    }
+
     // Mostrar botão de voltar ao topo se rolar mais de 300px
     setMostrarVoltarTopo(offsetY > 300);
   };
@@ -64,7 +105,22 @@ export default function AulaScreen() {
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-background rounded-t-[24px] overflow-hidden">
+      <View className="flex-1 bg-background rounded-t-[24px] overflow-hidden pt-5">
+        {/* Barra de Progresso */}
+        {!carregando && material && (
+          <View className="px-6 mb-4">
+            <Text className="text-primary text-[13px] font-bold mb-2">
+              Progresso de leitura: {readingProgress}%
+            </Text>
+            <View className="h-[6px] w-full bg-[#E0DCE8] rounded-full overflow-hidden">
+              <View 
+                className="h-full bg-primary rounded-full" 
+                style={{ width: `${readingProgress}%` }} 
+              />
+            </View>
+          </View>
+        )}
+
         {carregando ? (
           <View className="flex-1 justify-center items-center">
             <ActivityIndicator size="large" color="#391A65" />
@@ -202,7 +258,7 @@ export default function AulaScreen() {
         <TouchableOpacity
           onPress={scrollToTop}
           activeOpacity={0.8}
-          className={`absolute bottom-8 right-8 ${isAdmin ? 'bg-[#391A65]' : 'bg-accent'} w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50`}
+          className={`absolute bottom-[130px] right-8 ${isAdmin ? 'bg-[#391A65]' : 'bg-accent'} w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50`}
           accessible={true}
           accessibilityLabel="Voltar ao início da página"
           accessibilityRole="button"
@@ -210,6 +266,18 @@ export default function AulaScreen() {
           <Ionicons name="arrow-up" size={32} color="#FFFFFF" />
         </TouchableOpacity>
       )}
+
+      {/* Botão flutuante do Leitor de Tela */}
+      <TouchableOpacity
+        onPress={toggleSpeech}
+        activeOpacity={0.8}
+        className={`absolute bottom-[60px] right-8 bg-primary w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50`}
+        accessible={true}
+        accessibilityLabel={isSpeaking ? "Parar leitura" : "Ouvir aula"}
+        accessibilityRole="button"
+      >
+        <Ionicons name={isSpeaking ? "stop" : "volume-high"} size={32} color="#FFFFFF" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
