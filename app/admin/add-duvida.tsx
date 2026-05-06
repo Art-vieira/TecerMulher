@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 
 import { useDuvidaForm } from '../../hooks/useDuvidaForm';
 
@@ -46,6 +47,18 @@ export default function AddDuvidaScreen() {
       } else {
         Alert.alert('Atenção', res.error || 'Erro desconhecido.');
       }
+    }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImagemDuvida(result.assets[0].uri);
     }
   };
 
@@ -194,23 +207,31 @@ export default function AddDuvidaScreen() {
                     ) : null}
                   </View>
 
-                  {imagemDuvida && imagemDuvida.startsWith('http') ? (
-                    <Image
-                      source={{ uri: imagemDuvida }}
-                      style={{ height: 160, resizeMode: 'cover' }}
-                      className="w-full rounded-xl mb-4"
-                    />
+                  {imagemDuvida && (imagemDuvida.startsWith('http') || imagemDuvida.startsWith('file')) ? (
+                    <View className="relative">
+                      <Image
+                        source={{ uri: imagemDuvida }}
+                        style={{ height: 160, resizeMode: 'cover' }}
+                        className="w-full rounded-xl mb-4"
+                      />
+                      <TouchableOpacity
+                        onPress={pickImage}
+                        className="absolute top-2 right-2 bg-black/60 rounded-full p-2"
+                      >
+                        <Ionicons name="pencil" size={20} color="#FFFFFF" />
+                      </TouchableOpacity>
+                    </View>
                   ) : (
-                    <View className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
+                    <TouchableOpacity onPress={pickImage} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
                       <Ionicons name="image-outline" size={28} color="#FFFFFF" />
                       <Text className="text-white text-[12px] mt-2 font-medium">Upload da Imagem</Text>
-                    </View>
+                    </TouchableOpacity>
                   )}
 
                   <TextInput
                     value={imagemDuvida}
                     onChangeText={setImagemDuvida}
-                    placeholder="Cole o link da imagem..."
+                    placeholder="Ou cole o link da imagem..."
                     placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"

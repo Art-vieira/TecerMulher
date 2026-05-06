@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
 
@@ -49,6 +50,30 @@ export default function AddMaterialScreen() {
   };
 
   const { addBlocoTexto, addBlocoImagem, addBlocoSubtitulo, addBlocoVideo, addBlocoSeparador, removeBloco, updateBloco, moverBloco } = acoesBloco;
+
+  const pickImageForCapa = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImagemCapa(result.assets[0].uri);
+    }
+  };
+
+  const pickImageForBlock = async (id: string) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      updateBloco(id, 'url', result.assets[0].uri);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -105,7 +130,7 @@ export default function AddMaterialScreen() {
           />
 
           {/* ─ Campo Fixo: Imagem de Capa ─ */}
-          {imagemCapa.startsWith('http') ? (
+          {imagemCapa && (imagemCapa.startsWith('http') || imagemCapa.startsWith('file')) ? (
             <View className="relative mb-6">
               <Image
                 source={{ uri: imagemCapa }}
@@ -121,21 +146,27 @@ export default function AddMaterialScreen() {
                 keyboardType="url"
                 className="absolute bottom-2 left-2 right-2 bg-black/60 rounded-lg p-2 text-[12px] text-white"
               />
+              <TouchableOpacity
+                onPress={pickImageForCapa}
+                className="absolute top-2 right-2 bg-black/60 rounded-full p-2"
+              >
+                <Ionicons name="pencil" size={20} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
           ) : (
-            <View className="w-full h-[180px] rounded-xl mb-6 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C] relative">
+            <TouchableOpacity onPress={pickImageForCapa} className="w-full h-[180px] rounded-xl mb-6 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C] relative">
               <Ionicons name="image-outline" size={32} color="#FFFFFF" />
               <Text className="text-white text-[13px] mt-2 font-medium">Upload Imagem de Capa</Text>
               <TextInput
                 value={imagemCapa}
                 onChangeText={setImagemCapa}
-                placeholder="Cole o link da imagem..."
+                placeholder="Ou cole o link da imagem..."
                 placeholderTextColor="#6B5E80"
                 autoCapitalize="none"
                 keyboardType="url"
                 className="absolute bottom-2 left-2 right-2 bg-transparent text-[12px] text-white px-2 py-1 border-b border-[#3C3C3C]"
               />
-            </View>
+            </TouchableOpacity>
           )}
 
           {/* Blocos de Conteúdo */}
@@ -259,22 +290,30 @@ export default function AddMaterialScreen() {
               {/* Conteúdo do Bloco: Imagem */}
               {bloco.tipo === 'imagem' && (
                 <>
-                  {bloco.url && bloco.url.startsWith('http') ? (
-                    <Image
-                      source={{ uri: bloco.url }}
-                      style={{ height: 160, resizeMode: 'cover' }}
-                      className="w-full rounded-xl mb-3"
-                    />
-                  ) : (
-                    <View className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
-                      <Ionicons name="image-outline" size={28} color="#FFFFFF" />
-                      <Text className="text-white text-[12px] mt-2 font-medium">Upload Imagem de Capa</Text>
+                  {bloco.url && (bloco.url.startsWith('http') || bloco.url.startsWith('file')) ? (
+                    <View className="relative">
+                      <Image
+                        source={{ uri: bloco.url }}
+                        style={{ height: 160, resizeMode: 'cover' }}
+                        className="w-full rounded-xl mb-3"
+                      />
+                      <TouchableOpacity
+                        onPress={() => pickImageForBlock(bloco.id)}
+                        className="absolute top-2 right-2 bg-black/60 rounded-full p-2"
+                      >
+                        <Ionicons name="pencil" size={20} color="#FFFFFF" />
+                      </TouchableOpacity>
                     </View>
+                  ) : (
+                    <TouchableOpacity onPress={() => pickImageForBlock(bloco.id)} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
+                      <Ionicons name="image-outline" size={28} color="#FFFFFF" />
+                      <Text className="text-white text-[12px] mt-2 font-medium">Upload Imagem</Text>
+                    </TouchableOpacity>
                   )}
                   <TextInput
                     value={bloco.url}
                     onChangeText={(v) => updateBloco(bloco.id, 'url', v)}
-                    placeholder="Cole o link da imagem..."
+                    placeholder="Ou cole o link da imagem..."
                     placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"
