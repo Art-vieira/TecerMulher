@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LocalStorage, Material, MaterialDetail } from "../services/localStorage";
+import { LocalStorage, Material, Bloco } from "../services/localStorage";
 
 export type BlocoTexto = { id: string; tipo: "texto"; conteudo: string };
 export type BlocoImagem = {
@@ -8,7 +8,7 @@ export type BlocoImagem = {
   url: string;
   alt: string;
 };
-export type Bloco = BlocoTexto | BlocoImagem;
+
 
 export function useMateriaisList() {
   const [materiais, setMateriais] = useState<Material[]>([]);
@@ -40,7 +40,7 @@ export function useMateriaisList() {
 }
 
 export function useMaterial(id?: string | string[]) {
-  const [material, setMaterial] = useState<MaterialDetail | null>(null);
+  const [material, setMaterial] = useState<Material | null>(null);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {

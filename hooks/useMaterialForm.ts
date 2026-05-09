@@ -37,7 +37,7 @@ export function useMaterialForm(id?: string | string[]) {
 
   // Manipulação de Blocos
   const addBlocoTexto = () =>
-    setBlocos((prev) => [...prev, { id: uid(), tipo: "texto", conteudo: "" }]);
+    setBlocos((prev) => [...prev, { id: uid(), tipo: "texto", titulo: "", conteudo: "" }]);
 
   const addBlocoSubtitulo = () =>
     setBlocos((prev) => [...prev, { id: uid(), tipo: "subtitulo", conteudo: "" }]);
@@ -53,6 +53,9 @@ export function useMaterialForm(id?: string | string[]) {
 
   const addBlocoSeparador = () =>
     setBlocos((prev) => [...prev, { id: uid(), tipo: "separador" }]);
+
+  const addBlocoAlerta = () =>
+    setBlocos((prev) => [...prev, { id: uid(), tipo: "alerta", conteudo: "" }]);
 
   const removeBloco = (idToRemove: string) =>
     setBlocos((prev) => prev.filter((b) => b.id !== idToRemove));
@@ -125,6 +128,7 @@ export function useMaterialForm(id?: string | string[]) {
       addBlocoImagem,
       addBlocoVideo,
       addBlocoSeparador,
+      addBlocoAlerta,
       removeBloco,
       updateBloco,
       moverBloco,

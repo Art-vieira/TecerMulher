@@ -49,7 +49,7 @@ export default function AddMaterialScreen() {
     }
   };
 
-  const { addBlocoTexto, addBlocoImagem, addBlocoSubtitulo, addBlocoVideo, addBlocoSeparador, removeBloco, updateBloco, moverBloco } = acoesBloco;
+  const { addBlocoTexto, addBlocoImagem, addBlocoVideo, addBlocoAlerta, removeBloco, updateBloco, moverBloco } = acoesBloco;
 
   const pickImageForCapa = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -189,9 +189,8 @@ export default function AddMaterialScreen() {
                 <View className="flex-row items-center gap-2">
                   <Text className="text-white font-bold text-[14px]">
                     {bloco.tipo === 'imagem' ? 'Imagem' :
-                     bloco.tipo === 'subtitulo' ? 'Subtítulo' :
                      bloco.tipo === 'video' ? 'Link do YT' :
-                     bloco.tipo === 'separador' ? 'Separador Visual' :
+                     bloco.tipo === 'alerta' ? 'Alerta' :
                      'Conteúdo'}                  
                   </Text>
                 </View>
@@ -229,38 +228,45 @@ export default function AddMaterialScreen() {
 
               {/* Conteúdo do Bloco: Texto */}
               {bloco.tipo === 'texto' && (
-                <TextInput
-                  value={bloco.conteudo}
-                  onChangeText={(v) => updateBloco(bloco.id, 'conteudo', v)}
-                  placeholder="Digite o texto da aula aqui..."
-                  placeholderTextColor="#6B5E80"
-                  multiline
-                  numberOfLines={5}
-                  textAlignVertical="top"
-                  className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-[#3C3C3C]"
-                  accessible={true}
-                  accessibilityLabel="Campo de entrada de texto longo para a aula"
-                />
+                <View className="gap-3">
+                  <TextInput
+                    value={bloco.titulo}
+                    onChangeText={(v) => updateBloco(bloco.id, 'titulo', v)}
+                    placeholder="Título (opcional)..."
+                    placeholderTextColor="#6B5E80"
+                    className="bg-transparent rounded-lg p-3 text-[14px] font-bold text-white border border-[#3C3C3C]"
+                  />
+                  <TextInput
+                    value={bloco.conteudo}
+                    onChangeText={(v) => updateBloco(bloco.id, 'conteudo', v)}
+                    placeholder="Digite o texto da aula aqui..."
+                    placeholderTextColor="#6B5E80"
+                    multiline
+                    numberOfLines={5}
+                    textAlignVertical="top"
+                    className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-[#3C3C3C]"
+                    accessible={true}
+                    accessibilityLabel="Campo de entrada de texto longo para a aula"
+                  />
+                </View>
               )}
 
-              {/* Conteúdo do Bloco: Subtítulo */}
-              {bloco.tipo === 'subtitulo' && (
-                <TextInput
-                  value={bloco.conteudo}
-                  onChangeText={(v) => updateBloco(bloco.id, 'conteudo', v)}
-                  placeholder="Digite o subtítulo aqui..."
-                  placeholderTextColor="#6B5E80"
-                  style={{
-                    backgroundColor: 'transparent',
-                    borderRadius: 8,
-                    padding: 12,
-                    fontSize: 14,
-                    fontWeight: '600',
-                    color: '#FFFFFF',
-                    borderWidth: 1,
-                    borderColor: '#3C3C3C',
-                  }}
-                />
+              {/* Conteúdo do Bloco: Alerta */}
+              {bloco.tipo === 'alerta' && (
+                <View className="flex-row items-start gap-3">
+                  <View className="w-10 h-10 rounded-lg bg-red-500/20 items-center justify-center mt-1">
+                     <Ionicons name="warning-outline" size={20} color="#EF4444" />
+                  </View>
+                  <TextInput
+                    value={bloco.conteudo}
+                    onChangeText={(v) => updateBloco(bloco.id, 'conteudo', v)}
+                    placeholder="Digite o aviso/alerta aqui..."
+                    placeholderTextColor="#6B5E80"
+                    multiline
+                    className="flex-1 bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C] min-h-[80px]"
+                    textAlignVertical="top"
+                  />
+                </View>
               )}
 
               {/* Conteúdo do Bloco: Vídeo */}
@@ -281,12 +287,7 @@ export default function AddMaterialScreen() {
                 </View>
               )}
 
-              {/* Conteúdo do Bloco: Separador */}
-              {bloco.tipo === 'separador' && (
-                <View style={{ height: 20, justifyContent: 'center', alignItems: 'center' }}>
-                  <View style={{ width: '80%', height: 2, backgroundColor: '#3C3C3C', borderRadius: 2 }} />
-                </View>
-              )}
+
 
               {/* Conteúdo do Bloco: Imagem */}
               {bloco.tipo === 'imagem' && (
@@ -367,19 +368,11 @@ export default function AddMaterialScreen() {
           </TouchableOpacity>
           
           <TouchableOpacity
-            onPress={addBlocoSubtitulo}
-            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
-          >
-            <Ionicons name="text-outline" size={24} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">SUBTÍTULO</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={addBlocoSeparador}
+            onPress={addBlocoAlerta}
             className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50]"
           >
-            <Ionicons name="remove-outline" size={24} color="#FFFFFF" />
-            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">SEPARADOR</Text>
+            <Ionicons name="warning-outline" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">ALERTA</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

@@ -8,7 +8,8 @@ const KEYS = {
 
 export type Bloco = {
   id: string;
-  tipo: 'texto' | 'subtitulo' | 'imagem' | 'video' | 'separador';
+  tipo: 'texto' | 'subtitulo' | 'imagem' | 'video' | 'separador' | 'alerta';
+  titulo?: string;
   conteudo?: string;
   url?: string;
   alt?: string;

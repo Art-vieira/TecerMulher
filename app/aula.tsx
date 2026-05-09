@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
+import YoutubeIframe from 'react-native-youtube-iframe';
 
 import ProgressBar from '../components/ProgressBar';
 
@@ -49,8 +49,16 @@ export default function AulaScreen() {
       setIsSpeaking(false);
     } else {
       const textoParaLer = material?.blocos
-        ?.filter((b: any) => b.tipo === 'texto' || b.tipo === 'subtitulo')
-        .map((b: any) => b.conteudo)
+        ?.filter((b: any) => b.tipo === 'texto' || b.tipo === 'subtitulo' || b.tipo === 'alerta')
+        .map((b: any) => {
+           if (b.tipo === 'texto' && b.titulo) {
+              return `${b.titulo}. ${b.conteudo}`;
+           }
+           if (b.tipo === 'alerta') {
+              return `Atenção. ${b.conteudo}`;
+           }
+           return b.conteudo;
+        })
         .join('. ') || '';
 
       if (textoParaLer) {
@@ -166,14 +174,20 @@ export default function AulaScreen() {
               {material.blocos.map((bloco) => {
                 if (bloco.tipo === 'texto') {
                   return (
-                    <Text
-                      key={bloco.id}
-                      className="text-text-dark text-[18px] leading-[28px] mb-6 font-medium text-justify"
-                      accessible={true}
-                      accessibilityLabel={bloco.conteudo}
-                    >
-                      {bloco.conteudo}
-                    </Text>
+                    <View key={bloco.id} className="bg-white rounded-[16px] p-5 mb-6 shadow-sm elevation-2">
+                      {bloco.titulo ? (
+                        <Text className="text-primary text-[20px] leading-[26px] font-bold mb-3" accessible={true} accessibilityRole="header">
+                          {bloco.titulo}
+                        </Text>
+                      ) : null}
+                      <Text
+                        className="text-text-dark text-[16px] leading-[26px] font-medium"
+                        accessible={true}
+                        accessibilityLabel={bloco.conteudo}
+                      >
+                        {bloco.conteudo}
+                      </Text>
+                    </View>
                   );
                 }
 
@@ -197,7 +211,7 @@ export default function AulaScreen() {
                 }
 
                 if (bloco.tipo === 'imagem') {
-                  const hasUrl = bloco.url && bloco.url.startsWith('http');
+                  const hasUrl = bloco.url && (bloco.url.startsWith('http') || bloco.url.startsWith('file') || bloco.url.startsWith('data'));
                   if (!hasUrl) return null;
                   
                   return (
@@ -219,16 +233,18 @@ export default function AulaScreen() {
                 }
 
                 if (bloco.tipo === 'video') {
-                  const videoId = extractYouTubeId(bloco.url);
+                  const videoId = bloco.url ? extractYouTubeId(bloco.url) : null;
                   if (videoId) {
                     return (
-                      <View key={bloco.id} className="w-full h-[210px] mb-6 rounded-xl overflow-hidden shadow-sm elevation-2 bg-black">
-                        <WebView
-                          source={{ uri: `https://www.youtube.com/embed/${videoId}?rel=0` }}
-                          style={{ flex: 1 }}
-                          javaScriptEnabled={true}
-                          domStorageEnabled={true}
-                          allowsFullscreenVideo={true}
+                      <View key={bloco.id} className="w-full mb-6 rounded-xl overflow-hidden shadow-sm elevation-2 bg-black">
+                        <YoutubeIframe
+                          height={210}
+                          videoId={videoId}
+                          initialPlayerParams={{
+                            preventFullScreen: false,
+                            showClosedCaptions: false,
+                            controls: true,
+                          }}
                         />
                       </View>
                     );
@@ -236,7 +252,7 @@ export default function AulaScreen() {
                     return (
                       <TouchableOpacity
                         key={bloco.id}
-                        onPress={() => Linking.openURL(bloco.url)}
+                        onPress={() => Linking.openURL(bloco.url || '')}
                         className="bg-[#FF0000] rounded-xl p-4 flex-row items-center justify-center mb-6 gap-2"
                       >
                         <Ionicons name="logo-youtube" size={24} color="#FFFFFF" />
@@ -244,6 +260,21 @@ export default function AulaScreen() {
                       </TouchableOpacity>
                     );
                   }
+                }
+
+                if (bloco.tipo === 'alerta') {
+                  return (
+                    <View key={bloco.id} className="bg-white rounded-[12px] mb-6 flex-row overflow-hidden shadow-sm elevation-2">
+                      <View className="w-[6px] bg-[#C0392B]" />
+                      <View className="p-4 flex-row flex-1">
+                        <Ionicons name="warning" size={24} color="#C0392B" className="mt-1" />
+                        <Text className="text-text-dark text-[15px] leading-[22px] font-medium ml-3 flex-1">
+                          <Text className="font-bold text-[#C0392B]">Atenção: </Text>
+                          {bloco.conteudo}
+                        </Text>
+                      </View>
+                    </View>
+                  );
                 }
 
                 return null;
