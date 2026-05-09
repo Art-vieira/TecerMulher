@@ -14,6 +14,8 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
+import ProgressBar from '../components/ProgressBar';
+
 import { useMaterial } from '../hooks/useMateriais';
 import { useAuth } from '../hooks/useAuth';
 
@@ -88,11 +90,11 @@ export default function AulaScreen() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ── Cabeçalho ── */}
-      <View className={`flex-row items-center px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
+      <View className={`flex-row items-center justify-between px-5 h-[88px] ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.8}
-          className="flex-row items-center"
+          className="flex-row items-center min-h-[50px]"
           accessible={true}
           accessibilityLabel="Voltar para a página anterior"
           accessibilityRole="button"
@@ -100,26 +102,23 @@ export default function AulaScreen() {
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
           {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
         </TouchableOpacity>
-        <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]" numberOfLines={1} style={{ fontFamily: 'Poppins' }}>
-          Visualizando Aula
-        </Text>
+        
+        {isAdmin ? (
+          <Text className="text-white text-[18px] font-bold flex-1 text-center pr-4" numberOfLines={1}>
+            Visualizando Aula
+          </Text>
+        ) : (
+          <Text className="text-white text-[18px] font-bold flex-1 text-center" numberOfLines={1}>
+            Visualizando Aula
+          </Text>
+        )}
       </View>
 
       {/* ── Corpo ── */}
       <View className="flex-1 bg-background rounded-t-[24px] overflow-hidden pt-5">
         {/* Barra de Progresso */}
         {!carregando && material && (
-          <View className="px-6 mb-4">
-            <Text className="text-primary text-[13px] font-bold mb-2">
-              Progresso de leitura: {readingProgress}%
-            </Text>
-            <View className="h-[6px] w-full bg-[#E0DCE8] rounded-full overflow-hidden">
-              <View 
-                className="h-full bg-primary rounded-full" 
-                style={{ width: `${readingProgress}%` }} 
-              />
-            </View>
-          </View>
+          <ProgressBar progress={readingProgress} className="px-6 mb-4" />
         )}
 
         {carregando ? (

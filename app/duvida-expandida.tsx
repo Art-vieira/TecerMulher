@@ -34,11 +34,11 @@ export default function DuvidaExpandidaScreen() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ───── CABEÇALHO ───── */}
-      <View className="flex-row items-center px-5 py-4 bg-primary">
+      <View className="flex-row items-center justify-between px-5 h-[88px] bg-primary">
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.8}
-          className="flex-row items-center min-h-[44px]"
+          className="flex-row items-center min-h-[50px]"
           accessible={true}
           accessibilityLabel="Voltar"
           accessibilityRole="button"
@@ -69,7 +69,7 @@ export default function DuvidaExpandidaScreen() {
           >
             {/* Cartão principal da dúvida */}
             <View className="bg-white rounded-[24px] p-6 mb-6 shadow-sm shadow-black/5 elevation-2">
-              <Text className="text-[20px] font-bold text-primary mb-2 leading-[26px]" style={{ fontFamily: 'Poppins' }}>
+              <Text className="text-[20px] font-bold text-primary mb-2 leading-[26px]">
                 {duvida.title}
               </Text>
               
