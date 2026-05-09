@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomNav from '../components/BottomNav';
+import SearchBar from '../components/SearchBar';
 import { useAuth } from '../hooks/useAuth';
 
 import { useDuvidasList } from '../hooks/useDuvidas';
@@ -204,45 +205,20 @@ export default function DuvidasScreen() {
           {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
         </TouchableOpacity>
         
-        {isAdmin ? (
-          <Text className="text-white text-[18px] font-bold flex-1 text-center pr-10">
-            Dúvidas
-          </Text>
-        ) : (
-          <View className="flex-1 flex-row items-center bg-white rounded-full px-3 py-1.5 h-10">
-            <Ionicons name="search" size={18} color="#A39BB0" />
-            <TextInput
-              value={pesquisa}
-              onChangeText={setPesquisa}
-              placeholder="Procurar..."
-              placeholderTextColor="#A39BB0"
-              className="ml-2 flex-1 text-black text-[14px]"
-              accessible={true}
-              accessibilityLabel="Campo de pesquisa"
-            />
-          </View>
-        )}
+        <Text className={`text-white text-[18px] font-bold flex-1 text-center ${isAdmin ? 'pr-10' : 'pr-16'}`}>
+          Dúvidas
+        </Text>
       </View>
 
       {/* ───── CORPO ───── */}
       <View className="flex-1 bg-[#F2F0F5] rounded-t-[24px] overflow-hidden">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 24, paddingTop: 32 }}>
           
-          {/* Search bar inside body only for admin */}
-          {isAdmin && (
-            <View className="flex-row items-center bg-white rounded-xl px-4 py-3 mb-6 shadow-sm shadow-black/5 elevation-2">
-              <Ionicons name="search" size={22} color="#A39BB0" />
-              <TextInput
-                value={pesquisa}
-                onChangeText={setPesquisa}
-                placeholder="Buscar dúvidas..."
-                placeholderTextColor="#A39BB0"
-                className="ml-3 text-base flex-1 text-black"
-                accessible={true}
-                accessibilityLabel="Campo de pesquisa"
-              />
-            </View>
-          )}
+          <SearchBar 
+            value={pesquisa} 
+            onChangeText={setPesquisa} 
+            placeholder="Buscar dúvidas..." 
+          />
 
           {!isAdmin && (
             <>
