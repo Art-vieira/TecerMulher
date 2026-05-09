@@ -98,7 +98,7 @@ export default function AulaScreen() {
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
+          {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
         </TouchableOpacity>
         <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]" numberOfLines={1} style={{ fontFamily: 'Poppins' }}>
           Visualizando Aula

@@ -34,9 +34,6 @@ export default function TelaMenu() {
             accessibilityRole="button"
           >
             <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-            <Text className="text-white text-lg font-semibold ml-2 mr-3">
-              Voltar
-            </Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={() => alert('Configurações em breve!')}

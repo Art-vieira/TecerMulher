@@ -201,11 +201,11 @@ export default function DuvidasScreen() {
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
+          {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
         </TouchableOpacity>
         
         {isAdmin ? (
-          <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]">
+          <Text className="text-white text-[18px] font-bold flex-1 text-center pr-10">
             Dúvidas
           </Text>
         ) : (
@@ -230,7 +230,7 @@ export default function DuvidasScreen() {
           
           {/* Search bar inside body only for admin */}
           {isAdmin && (
-            <View className="flex-row items-center bg-white rounded-xl px-4 py-3 mb-6 shadow-sm shadow-black/5 elevation-2 mx-1 mt-1">
+            <View className="flex-row items-center bg-white rounded-xl px-4 py-3 mb-6 shadow-sm shadow-black/5 elevation-2">
               <Ionicons name="search" size={22} color="#A39BB0" />
               <TextInput
                 value={pesquisa}

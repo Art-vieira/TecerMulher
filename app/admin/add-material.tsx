@@ -90,7 +90,6 @@ export default function AddMaterialScreen() {
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
         </TouchableOpacity>
         
         <Text className="text-white text-[16px] font-bold flex-1 text-center" style={{ fontFamily: 'Poppins' }}>
