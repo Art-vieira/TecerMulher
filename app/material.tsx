@@ -92,7 +92,7 @@ export default function TelaMateriais() {
           {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
         </TouchableOpacity>
         
-        <Text className={`text-white text-[18px] font-bold flex-1 text-center ${isAdmin ? 'pr-10' : 'pr-16'}`}>
+        <Text className="text-white text-lg font-semibold flex-1 text-right">
           Materiais
         </Text>
       </View>
@@ -220,7 +220,7 @@ export default function TelaMateriais() {
         <TouchableOpacity
           onPress={() => router.push('/admin/add-material')}
           activeOpacity={0.8}
-          className="absolute right-6 bottom-[140px] w-14 h-14 bg-[#1A1A1A] rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+          className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
           accessible={true}
           accessibilityLabel="Adicionar nova aula"
         >

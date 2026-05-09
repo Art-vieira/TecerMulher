@@ -109,7 +109,10 @@ export default function DuvidasScreen() {
         </Text>
         
         <View className="flex-row items-start justify-between mb-4 gap-2">
-          <Text className="text-[14px] text-text-dark leading-[22px] flex-1">
+          <Text 
+            className="text-[14px] text-text-dark leading-[22px] flex-1"
+            numberOfLines={2}
+          >
             <Text className="font-semibold text-text-dark">Resposta: </Text>
             {respostaText}
           </Text>
@@ -205,7 +208,7 @@ export default function DuvidasScreen() {
           {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
         </TouchableOpacity>
         
-        <Text className={`text-white text-[18px] font-bold flex-1 text-center ${isAdmin ? 'pr-10' : 'pr-16'}`}>
+        <Text className="text-white text-lg font-semibold flex-1 text-right">
           Dúvidas
         </Text>
       </View>
@@ -214,20 +217,27 @@ export default function DuvidasScreen() {
       <View className="flex-1 bg-[#F2F0F5] rounded-t-[24px] overflow-hidden">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 24, paddingTop: 32 }}>
           
-          <SearchBar 
-            value={pesquisa} 
-            onChangeText={setPesquisa} 
-            placeholder="Buscar dúvidas..." 
-          />
+          {isAdmin && (
+            <SearchBar 
+              value={pesquisa} 
+              onChangeText={setPesquisa} 
+              placeholder="Buscar dúvidas..." 
+            />
+          )}
 
           {!isAdmin && (
             <>
               <Text className="text-[20px] font-bold text-primary mb-1">
                 Dúvidas Frequentes
               </Text>
-              <Text className="text-[14px] text-text-muted mb-6">
+              <Text className="text-[14px] text-text-muted mb-4">
                 Toque em uma pergunta para ver a resposta.
               </Text>
+              <SearchBar 
+                value={pesquisa} 
+                onChangeText={setPesquisa} 
+                placeholder="Buscar dúvidas..." 
+              />
             </>
           )}
 
@@ -243,7 +253,7 @@ export default function DuvidasScreen() {
       {isAdmin && (
         <TouchableOpacity
           onPress={() => router.push('/admin/add-duvida')}
-          className="absolute right-6 bottom-[140px] w-14 h-14 bg-[#1A1A1A] rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+          className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
           accessible={true}
           accessibilityLabel="Adicionar nova dúvida"
         >

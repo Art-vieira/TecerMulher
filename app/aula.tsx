@@ -174,9 +174,9 @@ export default function AulaScreen() {
               {material.blocos.map((bloco) => {
                 if (bloco.tipo === 'texto') {
                   return (
-                    <View key={bloco.id} className="bg-white rounded-[16px] p-5 mb-6 shadow-sm elevation-2">
+                    <View key={bloco.id} className="bg-[#F8F8F8] rounded-2xl border border-[#CAC4D0]/50 pt-[23px] pb-6 px-6 mb-6 flex-col items-start gap-4 shadow-sm elevation-1 w-full">
                       {bloco.titulo ? (
-                        <Text className="text-primary text-[20px] leading-[26px] font-bold mb-3" accessible={true} accessibilityRole="header">
+                        <Text className="text-primary text-[20px] leading-[26px] font-bold" accessible={true} accessibilityRole="header">
                           {bloco.titulo}
                         </Text>
                       ) : null}

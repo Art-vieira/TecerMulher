@@ -92,7 +92,7 @@ export default function AddMaterialScreen() {
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
         </TouchableOpacity>
         
-        <Text className="text-white text-[16px] font-bold flex-1 text-center" style={{ fontFamily: 'Poppins' }}>
+        <Text className="text-white text-lg font-bold flex-1 text-center">
           Novo Material
         </Text>
         {/* Botão Salvar no cabeçalho */}
@@ -234,7 +234,7 @@ export default function AddMaterialScreen() {
                     onChangeText={(v) => updateBloco(bloco.id, 'titulo', v)}
                     placeholder="Título (opcional)..."
                     placeholderTextColor="#6B5E80"
-                    className="bg-transparent rounded-lg p-3 text-[14px] font-bold text-white border border-[#3C3C3C]"
+                    className="bg-transparent rounded-lg p-3 text-[14px] text-white border border-[#3C3C3C]"
                   />
                   <TextInput
                     value={bloco.conteudo}
