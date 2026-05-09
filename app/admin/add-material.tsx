@@ -83,22 +83,24 @@ export default function AddMaterialScreen() {
       <View className="flex-row items-center px-5 py-4">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="flex-row items-center min-h-[44px]"
+          activeOpacity={0.8}
+          className="flex-row items-center"
           accessible={true}
           accessibilityLabel="Cancelar criação"
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
+          <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
         </TouchableOpacity>
         
-        <Text className="text-white text-lg font-bold flex-1 text-center">
+        <Text className="text-white text-[16px] font-bold flex-1 text-center" style={{ fontFamily: 'Poppins' }}>
           Novo Material
         </Text>
         {/* Botão Salvar no cabeçalho */}
         <TouchableOpacity
           onPress={handleSave}
           disabled={salvando}
-          className="min-h-[44px] justify-center ml-2"
+          className="justify-center ml-2"
           accessible={true}
           accessibilityLabel="Salvar material"
           accessibilityRole="button"

@@ -91,15 +91,16 @@ export default function AulaScreen() {
       <View className={`flex-row items-center px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="flex-row items-center min-h-[44px]"
+          activeOpacity={0.8}
+          className="flex-row items-center"
           accessible={true}
           accessibilityLabel="Voltar para a página anterior"
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          <Text className="text-white text-lg font-semibold ml-2">Voltar</Text>
+          <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
         </TouchableOpacity>
-        <Text className="text-white text-lg font-bold flex-1 text-center pr-10" numberOfLines={1}>
+        <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]" numberOfLines={1} style={{ fontFamily: 'Poppins' }}>
           Visualizando Aula
         </Text>
       </View>

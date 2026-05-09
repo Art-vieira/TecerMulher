@@ -47,10 +47,9 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
           />
         </View>
         <Text
-          className={`text-[14px] font-bold uppercase tracking-[0.35px] ${
+          className={`text-[14px] font-montserrat-bold uppercase tracking-[0.35px] ${
             isActive ? (isAdmin ? 'text-[#1A1A1A]' : 'text-primary') : 'text-[#F8F8F8]'
           }`}
-          style={{ fontFamily: 'Montserrat' }}
         >
           {label}
         </Text>

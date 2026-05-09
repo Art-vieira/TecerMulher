@@ -78,31 +78,32 @@ export default function TelaMateriais() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ── Cabeçalho ── */}
-      <View className={`flex-row items-center justify-between px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
+      <View className={`flex-row items-center justify-between px-5 h-[88px] ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="flex-row items-center min-h-[44px]"
+          activeOpacity={0.8}
+          className="flex-row items-center min-h-[50px]"
           accessible={true}
           accessibilityLabel="Voltar"
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          {!isAdmin && <Text className="text-white text-lg font-semibold ml-2">Voltar</Text>}
+          <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
         </TouchableOpacity>
-
+        
         {isAdmin ? (
-          <Text className="text-white text-[16px] font-bold" style={{ fontFamily: 'Poppins' }}>
+          <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]">
             Materiais
           </Text>
         ) : (
-          <View className="flex-row items-center bg-white rounded-full px-4 py-2 w-[65%] shadow-sm">
-            <Ionicons name="search" size={20} color="#000000" style={{ opacity: 0.3 }} />
+          <View className="flex-1 flex-row items-center bg-white rounded-full px-3 py-1.5 h-10">
+            <Ionicons name="search" size={18} color="#A39BB0" />
             <TextInput
               value={pesquisa}
               onChangeText={setPesquisa}
               placeholder="Procurar..."
-              placeholderTextColor="#6B5E80"
-              className="ml-2 text-base flex-1 text-black py-1"
+              placeholderTextColor="#A39BB0"
+              className="ml-2 flex-1 text-black text-[14px]"
               accessible={true}
               accessibilityLabel="Campo de pesquisa"
             />
@@ -183,7 +184,6 @@ export default function TelaMateriais() {
                     <View className={`flex-1 flex-row items-center px-4 ${isAdmin ? 'justify-between' : 'justify-center'}`}>
                       <Text
                         className={`text-primary text-[16px] font-bold leading-[20px] ${isAdmin ? 'text-left flex-1 mr-4' : 'text-center'}`}
-                        style={{ fontFamily: 'Poppins' }}
                         numberOfLines={2}
                       >
                         {item.title}

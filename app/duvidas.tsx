@@ -103,7 +103,7 @@ export default function DuvidasScreen() {
         key={item.id}
         className="bg-white rounded-[16px] p-5 mb-4 shadow-sm shadow-black/10 elevation-2"
       >
-        <Text className="text-[17px] font-bold text-primary mb-2" style={{ fontFamily: 'Poppins' }}>
+        <Text className="text-[17px] font-bold text-primary mb-2">
           {item.title}
         </Text>
         
@@ -155,7 +155,7 @@ export default function DuvidasScreen() {
           activeOpacity={0.8}
           className="flex-row justify-between items-center p-5"
         >
-          <Text className="text-[16px] font-bold text-primary flex-1 pr-4" style={{ fontFamily: 'Poppins' }}>
+          <Text className="text-[16px] font-bold text-primary flex-1 pr-4">
             {item.title}
           </Text>
           <Ionicons 
@@ -191,11 +191,11 @@ export default function DuvidasScreen() {
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* ───── CABEÇALHO ───── */}
-      <View className={`flex-row items-center px-5 py-4 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
+      <View className={`flex-row items-center justify-between px-5 h-[88px] ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.8}
-          className="flex-row items-center"
+          className="flex-row items-center min-h-[50px]"
           accessible={true}
           accessibilityLabel="Voltar"
           accessibilityRole="button"
@@ -205,7 +205,7 @@ export default function DuvidasScreen() {
         </TouchableOpacity>
         
         {isAdmin ? (
-          <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]" style={{ fontFamily: 'Poppins' }}>
+          <Text className="text-white text-[16px] font-bold flex-1 text-center pr-[70px]">
             Dúvidas
           </Text>
         ) : (
@@ -246,7 +246,7 @@ export default function DuvidasScreen() {
 
           {!isAdmin && (
             <>
-              <Text className="text-[20px] font-bold text-primary mb-1" style={{ fontFamily: 'Poppins' }}>
+              <Text className="text-[20px] font-bold text-primary mb-1">
                 Dúvidas Frequentes
               </Text>
               <Text className="text-[14px] text-text-muted mb-6">
