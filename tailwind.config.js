@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  content: ["./src/app/**/*.{js,jsx,ts,tsx}", "./src/components/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
@@ -16,12 +16,29 @@ module.exports = {
         'montserrat-extrabold': ['Montserrat_800ExtraBold', 'sans-serif'],
       },
       colors: {
+        // ── Cores principais ──────────────────────────────────
         primary: "#391A65",
+        "primary-deep": "#2D1B50",
         background: "#E8E5ED",
-        "text-dark": "#2D1B50",
         accent: "#CF96D5",
-        "border-light": "#C5BFD0",
+        // ── Superfícies ──────────────────────────────────────
+        surface: "#F2F0F5",        // Fundo principal das telas (corpo)
+        "surface-muted": "#E0DCE8",  // Fundos suaves, separadores
+        "surface-card": "#EDE9F5",   // Placeholders de imagem nos cards
+        "surface-sheet": "#F8F8F8",  // Cards de conteúdo (blocos de aula)
+        "surface-divider": "#F0EDF5", // Linhas divisórias
+        // ── Textos ───────────────────────────────────────────
+        "text-dark": "#2D1B50",
         "text-muted": "#7A6E8A",
+        "text-subtle": "#6B5E80",    // Textos secundários e placeholders
+        "text-placeholder": "#A39BB0", // Ícones e hints suaves
+        // ── Bordas ───────────────────────────────────────────
+        "border-light": "#C5BFD0",
+        "border-active": "#CAC4D0",  // Bordas de card ativo (aula)
+        // ── Modo Admin ───────────────────────────────────────
+        "admin-dark": "#1A1A1A",     // Fundo/texto modo admin
+        "admin-border": "#3C3C3C",   // Bordas dos inputs do formulário admin
+        // ── Utilitários ──────────────────────────────────────
         white: "#FFFFFF",
         error: "#C0392B",
       },

@@ -1,23 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import * as Speech from 'expo-speech';
 import {
   Image,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   Platform,
   Alert
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomNav from '../components/BottomNav';
-import SearchBar from '../components/SearchBar';
-import { useAuth } from '../hooks/useAuth';
+import SearchBar from '../../components/ui/SearchBar';
+import ScreenLayout from '../../components/layout/ScreenLayout';
+import { useAuth } from '../../hooks/useAuth';
 
-import { useDuvidasList } from '../hooks/useDuvidas';
+import { useDuvidasList } from '../../hooks/useDuvidas';
 
 export default function DuvidasScreen() {
   const router = useRouter();
@@ -118,7 +116,7 @@ export default function DuvidasScreen() {
           </Text>
           <TouchableOpacity
             onPress={() => lerDuvida(item.title, respostaText)}
-            className="w-10 h-10 bg-[#E0DCE8] rounded-full items-center justify-center"
+            className="w-10 h-10 bg-surface-muted rounded-full items-center justify-center"
             accessible={true}
             accessibilityLabel="Ouvir resposta"
           >
@@ -129,14 +127,14 @@ export default function DuvidasScreen() {
         <View className="flex-row gap-3">
           <TouchableOpacity 
             onPress={() => router.push({ pathname: '/admin/edit-duvida', params: { id: item.id } } as any)}
-            className="w-10 h-10 border border-[#E0DCE8] rounded-xl items-center justify-center bg-white"
+            className="w-10 h-10 border border-surface-muted rounded-xl items-center justify-center bg-white"
           >
             <Ionicons name="pencil" size={18} color="#6B5E80" />
           </TouchableOpacity>
           
           <TouchableOpacity 
             onPress={() => handleApagar(item.id, item.title)}
-            className="w-10 h-10 border border-[#E0DCE8] rounded-xl items-center justify-center bg-white"
+            className="w-10 h-10 border border-surface-muted rounded-xl items-center justify-center bg-white"
           >
             <Ionicons name="trash" size={18} color="#6B5E80" />
           </TouchableOpacity>
@@ -152,7 +150,7 @@ export default function DuvidasScreen() {
     return (
       <View
         key={item.id}
-        className={`bg-white rounded-[16px] mb-4 shadow-sm shadow-black/10 elevation-2 overflow-hidden ${isExpanded ? 'border border-[#391A65]' : ''}`}
+        className={`bg-white rounded-[16px] mb-4 shadow-sm shadow-black/10 elevation-2 overflow-hidden ${isExpanded ? 'border border-primary' : ''}`}
       >
         <TouchableOpacity 
           onPress={() => toggleAccordion(item)}
@@ -177,7 +175,7 @@ export default function DuvidasScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => lerDuvida(item.title, item.respostaCurta || item.resposta || '')}
-                className="w-10 h-10 bg-[#E0DCE8] rounded-full items-center justify-center ml-2"
+                className="w-10 h-10 bg-surface-muted rounded-full items-center justify-center ml-2"
                 accessible={true}
                 accessibilityLabel="Ouvir resposta"
               >
@@ -191,77 +189,57 @@ export default function DuvidasScreen() {
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
+    <ScreenLayout
+      title="Dúvidas"
+      currentRoute="duvidas"
+      overlay={
+        isAdmin && (
+          <TouchableOpacity
+            onPress={() => router.push('/admin/add-duvida')}
+            className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+            accessible={true}
+            accessibilityLabel="Adicionar nova dúvida"
+          >
+            <Ionicons name="add" size={32} color="#FFF" />
+          </TouchableOpacity>
+        )
+      }
+    >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 24, paddingTop: 32 }}>
 
-      {/* ───── CABEÇALHO ───── */}
-      <View className={`flex-row items-center justify-between px-5 h-[88px] ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.8}
-          className="flex-row items-center min-h-[50px]"
-          accessible={true}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-        >
-          <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
-        </TouchableOpacity>
-        
-        <Text className="text-white text-lg font-semibold flex-1 text-right">
-          Dúvidas
-        </Text>
-      </View>
+        {isAdmin && (
+          <SearchBar
+            value={pesquisa}
+            onChangeText={setPesquisa}
+            placeholder="Buscar dúvidas..."
+          />
+        )}
 
-      {/* ───── CORPO ───── */}
-      <View className="flex-1 bg-[#F2F0F5] rounded-t-[24px] overflow-hidden">
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 24, paddingTop: 32 }}>
-          
-          {isAdmin && (
-            <SearchBar 
-              value={pesquisa} 
-              onChangeText={setPesquisa} 
-              placeholder="Buscar dúvidas..." 
+        {!isAdmin && (
+          <>
+            <Text className="text-[20px] font-bold text-primary mb-1">
+              Dúvidas Frequentes
+            </Text>
+            <Text className="text-[14px] text-text-muted mb-4">
+              Toque em uma pergunta para ver a resposta.
+            </Text>
+            <SearchBar
+              value={pesquisa}
+              onChangeText={setPesquisa}
+              placeholder="Buscar dúvidas..."
             />
-          )}
+          </>
+        )}
 
-          {!isAdmin && (
-            <>
-              <Text className="text-[20px] font-bold text-primary mb-1">
-                Dúvidas Frequentes
-              </Text>
-              <Text className="text-[14px] text-text-muted mb-4">
-                Toque em uma pergunta para ver a resposta.
-              </Text>
-              <SearchBar 
-                value={pesquisa} 
-                onChangeText={setPesquisa} 
-                placeholder="Buscar dúvidas..." 
-              />
-            </>
-          )}
-
-          {duvidasFiltradas.length === 0 ? (
-            <Text className="text-center text-[#6B5E80] mt-10">Nenhuma dúvida encontrada.</Text>
-          ) : (
-            duvidasFiltradas.map((item) => isAdmin ? renderAdminDuvida(item) : renderUserDuvida(item))
-          )}
-        </ScrollView>
-      </View>
-
-      {/* Botão flutuante Adicionar (Admin) */}
-      {isAdmin && (
-        <TouchableOpacity
-          onPress={() => router.push('/admin/add-duvida')}
-          className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
-          accessible={true}
-          accessibilityLabel="Adicionar nova dúvida"
-        >
-          <Ionicons name="add" size={32} color="#FFF" />
-        </TouchableOpacity>
-      )}
-      
-      <BottomNav currentRoute="duvidas" />
-    </SafeAreaView>
+        {duvidasFiltradas.length === 0 ? (
+          <Text className="text-center text-text-subtle mt-10">Nenhuma dúvida encontrada.</Text>
+        ) : (
+          duvidasFiltradas.map((item) => isAdmin ? renderAdminDuvida(item) : renderUserDuvida(item))
+        )}
+      </ScrollView>
+    </ScreenLayout>
   );
 }
+
+
+

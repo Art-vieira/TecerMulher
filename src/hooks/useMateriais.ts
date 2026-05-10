@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LocalStorage, Material, Bloco } from "../services/localStorage";
+import * as Repository from "../services/DatabaseRepository";
+import { Material, Bloco } from "../types";
 
 export type BlocoTexto = { id: string; tipo: "texto"; conteudo: string };
 export type BlocoImagem = {
@@ -16,7 +17,7 @@ export function useMateriaisList() {
 
   const carregarDados = async () => {
     setCarregando(true);
-    const data = await LocalStorage.getMateriais();
+    const data = await Repository.getMateriais();
     setMateriais(data);
     setCarregando(false);
   };
@@ -27,7 +28,7 @@ export function useMateriaisList() {
 
   const apagarMaterial = async (id: string) => {
     try {
-      await LocalStorage.deleteMaterial(id);
+      await Repository.deleteMaterial(id);
       await carregarDados(); // Atualiza lista local
       return { success: true };
     } catch (error: any) {
@@ -51,7 +52,7 @@ export function useMaterial(id?: string | string[]) {
 
     const fetchDetail = async () => {
       setCarregando(true);
-      const data = await LocalStorage.getMaterialById(id);
+      const data = await Repository.getMaterialById(id);
       setMaterial(data);
       setCarregando(false);
     };

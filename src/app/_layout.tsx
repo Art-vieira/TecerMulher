@@ -54,17 +54,12 @@ export default function LayoutRaiz() {
   return (
     <>
       <Stack>
+        {/* Tela inicial pública */}
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="menu" options={{ headerShown: false }} />
-        <Stack.Screen name="material" options={{ headerShown: false }} />
-        <Stack.Screen name="duvidas" options={{ headerShown: false }} />
-        <Stack.Screen name="aula" options={{ headerShown: false }} />
-        <Stack.Screen name="admin/add-material" options={{ headerShown: false }} />
-        <Stack.Screen name="admin/edit-material" options={{ headerShown: false }} />
-        <Stack.Screen name="admin/add-duvida" options={{ headerShown: false }} />
-        <Stack.Screen name="admin/edit-duvida" options={{ headerShown: false }} />
-        <Stack.Screen name="duvida-expandida" options={{ headerShown: false }} />
+        {/* Grupo de autenticação: /login */}
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        {/* Grupo protegido: /menu, /material, /duvidas, /aula, /admin/... */}
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </>

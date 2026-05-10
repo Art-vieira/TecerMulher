@@ -15,7 +15,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
-import { useMaterialForm } from '../hooks/useMaterialForm';
+import { useMaterialForm } from '../../hooks/useMaterialForm';
 
 interface MaterialFormTemplateProps {
   id?: string;
@@ -121,13 +121,13 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
         >
           {salvando
             ? <ActivityIndicator color="#CF96D5" size="small" />
-            : <Text className="text-[#CF96D5] text-[16px] font-bold">Salvar</Text>
+            : <Text className="text-accent text-[16px] font-bold">Salvar</Text>
           }
         </TouchableOpacity>
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-[#1A1A1A] rounded-t-[20px]">
+      <View className="flex-1 bg-admin-dark rounded-t-[20px]">
         <ScrollView
           contentContainerClassName="p-6 pb-36"
           keyboardShouldPersistTaps="handled"
@@ -140,7 +140,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
             onChangeText={setTitulo}
             placeholder={isEdit ? "Introdução à História da Arte" : "Digite o titulo principal..."}
             placeholderTextColor="#6B5E80"
-            className="bg-transparent rounded-xl p-4 text-[15px] mb-6 border border-[#3C3C3C] text-white"
+            className="bg-transparent rounded-xl p-4 text-[15px] mb-6 border border-admin-border text-white"
             accessible={true}
             accessibilityLabel={isEdit ? "Edite o título da aula" : "Digite o título da aula"}
           />
@@ -170,7 +170,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity onPress={pickImageForCapa} className="w-full h-[180px] rounded-xl mb-6 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C] relative">
+            <TouchableOpacity onPress={pickImageForCapa} className="w-full h-[180px] rounded-xl mb-6 bg-transparent justify-center items-center border border-dashed border-admin-border relative">
               <Ionicons name="image-outline" size={32} color="#FFFFFF" />
               <Text className="text-white text-[13px] mt-2 font-medium">Upload Imagem de Capa</Text>
               <TextInput
@@ -180,7 +180,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                 placeholderTextColor="#6B5E80"
                 autoCapitalize="none"
                 keyboardType="url"
-                className="absolute bottom-2 left-2 right-2 bg-transparent text-[12px] text-white px-2 py-1 border-b border-[#3C3C3C]"
+                className="absolute bottom-2 left-2 right-2 bg-transparent text-[12px] text-white px-2 py-1 border-b border-admin-border"
               />
             </TouchableOpacity>
           )}
@@ -196,7 +196,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
             <View
               key={bloco.id}
               className={`bg-transparent rounded-xl p-4 mb-4 border ${
-                bloco.tipo === 'imagem' ? 'border-[#CF96D5]' : 'border-[#3C3C3C]'
+                bloco.tipo === 'imagem' ? 'border-accent' : 'border-admin-border'
               }`}
             >
               {/* Cabeçalho do Bloco */}
@@ -251,7 +251,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     onChangeText={(v) => updateBloco(bloco.id, 'titulo', v)}
                     placeholder="Título (opcional)..."
                     placeholderTextColor="#6B5E80"
-                    className="bg-transparent rounded-lg p-3 text-[14px] text-white border border-[#3C3C3C]"
+                    className="bg-transparent rounded-lg p-3 text-[14px] text-white border border-admin-border"
                   />
                   <TextInput
                     value={bloco.conteudo}
@@ -261,7 +261,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     multiline
                     numberOfLines={5}
                     textAlignVertical="top"
-                    className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-[#3C3C3C]"
+                    className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-admin-border"
                     accessible={true}
                     accessibilityLabel="Campo de entrada de texto longo para a aula"
                   />
@@ -280,7 +280,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     placeholder="Digite o aviso/alerta aqui..."
                     placeholderTextColor="#6B5E80"
                     multiline
-                    className="flex-1 bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C] min-h-[80px]"
+                    className="flex-1 bg-transparent rounded-lg p-3 text-[13px] text-white border border-admin-border min-h-[80px]"
                     textAlignVertical="top"
                   />
                 </View>
@@ -309,7 +309,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
               {/* Conteúdo do Bloco: Vídeo */}
               {bloco.tipo === 'video' && (
                 <View className="flex-row items-center gap-3">
-                  <View className="w-10 h-10 rounded-lg bg-[#2D1B50] items-center justify-center">
+                  <View className="w-10 h-10 rounded-lg bg-primary-deep items-center justify-center">
                      <Ionicons name="play-outline" size={20} color="#FFFFFF" />
                   </View>
                   <TextInput
@@ -319,7 +319,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"
-                    className="flex-1 bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C]"
+                    className="flex-1 bg-transparent rounded-lg p-3 text-[13px] text-white border border-admin-border"
                   />
                 </View>
               )}
@@ -349,7 +349,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                       </TouchableOpacity>
                     </View>
                   ) : (
-                    <TouchableOpacity onPress={() => pickImageForBlock(bloco.id)} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
+                    <TouchableOpacity onPress={() => pickImageForBlock(bloco.id)} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-admin-border">
                       <Ionicons name="image-outline" size={28} color="#FFFFFF" />
                       <Text className="text-white text-[12px] mt-2 font-medium">Upload Imagem</Text>
                     </TouchableOpacity>
@@ -361,7 +361,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"
-                    className="bg-transparent rounded-lg p-3 text-[13px] text-white mb-3 border border-[#3C3C3C]"
+                    className="bg-transparent rounded-lg p-3 text-[13px] text-white mb-3 border border-admin-border"
                   />
                   <Text className="text-white text-[13px] mb-1">Legenda da imagem (opcional)</Text>
                   <TextInput
@@ -369,7 +369,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     onChangeText={(v) => updateBloco(bloco.id, 'alt', v)}
                     placeholder="Descrição da imagem"
                     placeholderTextColor="#6B5E80"
-                    className="bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C]"
+                    className="bg-transparent rounded-lg p-3 text-[13px] text-white border border-admin-border"
                   />
                 </>
               )}
@@ -387,7 +387,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
         >
           <TouchableOpacity
             onPress={addBlocoTexto}
-            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-primary-deep mr-3"
           >
             <Ionicons name="document-text-outline" size={24} color="#FFFFFF" />
             <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">CONTEÚDO</Text>
@@ -395,7 +395,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
 
           <TouchableOpacity
             onPress={addBlocoImagem}
-            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-primary-deep mr-3"
           >
             <Ionicons name="image-outline" size={24} color="#FFFFFF" />
             <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">IMAGEM</Text>
@@ -403,7 +403,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
 
           <TouchableOpacity
             onPress={addBlocoVideo}
-            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50] mr-3"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-primary-deep mr-3"
           >
             <Ionicons name="logo-youtube" size={24} color="#FFFFFF" />
             <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">YT</Text>
@@ -411,7 +411,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
           
           <TouchableOpacity
             onPress={addBlocoAlerta}
-            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-[#2D1B50]"
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-primary-deep"
           >
             <Ionicons name="warning-outline" size={24} color="#FFFFFF" />
             <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">ALERTA</Text>

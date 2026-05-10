@@ -12,7 +12,7 @@ export default function ProgressBar({ progress, className = "" }: ProgressBarPro
       <Text className="text-primary text-[16px] font-bold mb-2">
         Progresso de leitura: {progress}%
       </Text>
-      <View className="h-[6px] w-full bg-[#E0DCE8] rounded-full overflow-hidden">
+      <View className="h-[6px] w-full bg-surface-muted rounded-full overflow-hidden">
         <View 
           className="h-full bg-primary rounded-full" 
           style={{ width: `${progress}%` }} 

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 
 type Route = 'menu' | 'material' | 'duvidas';
 
@@ -35,7 +35,7 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
         onPress={() => handlePress(route)}
         activeOpacity={0.8}
         className={`rounded-[16px] flex-col justify-center items-center ${
-          isActive ? 'bg-[#F8F8F8]' : 'bg-transparent'
+          isActive ? 'bg-surface-sheet' : 'bg-transparent'
         }`}
         style={{ width: 110, height: 85 }}
       >
@@ -48,7 +48,7 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
         </View>
         <Text
           className={`text-[14px] font-montserrat-bold uppercase tracking-[0.35px] ${
-            isActive ? (isAdmin ? 'text-[#1A1A1A]' : 'text-primary') : 'text-[#F8F8F8]'
+            isActive ? (isAdmin ? 'text-admin-dark' : 'text-primary') : 'text-surface-sheet'
           }`}
         >
           {label}
@@ -59,7 +59,7 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
 
   return (
     <View 
-      className={`flex-row justify-center items-center gap-2 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}
+      className={`flex-row justify-center items-center gap-2 ${isAdmin ? 'bg-admin-dark' : 'bg-primary'}`}
       style={{
         position: 'absolute',
         bottom: 0,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LocalStorage, Duvida } from "../services/localStorage";
+import * as Repository from "../services/DatabaseRepository";
+import { Duvida } from "../types";
 
 export function useDuvidasList() {
   const [duvidas, setDuvidas] = useState<Duvida[]>([]);
@@ -7,7 +8,7 @@ export function useDuvidasList() {
 
   const carregarDados = async () => {
     setCarregando(true);
-    const data = await LocalStorage.getDuvidas();
+    const data = await Repository.getDuvidas();
     setDuvidas(data);
     setCarregando(false);
   };
@@ -22,7 +23,7 @@ export function useDuvidasList() {
 
   const apagarDuvida = async (id: string) => {
     try {
-      await LocalStorage.deleteDuvida(id);
+      await Repository.deleteDuvida(id);
       await refresh();
       return { success: true };
     } catch (error: any) {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { LocalStorage, Duvida } from '../services/localStorage';
+import * as Repository from '../services/DatabaseRepository';
+import { Duvida } from '../types';
 
 export function useDuvidaForm(duvidaId?: string | string[]) {
   const id = Array.isArray(duvidaId) ? duvidaId[0] : duvidaId;
@@ -17,7 +18,7 @@ export function useDuvidaForm(duvidaId?: string | string[]) {
     async function loadDuvida() {
       if (!id) return;
       setCarregandoDados(true);
-      const data = await LocalStorage.getDuvidaById(id);
+      const data = await Repository.getDuvidaById(id);
       if (data) {
         setTitle(data.title || '');
         setTipoResposta(data.tipoResposta || 'curta');
@@ -47,7 +48,7 @@ export function useDuvidaForm(duvidaId?: string | string[]) {
 
     try {
       if (id) {
-        await LocalStorage.updateDuvida(id, {
+        await Repository.updateDuvida(id, {
           title,
           tipoResposta,
           respostaCurta,
@@ -55,7 +56,7 @@ export function useDuvidaForm(duvidaId?: string | string[]) {
           imagemDuvida,
         });
       } else {
-        await LocalStorage.addDuvida({
+        await Repository.addDuvida({
           title,
           tipoResposta,
           respostaCurta,

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -15,10 +15,11 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
-import { useDuvidaForm } from '../../hooks/useDuvidaForm';
+import { useDuvidaForm } from '../../../hooks/useDuvidaForm';
 
-export default function AddDuvidaScreen() {
+export default function EditDuvidaScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams();
   
   const {
     title, setTitle,
@@ -26,26 +27,27 @@ export default function AddDuvidaScreen() {
     respostaCurta, setRespostaCurta,
     respostaExpandida, setRespostaExpandida,
     imagemDuvida, setImagemDuvida,
+    carregandoDados,
     salvando,
     salvarDuvida
-  } = useDuvidaForm();
+  } = useDuvidaForm(id);
 
   const handleSave = async () => {
     const res = await salvarDuvida();
     if (res.success) {
       if (Platform.OS === 'web') {
-        window.alert('Sucesso! 🎉 Dúvida salva com sucesso!');
+        window.alert('Sucesso! 🎉 Edições salvas com sucesso!');
         router.back();
       } else {
-        Alert.alert('Sucesso! 🎉', 'Dúvida salva com sucesso!', [
+        Alert.alert('Sucesso! 🎉', 'Edições salvas com sucesso!', [
           { text: 'OK', onPress: () => router.back() },
         ]);
       }
     } else {
       if (Platform.OS === 'web') {
-        window.alert('Atenção: ' + (res.error || 'Erro desconhecido.'));
+        window.alert('Erro: ' + (res.error || 'Ocorreu um erro.'));
       } else {
-        Alert.alert('Atenção', res.error || 'Erro desconhecido.');
+        Alert.alert('Erro', res.error || 'Ocorreu um erro.');
       }
     }
   };
@@ -62,6 +64,15 @@ export default function AddDuvidaScreen() {
     }
   };
 
+  if (carregandoDados) {
+    return (
+      <SafeAreaView className="flex-1 bg-primary justify-center items-center">
+        <ActivityIndicator size="large" color="#FFFFFF" />
+        <Text className="text-white mt-4 text-base font-semibold">Carregando dados...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-primary">
       <Stack.Screen options={{ headerShown: false }} />
@@ -72,22 +83,23 @@ export default function AddDuvidaScreen() {
           onPress={() => router.back()}
           className="flex-row items-center min-h-[44px]"
           accessible={true}
-          accessibilityLabel="Cancelar criação"
+          accessibilityLabel="Cancelar edições"
           accessibilityRole="button"
         >
           <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
         </TouchableOpacity>
         
         <Text className="text-white text-lg font-bold flex-1 text-center">
-          Nova Dúvida
+          Editar Dúvida
         </Text>
+        
         {/* Botão Salvar no cabeçalho */}
         <TouchableOpacity
           onPress={handleSave}
           disabled={salvando}
           className="min-h-[44px] justify-center ml-2"
           accessible={true}
-          accessibilityLabel="Salvar dúvida"
+          accessibilityLabel="Salvar edições"
           accessibilityRole="button"
         >
           {salvando
@@ -98,30 +110,30 @@ export default function AddDuvidaScreen() {
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-[#1A1A1A] rounded-t-[20px]">
+      <View className="flex-1 bg-admin-dark rounded-t-[20px]">
         <ScrollView
           contentContainerClassName="p-6 pb-20"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Campo Pergunta */}
-          <View className="bg-transparent rounded-xl p-4 mb-6 border border-[#3C3C3C]">
+          <View className="bg-transparent rounded-xl p-4 mb-6 border border-admin-border">
             <Text className="text-white text-[14px] font-bold mb-2">Pergunta</Text>
             <TextInput
               value={title}
               onChangeText={setTitle}
               placeholder="Coloque o título da pergunta..."
               placeholderTextColor="#6B5E80"
-              className="bg-transparent rounded-lg p-3 text-[14px] text-white border border-[#3C3C3C]"
+              className="bg-transparent rounded-lg p-3 text-[14px] text-white border border-admin-border"
               accessible={true}
-              accessibilityLabel="Digite a pergunta da dúvida"
+              accessibilityLabel="Edite a pergunta da dúvida"
             />
           </View>
 
           {/* Tipo de Resposta */}
-          <View className="bg-transparent rounded-xl p-4 mb-6 border border-[#3C3C3C]">
+          <View className="bg-transparent rounded-xl p-4 mb-6 border border-admin-border">
             <Text className="text-white text-[14px] font-bold mb-3">Tipo da Resposta</Text>
-            <View className="flex-row bg-[#1A1A1A] rounded-xl border border-[#3C3C3C] p-1">
+            <View className="flex-row bg-admin-dark rounded-xl border border-admin-border p-1">
               <TouchableOpacity 
                 onPress={() => setTipoResposta('curta')}
                 className={`flex-1 rounded-lg py-3 items-center justify-center ${tipoResposta === 'curta' ? 'bg-[#391A65]' : 'bg-transparent'}`}
@@ -138,23 +150,23 @@ export default function AddDuvidaScreen() {
           </View>
 
           {/* Resposta Curta Accordion */}
-          <View className="bg-transparent rounded-xl border border-[#3C3C3C] mb-4 overflow-hidden">
+          <View className="bg-transparent rounded-xl border border-admin-border mb-4 overflow-hidden">
             <TouchableOpacity 
               onPress={() => setTipoResposta('curta')}
-              className="flex-row justify-between items-center p-4 bg-[#1A1A1A]"
+              className="flex-row justify-between items-center p-4 bg-admin-dark"
               activeOpacity={0.8}
             >
               <View className="flex-row items-center gap-2">
                 <Ionicons name={tipoResposta === 'curta' ? 'chevron-up' : 'chevron-down'} size={20} color="#6B5E80" />
-                <Text className="text-[#6B5E80] font-bold text-[14px]">Resposta curta</Text>
+                <Text className="text-text-subtle font-bold text-[14px]">Resposta curta</Text>
               </View>
               {tipoResposta === 'curta' && (
-                <Text className="text-[#6B5E80] text-[12px]">{respostaCurta.length}/100</Text>
+                <Text className="text-text-subtle text-[12px]">{respostaCurta.length}/100</Text>
               )}
             </TouchableOpacity>
             
             {tipoResposta === 'curta' && (
-              <View className="px-4 pb-4 bg-[#1A1A1A]">
+              <View className="px-4 pb-4 bg-admin-dark">
                 <TextInput
                   value={respostaCurta}
                   onChangeText={(v) => {
@@ -165,27 +177,27 @@ export default function AddDuvidaScreen() {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-[#3C3C3C]"
+                  className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[100px] border border-admin-border"
                 />
               </View>
             )}
           </View>
 
           {/* Resposta Expandida Accordion */}
-          <View className="bg-transparent rounded-xl border border-[#3C3C3C] mb-4 overflow-hidden">
+          <View className="bg-transparent rounded-xl border border-admin-border mb-4 overflow-hidden">
             <TouchableOpacity 
               onPress={() => setTipoResposta('expandida')}
-              className="flex-row justify-between items-center p-4 bg-[#1A1A1A]"
+              className="flex-row justify-between items-center p-4 bg-admin-dark"
               activeOpacity={0.8}
             >
               <View className="flex-row items-center gap-2">
                 <Ionicons name={tipoResposta === 'expandida' ? 'chevron-up' : 'chevron-down'} size={20} color="#6B5E80" />
-                <Text className="text-[#6B5E80] font-bold text-[14px]">Resposta expandida</Text>
+                <Text className="text-text-subtle font-bold text-[14px]">Resposta expandida</Text>
               </View>
             </TouchableOpacity>
             
             {tipoResposta === 'expandida' && (
-              <View className="px-4 pb-4 bg-[#1A1A1A]">
+              <View className="px-4 pb-4 bg-admin-dark">
                 <TextInput
                   value={respostaExpandida}
                   onChangeText={setRespostaExpandida}
@@ -194,10 +206,10 @@ export default function AddDuvidaScreen() {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[120px] mb-4 border border-[#3C3C3C]"
+                  className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[120px] mb-4 border border-admin-border"
                 />
 
-                <View className="border border-[#3C3C3C] rounded-xl p-4">
+                <View className="border border-admin-border rounded-xl p-4">
                   <View className="flex-row justify-between items-center mb-3">
                     <Text className="text-white text-[14px] font-bold">Imagem</Text>
                     {imagemDuvida ? (
@@ -222,7 +234,7 @@ export default function AddDuvidaScreen() {
                       </TouchableOpacity>
                     </View>
                   ) : (
-                    <TouchableOpacity onPress={pickImage} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-[#3C3C3C]">
+                    <TouchableOpacity onPress={pickImage} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-admin-border">
                       <Ionicons name="image-outline" size={28} color="#FFFFFF" />
                       <Text className="text-white text-[12px] mt-2 font-medium">Upload da Imagem</Text>
                     </TouchableOpacity>
@@ -235,7 +247,7 @@ export default function AddDuvidaScreen() {
                     placeholderTextColor="#6B5E80"
                     autoCapitalize="none"
                     keyboardType="url"
-                    className="bg-transparent rounded-lg p-3 text-[13px] text-white border border-[#3C3C3C]"
+                    className="bg-transparent rounded-lg p-3 text-[13px] text-white border border-admin-border"
                   />
                 </View>
               </View>
@@ -246,3 +258,5 @@ export default function AddDuvidaScreen() {
     </SafeAreaView>
   );
 }
+
+

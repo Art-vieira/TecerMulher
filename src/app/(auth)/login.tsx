@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function TelaLogin() {
   const router = useRouter();
@@ -83,7 +83,7 @@ export default function TelaLogin() {
             {/* Logo e Título */}
             <View className="items-center py-7">
               <Image
-                source={require('../assets/images/Logo.png')}
+                source={require('../../assets/images/Logo.png')}
                 style={{ width: 130, height: 130 }}
                 contentFit="contain"
                 accessible={true}
@@ -185,3 +185,7 @@ export default function TelaLogin() {
     </SafeAreaView>
   );
 }
+
+
+
+

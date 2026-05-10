@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LocalStorage, Bloco } from "../services/localStorage";
+import * as Repository from "../services/DatabaseRepository";
+import { Bloco, Material } from "../types";
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -19,7 +20,7 @@ export function useMaterialForm(id?: string | string[]) {
 
     const carregarMaterial = async () => {
       try {
-        const data = await LocalStorage.getMaterialById(id);
+        const data = await Repository.getMaterialById(id);
         if (data) {
           setTitulo(data.title || "");
           setImagemCapa(data.imagemCapa || "");
@@ -92,13 +93,13 @@ export function useMaterialForm(id?: string | string[]) {
     setSalvando(true);
     try {
       if (id && typeof id === "string") {
-        await LocalStorage.updateMaterial(id, {
+        await Repository.updateMaterial(id, {
           title: titulo.trim(),
           imagemCapa: imagemCapa.trim(),
           blocos,
         });
       } else {
-        await LocalStorage.addMaterial({
+        await Repository.addMaterial({
           title: titulo.trim(),
           imagemCapa: imagemCapa.trim(),
           blocos,

@@ -1,24 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
   Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomNav from '../components/BottomNav';
-import SearchBar from '../components/SearchBar';
+import SearchBar from '../../components/ui/SearchBar';
+import ScreenLayout from '../../components/layout/ScreenLayout';
 
-import { useMateriaisList } from '../hooks/useMateriais';
-import { useAuth } from '../hooks/useAuth';
+import { useMateriaisList } from '../../hooks/useMateriais';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function TelaMateriais() {
   const router = useRouter();
@@ -75,30 +72,23 @@ export default function TelaMateriais() {
   );
 
   return (
-    <SafeAreaView className={`flex-1 ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`} edges={['top']}>
-      <Stack.Screen options={{ headerShown: false }} />
-
-      {/* ── Cabeçalho ── */}
-      <View className={`flex-row items-center justify-between px-5 h-[88px] ${isAdmin ? 'bg-[#1A1A1A]' : 'bg-primary'}`}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.8}
-          className="flex-row items-center min-h-[50px]"
-          accessible={true}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-        >
-          <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          {!isAdmin && <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>}
-        </TouchableOpacity>
-        
-        <Text className="text-white text-lg font-semibold flex-1 text-right">
-          Materiais
-        </Text>
-      </View>
-
-      {/* ── Corpo ── */}
-      <View className="flex-1 bg-[#F2F0F5] rounded-t-[24px] overflow-hidden">
+    <ScreenLayout
+      title="Materiais"
+      currentRoute="material"
+      overlay={
+        isAdmin && (
+          <TouchableOpacity
+            onPress={() => router.push('/admin/add-material')}
+            activeOpacity={0.8}
+            className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+            accessible={true}
+            accessibilityLabel="Adicionar nova aula"
+          >
+            <Ionicons name="add" size={32} color="#FFF" />
+          </TouchableOpacity>
+        )
+      }
+    >
         {carregando ? (
           <View className="flex-1 justify-center items-center pt-8">
             <ActivityIndicator size="large" color="#391A65" />
@@ -151,7 +141,7 @@ export default function TelaMateriais() {
                         className="w-full"
                       />
                     ) : (
-                      <View style={{ height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} className="w-full bg-[#EDE9F5] justify-center items-center">
+                      <View style={{ height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} className="w-full bg-surface-card justify-center items-center">
                         <Ionicons name="image-outline" size={40} color="#C5BFD0" />
                       </View>
                     )}
@@ -195,7 +185,7 @@ export default function TelaMateriais() {
                         <Text className="text-primary text-base font-semibold">Editar</Text>
                       </TouchableOpacity>
 
-                      <View className="h-[1px] bg-[#F0EDF5] mx-3" />
+                      <View className="h-[1px] bg-surface-divider mx-3" />
 
                       <TouchableOpacity
                         onPress={() => handleApagar(item.id, item.title)}
@@ -213,22 +203,9 @@ export default function TelaMateriais() {
             )}
           </ScrollView>
         )}
-      </View>
-
-      {/* Botão + (admin) */}
-      {isAdmin && (
-        <TouchableOpacity
-          onPress={() => router.push('/admin/add-material')}
-          activeOpacity={0.8}
-          className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
-          accessible={true}
-          accessibilityLabel="Adicionar nova aula"
-        >
-          <Ionicons name="add" size={32} color="#FFF" />
-        </TouchableOpacity>
-      )}
-      
-      <BottomNav currentRoute="material" />
-    </SafeAreaView>
+    </ScreenLayout>
   );
 }
+
+
+

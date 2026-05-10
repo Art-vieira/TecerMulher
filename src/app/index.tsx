@@ -7,7 +7,7 @@ export default function TelaInicial() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-[#391A65]">
+    <SafeAreaView className="flex-1 bg-primary">
       <View className="flex-1 relative items-center">
         {/* Ícone de configuração / login */}
         <TouchableOpacity
@@ -44,10 +44,10 @@ export default function TelaInicial() {
         <View className="absolute bottom-[100px]">
           <Link href="/menu" asChild>
             <TouchableOpacity
-              className="w-[291px] h-[80px] bg-[#E8E5ED] rounded-[16px] items-center justify-center"
+              className="w-[291px] h-[80px] bg-background rounded-[16px] items-center justify-center"
               activeOpacity={0.8}
             >
-              <Text className="text-[#391A65] text-[25px] font-semibold">
+              <Text className="text-primary text-[25px] font-semibold">
                 Entrar
               </Text>
             </TouchableOpacity>
