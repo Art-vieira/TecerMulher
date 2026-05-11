@@ -25,7 +25,7 @@ export default function AppLayout() {
       // Sem sessão de admin → redireciona para login
       router.replace('/login');
     }
-  }, [user, carregandoAuth, segments]);
+  }, [user, carregandoAuth, segments, router]);
 
   return (
     <Stack screenOptions={{ headerShown: false }} />
