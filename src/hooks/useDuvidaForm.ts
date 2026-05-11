@@ -1,6 +1,23 @@
 import { useState, useEffect } from 'react';
 import * as Repository from '../services/DatabaseRepository';
-import { Duvida } from '../types';
+import { uploadFile } from "../firebase/storage";
+
+/** Verifica se a URI é de um arquivo local (não uma URL pública) */
+const isLocalUri = (uri: string): boolean =>
+  uri.startsWith("file://") || uri.startsWith("content://");
+
+/** Converte uma URI local em Blob para upload */
+const uriToBlob = async (uri: string): Promise<Blob> => {
+  const response = await fetch(uri);
+  return response.blob();
+};
+
+/** Extrai ou gera um nome de arquivo a partir da URI */
+const getFileName = (uri: string): string => {
+  const parts = uri.split("/");
+  const name = parts[parts.length - 1].split("?")[0]; // remove query strings
+  return name.includes(".") ? name : `${Date.now()}.jpg`;
+};
 
 export function useDuvidaForm(duvidaId?: string | string[]) {
   const id = Array.isArray(duvidaId) ? duvidaId[0] : duvidaId;
@@ -47,13 +64,20 @@ export function useDuvidaForm(duvidaId?: string | string[]) {
     setSalvando(true);
 
     try {
+      let imageUrl = imagemDuvida;
+      if (imagemDuvida && isLocalUri(imagemDuvida)) {
+        const blob = await uriToBlob(imagemDuvida);
+        const fileName = getFileName(imagemDuvida);
+        imageUrl = await uploadFile("duvidas/imagens", blob, fileName);
+      }
+
       if (id) {
         await Repository.updateDuvida(id, {
           title,
           tipoResposta,
           respostaCurta,
           respostaExpandida,
-          imagemDuvida,
+          imagemDuvida: imageUrl,
         });
       } else {
         await Repository.addDuvida({
@@ -61,7 +85,7 @@ export function useDuvidaForm(duvidaId?: string | string[]) {
           tipoResposta,
           respostaCurta,
           respostaExpandida,
-          imagemDuvida,
+          imagemDuvida: imageUrl,
         });
       }
       return { success: true };

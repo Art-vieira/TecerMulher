@@ -1,14 +1,33 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import * as Repository from "../services/DatabaseRepository";
+import { uploadFile } from "../firebase/storage";
 import { Bloco, Material } from "../types";
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+/** Verifica se a URI é de um arquivo local (não uma URL pública) */
+const isLocalUri = (uri: string): boolean =>
+  uri.startsWith("file://") || uri.startsWith("content://");
+
+/** Converte uma URI local em Blob para upload */
+const uriToBlob = async (uri: string): Promise<Blob> => {
+  const response = await fetch(uri);
+  return response.blob();
+};
+
+/** Extrai ou gera um nome de arquivo a partir da URI */
+const getFileName = (uri: string): string => {
+  const parts = uri.split("/");
+  const name = parts[parts.length - 1].split("?")[0]; // remove query strings
+  return name.includes(".") ? name : `${Date.now()}.jpg`;
+};
 
 export function useMaterialForm(id?: string | string[]) {
   const [titulo, setTitulo] = useState("");
   const [imagemCapa, setImagemCapa] = useState("");
   const [blocos, setBlocos] = useState<Bloco[]>([]);
   const [salvando, setSalvando] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [carregandoDados, setCarregandoDados] = useState(!!id);
 
   // Carrega os dados se houver ID sendo editado
@@ -36,7 +55,8 @@ export function useMaterialForm(id?: string | string[]) {
     carregarMaterial();
   }, [id]);
 
-  // Manipulação de Blocos
+  // ── Manipulação de Blocos ──────────────────────────────────────────
+
   const addBlocoTexto = () =>
     setBlocos((prev) => [...prev, { id: uid(), tipo: "texto", titulo: "", conteudo: "" }]);
 
@@ -44,10 +64,7 @@ export function useMaterialForm(id?: string | string[]) {
     setBlocos((prev) => [...prev, { id: uid(), tipo: "subtitulo", conteudo: "" }]);
 
   const addBlocoImagem = () =>
-    setBlocos((prev) => [
-      ...prev,
-      { id: uid(), tipo: "imagem", url: "", alt: "" },
-    ]);
+    setBlocos((prev) => [...prev, { id: uid(), tipo: "imagem", url: "", alt: "" }]);
 
   const addBlocoVideo = () =>
     setBlocos((prev) => [...prev, { id: uid(), tipo: "video", url: "" }]);
@@ -63,7 +80,7 @@ export function useMaterialForm(id?: string | string[]) {
 
   const updateBloco = (idToUpdate: string, campo: string, valor: string) =>
     setBlocos((prev) =>
-      prev.map((b) => (b.id === idToUpdate ? { ...b, [campo]: valor } : b)),
+      prev.map((b) => (b.id === idToUpdate ? { ...b, [campo]: valor } : b))
     );
 
   const moverBloco = (idToMove: string, direcao: "up" | "down") => {
@@ -78,39 +95,63 @@ export function useMaterialForm(id?: string | string[]) {
     });
   };
 
-  // Salvar Localmente
+  // ── Salvar com Upload para Firebase Storage ────────────────────────
+
   const salvarMaterial = async () => {
     if (!titulo.trim()) {
       return { success: false, error: "Por favor, preencha o título da aula." };
     }
     if (blocos.length === 0) {
-      return {
-        success: false,
-        error: "Adicione pelo menos um bloco de conteúdo.",
-      };
+      return { success: false, error: "Adicione pelo menos um bloco de conteúdo." };
     }
 
     setSalvando(true);
+    setUploadProgress(0);
+
     try {
+      // 1. Upload da imagem de capa (se for URI local)
+      let capaUrl = imagemCapa;
+      if (imagemCapa && isLocalUri(imagemCapa)) {
+        const blob = await uriToBlob(imagemCapa);
+        const fileName = getFileName(imagemCapa);
+        capaUrl = await uploadFile("materiais/capas", blob, fileName, setUploadProgress);
+      }
+
+      // 2. Upload das imagens dos blocos (se forem URIs locais)
+      const blocosProcessados = await Promise.all(
+        blocos.map(async (bloco) => {
+          if (bloco.tipo === "imagem" && bloco.url && isLocalUri(bloco.url)) {
+            const blob = await uriToBlob(bloco.url);
+            const fileName = getFileName(bloco.url);
+            const url = await uploadFile("materiais/imagens", blob, fileName);
+            return { ...bloco, url };
+          }
+          return bloco;
+        })
+      );
+
+      // 3. Persistir no Firestore
       if (id && typeof id === "string") {
         await Repository.updateMaterial(id, {
           title: titulo.trim(),
-          imagemCapa: imagemCapa.trim(),
-          blocos,
+          imagemCapa: capaUrl.trim(),
+          blocos: blocosProcessados,
         });
       } else {
         await Repository.addMaterial({
           title: titulo.trim(),
-          imagemCapa: imagemCapa.trim(),
-          blocos,
+          imagemCapa: capaUrl.trim(),
+          blocos: blocosProcessados,
         });
       }
+
       return { success: true };
     } catch (err: any) {
       console.error("Erro ao salvar material:", err);
-      return { success: false, error: err.message };
+      return { success: false, error: err.message || "Erro desconhecido." };
     } finally {
       setSalvando(false);
+      setUploadProgress(0);
     }
   };
 
@@ -122,6 +163,7 @@ export function useMaterialForm(id?: string | string[]) {
     blocos,
     setBlocos,
     salvando,
+    uploadProgress,
     carregandoDados,
     acoesBloco: {
       addBlocoTexto,

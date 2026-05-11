@@ -17,7 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function TelaLogin() {
   const router = useRouter();
-  const { loginLocal } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -31,23 +31,30 @@ export default function TelaLogin() {
     }
     setErro('');
     setCarregando(true);
-    
-    // Simulação de login local
-    setTimeout(async () => {
-      try {
-        // Aceita qualquer login para facilitar localmente, ou um específico
-        if (email.trim() === 'facilitador@gmail.com' && senha === '123456') {
-          await loginLocal(email.trim());
-          router.replace('/menu');
-        } else {
-          setErro('E-mail ou senha incorretos (Local).');
-        }
-      } catch (e) {
-        setErro('Erro ao entrar localmente.');
-      } finally {
-        setCarregando(false);
+
+    try {
+      await login(email.trim(), senha);
+      router.replace('/menu');
+    } catch (e: any) {
+      const code: string = e?.code ?? '';
+      if (
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-credential'
+      ) {
+        setErro('E-mail ou senha incorretos.');
+      } else if (code === 'auth/too-many-requests') {
+        setErro('Muitas tentativas. Tente novamente mais tarde.');
+      } else if (code === 'auth/network-request-failed') {
+        setErro('Sem conexão com a internet. Verifique sua rede.');
+      } else if (code === 'auth/user-disabled') {
+        setErro('Esta conta foi desativada.');
+      } else {
+        setErro('Erro ao entrar. Tente novamente.');
       }
-    }, 1000);
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (

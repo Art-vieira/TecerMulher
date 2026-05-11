@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
@@ -9,12 +9,16 @@ import { useDuvidasList } from '../../hooks/useDuvidas';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 
 export default function TelaMenu() {
-  const { logoutLocal, isAdmin } = useAuth();
+  const router = useRouter();
+  const { logout, isAdmin } = useAuth();
   const { materiais } = useMateriaisList();
   const { duvidas } = useDuvidasList();
 
   const handleBack = async () => {
-    await logoutLocal();
+    if (isAdmin) {
+      await logout();
+    }
+    router.replace('/');
   };
 
   const settingsButton = (

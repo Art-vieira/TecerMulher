@@ -1,66 +1,82 @@
 /**
  * DatabaseRepository
  * ──────────────────────────────────────────────────────────────────────
- * Camada de abstração (Repository Pattern) entre os Hooks e o serviço
- * de persistência. Atualmente delega para LocalStorage (AsyncStorage),
- * mas pode ser substituído por Firebase, REST API ou qualquer outro
- * backend sem tocar nos hooks ou nas telas.
+ * Camada de abstração (Repository Pattern) entre os Hooks e o Firebase.
+ * Delega para Cloud Firestore (Fase 2) e Firebase Storage (Fase 3).
  *
- * COMO MIGRAR PARA FIREBASE (no futuro):
- *  1. Importe os SDKs do Firebase aqui.
- *  2. Substitua o corpo de cada função pelo equivalente do Firestore.
- *  3. Os hooks e telas NÃO precisam ser alterados.
+ * Os hooks e telas NÃO precisam ser alterados ao trocar o backend.
  * ──────────────────────────────────────────────────────────────────────
  */
 
-import { LocalStorage } from './localStorage';
+import {
+  addDocument,
+  getDocuments,
+  getDocument,
+  updateDocument,
+  deleteDocument,
+} from '../firebase/firestore';
 import { Material, Duvida } from '../types';
 
 // ── Materiais ─────────────────────────────────────────────────────────
 
-export const getMateriais = (): Promise<Material[]> =>
-  LocalStorage.getMateriais();
+export const getMateriais = async (): Promise<Material[]> => {
+  const snapshot = await getDocuments('materiais');
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Material));
+};
 
-export const getMaterialById = (id: string): Promise<Material | null> =>
-  LocalStorage.getMaterialById(id);
+export const getMaterialById = async (id: string): Promise<Material | null> => {
+  const snap = await getDocument('materiais', id);
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() } as Material;
+};
 
-export const addMaterial = (
+export const addMaterial = async (
   data: Omit<Material, 'id' | 'createdAt'>
-): Promise<Material> => LocalStorage.addMaterial(data);
+): Promise<Material> => {
+  const createdAt = new Date().toISOString();
+  const docRef = await addDocument('materiais', { ...data, createdAt });
+  return { id: docRef.id, ...data, createdAt };
+};
 
-export const updateMaterial = (
+export const updateMaterial = async (
   id: string,
   data: Partial<Omit<Material, 'id' | 'createdAt'>>
-): Promise<void> => LocalStorage.updateMaterial(id, data);
+): Promise<void> => {
+  await updateDocument(`materiais/${id}`, data);
+};
 
-export const deleteMaterial = (id: string): Promise<void> =>
-  LocalStorage.deleteMaterial(id);
+export const deleteMaterial = async (id: string): Promise<void> => {
+  await deleteDocument(`materiais/${id}`);
+};
 
 // ── Dúvidas ───────────────────────────────────────────────────────────
 
-export const getDuvidas = (): Promise<Duvida[]> =>
-  LocalStorage.getDuvidas();
+export const getDuvidas = async (): Promise<Duvida[]> => {
+  const snapshot = await getDocuments('duvidas');
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Duvida));
+};
 
-export const getDuvidaById = (id: string): Promise<Duvida | null> =>
-  LocalStorage.getDuvidaById(id);
+export const getDuvidaById = async (id: string): Promise<Duvida | null> => {
+  const snap = await getDocument('duvidas', id);
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() } as Duvida;
+};
 
-export const addDuvida = (
+export const addDuvida = async (
   data: Omit<Duvida, 'id' | 'createdAt'>
-): Promise<Duvida> => LocalStorage.addDuvida(data);
+): Promise<Duvida> => {
+  const createdAt = new Date().toISOString();
+  const docRef = await addDocument('duvidas', { ...data, createdAt });
+  return { id: docRef.id, ...data, createdAt };
+};
 
-export const updateDuvida = (
+export const updateDuvida = async (
   id: string,
   data: Partial<Omit<Duvida, 'id' | 'createdAt'>>
-): Promise<void> => LocalStorage.updateDuvida(id, data);
+): Promise<void> => {
+  await updateDocument(`duvidas/${id}`, data);
+};
 
-export const deleteDuvida = (id: string): Promise<void> =>
-  LocalStorage.deleteDuvida(id);
-
-// ── Autenticação ──────────────────────────────────────────────────────
-
-export const getUserSession = (): Promise<{ email: string } | null> =>
-  LocalStorage.getUserSession();
-
-export const saveUserSession = (
-  session: { email: string } | null
-): Promise<void> => LocalStorage.saveUserSession(session);
+export const deleteDuvida = async (id: string): Promise<void> => {
+  await deleteDocument(`duvidas/${id}`);
+};

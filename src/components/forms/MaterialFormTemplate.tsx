@@ -30,6 +30,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
     imagemCapa, setImagemCapa,
     blocos,
     salvando,
+    uploadProgress,
     carregandoDados,
     acoesBloco,
     salvarMaterial
@@ -125,6 +126,22 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
           }
         </TouchableOpacity>
       </View>
+
+      {/* ── Barra de Progresso de Upload ── */}
+      {salvando && uploadProgress > 0 && (
+        <View className="px-5 pb-3 bg-primary">
+          <View className="flex-row justify-between mb-1">
+            <Text className="text-white text-[12px] font-semibold">Enviando imagens...</Text>
+            <Text className="text-accent text-[12px] font-bold">{uploadProgress}%</Text>
+          </View>
+          <View className="h-[4px] w-full bg-white/20 rounded-full overflow-hidden">
+            <View
+              className="h-full bg-accent rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </View>
+        </View>
+      )}
 
       {/* ── Corpo ── */}
       <View className="flex-1 bg-admin-dark rounded-t-[20px]">

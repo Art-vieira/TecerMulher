@@ -1,37 +1,43 @@
 import { useState, useEffect } from 'react';
-import * as Repository from '../services/DatabaseRepository';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '../firebase/config';
+import { signIn, signOut } from '../firebase/auth';
 
 export function useAuth() {
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [carregandoAuth, setCarregandoAuth] = useState(true);
 
   useEffect(() => {
-    // Verifica sessão local ao carregar
-    const checkSession = async () => {
-      const session = await Repository.getUserSession();
-      setUser(session);
+    // Escuta mudanças de autenticação em tempo real (login, logout, expiração de token)
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
       setCarregandoAuth(false);
-    };
+    });
 
-    checkSession();
+    // Cancela o listener quando o componente desmonta
+    return unsubscribe;
   }, []);
 
-  const loginLocal = async (email: string) => {
-    const session = { email };
-    await Repository.saveUserSession(session);
-    setUser(session);
+  /**
+   * Realiza login com email e senha no Firebase Authentication.
+   * Lança erro em caso de credenciais inválidas — trate no chamador.
+   */
+  const login = async (email: string, password: string) => {
+    await signIn(email, password);
   };
 
-  const logoutLocal = async () => {
-    await Repository.saveUserSession(null);
-    setUser(null);
+  /**
+   * Realiza logout e limpa o estado de autenticação.
+   */
+  const logout = async () => {
+    await signOut();
   };
 
   return {
     user,
     isAdmin: !!user,
     carregandoAuth,
-    loginLocal,
-    logoutLocal,
+    login,
+    logout,
   };
 }
