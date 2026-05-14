@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import * as Repository from "../services/DatabaseRepository";
 import { uploadFile } from "../firebase/storage";
-import { Bloco, Material } from "../types";
+import { Bloco } from "../types";
 
 const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 

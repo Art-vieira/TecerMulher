@@ -1,12 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { Material, Duvida } from '../types';
+
 const KEYS = {
   MATERIAIS: '@TecerMulher:materiais',
   DUVIDAS: '@TecerMulher:duvidas',
   USER_SESSION: '@TecerMulher:user_session',
 };
-
-import { Material, Duvida, Bloco } from '../types';
 
 const MOCK_MATERIAIS: Material[] = [
   {

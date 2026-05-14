@@ -10,7 +10,7 @@ import ScreenLayout from '../../components/layout/ScreenLayout';
 
 export default function TelaMenu() {
   const router = useRouter();
-  const { logout, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const { materiais } = useMateriaisList();
   const { duvidas } = useDuvidasList();
 

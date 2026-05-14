@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import * as Speech from 'expo-speech';
 import {
-  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -26,7 +25,7 @@ export default function DuvidasScreen() {
   
   const { isAdmin } = useAuth();
   const { config } = useConfig();
-  const { duvidas, carregando, apagarDuvida } = useDuvidasList();
+  const { duvidas, apagarDuvida } = useDuvidasList();
 
   const fs = (size: number) => size * (config.fontSizeFactor || 1.0);
   const lh = (size: number) => size * 1.5;

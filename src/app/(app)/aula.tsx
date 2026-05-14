@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState, useEffect } from 'react';
 import * as Speech from 'expo-speech';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -19,16 +19,15 @@ import ScreenLayout from '../../components/layout/ScreenLayout';
 import { useMaterial } from '../../hooks/useMateriais';
 import { useAuth } from '../../hooks/useAuth';
 
+import { useConfig } from '../../context/ConfigContext';
+
 const extractYouTubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
 };
 
-import { useConfig } from '../../context/ConfigContext';
-
 export default function AulaScreen() {
-  const router = useRouter();
   const { id } = useLocalSearchParams();
   const [mostrarVoltarTopo, setMostrarVoltarTopo] = useState(false);
   const { isAdmin } = useAuth();

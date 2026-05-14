@@ -29,7 +29,7 @@ export default function TelaLogin() {
     if (!carregandoAuth && user) {
       router.replace('/menu');
     }
-  }, [user, carregandoAuth]);
+  }, [user, carregandoAuth, router]);
 
   const handleEntrar = async () => {
     if (!email.trim() || !senha.trim()) {

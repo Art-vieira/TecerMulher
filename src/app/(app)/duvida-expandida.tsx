@@ -1,23 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { Image } from 'expo-image';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 import * as Repository from '../../services/DatabaseRepository';
 import { Duvida } from '../../types';
+import { useConfig } from '../../context/ConfigContext';
 
 export default function DuvidaExpandidaScreen() {
-  const router = useRouter();
   const { id } = useLocalSearchParams();
   const [duvida, setDuvida] = useState<Duvida | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const { config } = useConfig();
+  
+  const fs = (size: number) => size * (config.fontSizeFactor || 1.0);
+  const lh = (size: number) => size * 1.5;
 
   useEffect(() => {
     async function carregarDuvida() {
@@ -49,11 +52,17 @@ export default function DuvidaExpandidaScreen() {
           contentContainerStyle={{ paddingBottom: 140, paddingHorizontal: 24, paddingTop: 32 }}
         >
           <View className="bg-white rounded-[24px] p-6 mb-6 shadow-sm shadow-black/5 elevation-2">
-            <Text className="text-[20px] font-bold text-primary mb-2 leading-[26px]">
+            <Text 
+              className="font-bold text-primary mb-2"
+              style={{ fontSize: fs(20), lineHeight: lh(20) }}
+            >
               {duvida.title}
             </Text>
             <View className="h-[1px] bg-surface-muted my-4" />
-            <Text className="text-[15px] text-text-dark leading-[24px]">
+            <Text 
+              className="text-text-dark"
+              style={{ fontSize: fs(15), lineHeight: lh(15) }}
+            >
               {duvida.respostaExpandida || duvida.resposta || duvida.respostaCurta}
             </Text>
           </View>

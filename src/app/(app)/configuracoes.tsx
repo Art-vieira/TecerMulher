@@ -8,7 +8,7 @@ import { useConfig } from '../../context/ConfigContext';
 
 export default function TelaConfiguracoes() {
   const router = useRouter();
-  const { logout, isAdmin } = useAuth();
+  const { logout } = useAuth();
   const { config, updateFontSize } = useConfig();
 
   const handleLogout = async () => {
@@ -35,11 +35,11 @@ export default function TelaConfiguracoes() {
         {/* Sessão de Acessibilidade (Sempre visível para admin configurar para todos) */}
         <View className="mb-8">
           <Text className="text-primary text-[14px] font-bold mb-3 uppercase tracking-widest opacity-60 ml-2">
-            Acessibilidade (Aulas)
+            Acessibilidade (Aulas e Dúvidas)
           </Text>
           <View className="bg-white rounded-[24px] p-6 shadow-sm shadow-black/5 elevation-2">
             <Text className="text-text-dark text-[16px] font-medium mb-5">
-              Ajuste o tamanho da letra para as alunas:
+              Ajuste o tamanho da letra de materiais e dúvidas para as alunas:
             </Text>
             
             <View className="flex-row items-center justify-between bg-surface-muted rounded-2xl p-2">

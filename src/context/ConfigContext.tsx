@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getAppConfig, updateAppConfig, AppConfig } from '../services/DatabaseRepository';
+import { updateAppConfig, AppConfig } from '../services/DatabaseRepository';
 import { db } from '../firebase/config';
 import { doc, onSnapshot } from 'firebase/firestore';
 

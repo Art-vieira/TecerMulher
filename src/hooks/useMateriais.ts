@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as Repository from "../services/DatabaseRepository";
-import { Material, Bloco } from "../types";
+import { Material } from "../types";
 
 export type BlocoTexto = { id: string; tipo: "texto"; conteudo: string };
 export type BlocoImagem = {

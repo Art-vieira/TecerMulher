@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   View,
   Platform,
-  Image,
 } from 'react-native';
 import SearchBar from '../../components/ui/SearchBar';
 import ScreenLayout from '../../components/layout/ScreenLayout';
+import MaterialCard from '../../components/ui/MaterialCard';
 
 import { useMateriaisList } from '../../hooks/useMateriais';
 import { useAuth } from '../../hooks/useAuth';
@@ -117,89 +117,16 @@ export default function TelaMateriais() {
               </View>
             ) : (
               materiaisFiltrados.map((item) => (
-                <View 
-                  key={item.id} 
-                  className={`mb-6 relative ${menuAberto === item.id ? 'z-50 elevation-5' : 'z-1'}`}
-                >
-                  {/* Card */}
-                  <TouchableOpacity
-                    activeOpacity={0.85}
-                    onPress={() => {
-                      if (menuAberto) { setMenuAberto(null); return; }
-                      router.push({ pathname: '/aula', params: { id: item.id } } as any);
-                    }}
-                    className="bg-white rounded-[24px] pt-1.5 px-1.5 h-[215px] shadow-sm shadow-[#3C3C3C]/10 elevation-3"
-                    accessible={true}
-                    accessibilityLabel={`Material: ${item.title}`}
-                    accessibilityRole="button"
-                  >
-                    {/* Imagem de Capa */}
-                    {item.imagemCapa ? (
-                      <Image
-                        source={{ uri: item.imagemCapa }}
-                        style={{ width: '100%', height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}
-                        resizeMode="cover"
-                        className="w-full"
-                      />
-                    ) : (
-                      <View style={{ height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} className="w-full bg-surface-card justify-center items-center">
-                        <Ionicons name="image-outline" size={40} color="#C5BFD0" />
-                      </View>
-                    )}
-
-                    {/* Título */}
-                    <View className={`flex-1 flex-row items-center px-4 ${isAdmin ? 'justify-between' : 'justify-center'}`}>
-                      <Text
-                        className={`text-primary text-[16px] font-bold leading-[20px] ${isAdmin ? 'text-left flex-1 mr-4' : 'text-center'}`}
-                        numberOfLines={2}
-                      >
-                        {item.title}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-
-                  {/* Três pontinhos (só para admin) - Movido para fora para não conflitar toques */}
-                  {isAdmin && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setMenuAberto(menuAberto === item.id ? null : item.id);
-                      }}
-                      className="absolute bottom-2 right-2 bg-transparent rounded-full w-12 h-12 justify-center items-center z-20"
-                    >
-                      <Ionicons name="ellipsis-vertical" size={24} color="#391A65" />
-                    </TouchableOpacity>
-                  )}
-
-                  {/* Dropdown do menu (aparece abaixo do card) */}
-                  {menuAberto === item.id && (
-                    <View 
-                      style={{ position: 'absolute', top: 160, right: 30, zIndex: 999, elevation: 10 }}
-                      className="bg-white rounded-2xl py-2 shadow-xl min-w-[160px] border border-gray-100"
-                    >
-                      <TouchableOpacity
-                        onPress={() => handleEditar(item.id)}
-                        className="flex-row items-center px-4 py-3 gap-2 bg-white"
-                        accessible={true}
-                        accessibilityLabel="Editar Material"
-                      >
-                        <Ionicons name="create-outline" size={20} color="#391A65" />
-                        <Text className="text-primary text-base font-semibold">Editar</Text>
-                      </TouchableOpacity>
-
-                      <View className="h-[1px] bg-surface-divider mx-3" />
-
-                      <TouchableOpacity
-                        onPress={() => handleApagar(item.id, item.title)}
-                        className="flex-row items-center px-4 py-3 gap-2 bg-white"
-                        accessible={true}
-                        accessibilityLabel="Apagar Material"
-                      >
-                        <Ionicons name="trash-outline" size={20} color="#E74C3C" />
-                        <Text className="text-error text-base font-semibold">Apagar</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
+                <MaterialCard
+                  key={item.id}
+                  material={item}
+                  isAdmin={isAdmin}
+                  onPress={() => router.push({ pathname: '/aula', params: { id: item.id } } as any)}
+                  onEdit={(id) => handleEditar(id)}
+                  onDelete={(id, title) => handleApagar(id, title)}
+                  isMenuOpen={menuAberto === item.id}
+                  toggleMenu={() => setMenuAberto(menuAberto === item.id ? null : item.id)}
+                />
               ))
             )}
           </ScrollView>
