@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
   View,
   Platform,
+  Image,
 } from 'react-native';
-import { Image } from 'expo-image';
 import SearchBar from '../../components/ui/SearchBar';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 
@@ -75,6 +75,7 @@ export default function TelaMateriais() {
     <ScreenLayout
       title="Materiais"
       currentRoute="material"
+      onBack={() => router.replace('/menu')}
       overlay={
         isAdmin && (
           <TouchableOpacity
@@ -136,8 +137,8 @@ export default function TelaMateriais() {
                     {item.imagemCapa ? (
                       <Image
                         source={{ uri: item.imagemCapa }}
-                        style={{ height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}
-                        contentFit="cover"
+                        style={{ width: '100%', height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}
+                        resizeMode="cover"
                         className="w-full"
                       />
                     ) : (

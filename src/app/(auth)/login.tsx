@@ -17,12 +17,19 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function TelaLogin() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, carregandoAuth } = useAuth();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
+
+  React.useEffect(() => {
+    // Se já estiver logado (e não estiver carregando a auth), vai direto pro menu Admin
+    if (!carregandoAuth && user) {
+      router.replace('/menu');
+    }
+  }, [user, carregandoAuth]);
 
   const handleEntrar = async () => {
     if (!email.trim() || !senha.trim()) {

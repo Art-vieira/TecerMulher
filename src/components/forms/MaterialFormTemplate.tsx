@@ -10,8 +10,8 @@ import {
   TouchableOpacity,
   View,
   Platform,
+  Image,
 } from 'react-native';
-import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -167,7 +167,8 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
             <View className="relative mb-6">
               <Image
                 source={{ uri: imagemCapa }}
-                style={{ height: 180, resizeMode: 'cover' }}
+                style={{ width: '100%', height: 180 }}
+                resizeMode="cover"
                 className="w-full rounded-xl"
               />
               <TextInput
@@ -355,7 +356,8 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
                     <View className="relative">
                       <Image
                         source={{ uri: bloco.url }}
-                        style={{ height: 160, resizeMode: 'cover' }}
+                        style={{ width: '100%', height: 160 }}
+                        resizeMode="cover"
                         className="w-full rounded-xl mb-3"
                       />
                       <TouchableOpacity

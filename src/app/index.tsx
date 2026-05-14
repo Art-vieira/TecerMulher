@@ -1,10 +1,19 @@
 import { Image } from "expo-image";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../hooks/useAuth";
 
 export default function TelaInicial() {
   const router = useRouter();
+  const { logout } = useAuth();
+
+  const handleEntrarEstudante = async () => {
+    // Garante que ao clicar em "Entrar", qualquer sessão de admin fique na tela de login
+    // e o usuário entre exclusivamente como estudante.
+    await logout();
+    router.push('/menu');
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
@@ -42,16 +51,17 @@ export default function TelaInicial() {
 
         {/*botao de entra*/}
         <View className="absolute bottom-[100px]">
-          <Link href="/menu" asChild>
-            <TouchableOpacity
-              className="w-[291px] h-[80px] bg-background rounded-[16px] items-center justify-center"
-              activeOpacity={0.8}
-            >
-              <Text className="text-primary text-[25px] font-semibold">
-                Entrar
-              </Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity
+            onPress={handleEntrarEstudante}
+            className="w-[291px] h-[80px] bg-background rounded-[16px] items-center justify-center"
+            activeOpacity={0.8}
+            accessible={true}
+            accessibilityLabel="Entrar como estudante"
+          >
+            <Text className="text-primary text-[25px] font-semibold">
+              Entrar
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

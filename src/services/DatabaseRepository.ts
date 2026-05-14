@@ -80,3 +80,21 @@ export const updateDuvida = async (
 export const deleteDuvida = async (id: string): Promise<void> => {
   await deleteDocument(`duvidas/${id}`);
 };
+
+// ── Configurações App ────────────────────────────────────────────────
+
+export interface AppConfig {
+  fontSizeFactor: number; // 1.0 = padrão, 1.2 = +20%, etc.
+}
+
+export const getAppConfig = async (): Promise<AppConfig> => {
+  const snap = await getDocument('app_config', 'settings');
+  if (!snap.exists()) {
+    return { fontSizeFactor: 1.0 };
+  }
+  return snap.data() as AppConfig;
+};
+
+export const updateAppConfig = async (data: Partial<AppConfig>): Promise<void> => {
+  await updateDocument('app_config/settings', data);
+};

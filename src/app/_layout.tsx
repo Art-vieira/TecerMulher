@@ -20,6 +20,8 @@ import {
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
+import { ConfigProvider } from "../context/ConfigContext";
+
 SplashScreen.preventAutoHideAsync();
 
 export default function LayoutRaiz() {
@@ -52,7 +54,7 @@ export default function LayoutRaiz() {
   }
 
   return (
-    <>
+    <ConfigProvider>
       <Stack>
         {/* Tela inicial pública */}
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -62,6 +64,6 @@ export default function LayoutRaiz() {
         <Stack.Screen name="(app)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
-    </>
+    </ConfigProvider>
   );
 }

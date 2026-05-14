@@ -17,13 +17,19 @@ import { useAuth } from '../../hooks/useAuth';
 
 import { useDuvidasList } from '../../hooks/useDuvidas';
 
+import { useConfig } from '../../context/ConfigContext';
+
 export default function DuvidasScreen() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   
   const { isAdmin } = useAuth();
+  const { config } = useConfig();
   const { duvidas, carregando, apagarDuvida } = useDuvidasList();
+
+  const fs = (size: number) => size * (config.fontSizeFactor || 1.0);
+  const lh = (size: number) => size * 1.5;
 
   useEffect(() => {
     return () => {
@@ -102,13 +108,17 @@ export default function DuvidasScreen() {
         key={item.id}
         className="bg-white rounded-[16px] p-5 mb-4 shadow-sm shadow-black/10 elevation-2"
       >
-        <Text className="text-[17px] font-bold text-primary mb-2">
+        <Text 
+          className="font-bold text-primary mb-2"
+          style={{ fontSize: fs(17), lineHeight: lh(17) }}
+        >
           {item.title}
         </Text>
         
         <View className="flex-row items-start justify-between mb-4 gap-2">
           <Text 
-            className="text-[14px] text-text-dark leading-[22px] flex-1"
+            className="text-text-dark leading-[22px] flex-1"
+            style={{ fontSize: fs(14), lineHeight: lh(14) }}
             numberOfLines={2}
           >
             <Text className="font-semibold text-text-dark">Resposta: </Text>
@@ -157,7 +167,10 @@ export default function DuvidasScreen() {
           activeOpacity={0.8}
           className="flex-row justify-between items-center p-5"
         >
-          <Text className="text-[16px] font-bold text-primary flex-1 pr-4">
+          <Text 
+            className="font-bold text-primary flex-1 pr-4"
+            style={{ fontSize: fs(16), lineHeight: lh(16) }}
+          >
             {item.title}
           </Text>
           <Ionicons 
@@ -170,7 +183,10 @@ export default function DuvidasScreen() {
         {isExpanded && !isExpandidaType && (
           <View className="px-5 pb-5">
             <View className="flex-row items-start justify-between gap-2">
-              <Text className="text-[15px] text-text-dark leading-[24px] flex-1">
+              <Text 
+                className="text-text-dark leading-[24px] flex-1"
+                style={{ fontSize: fs(15), lineHeight: lh(15) }}
+              >
                 {item.respostaCurta || item.resposta || ''}
               </Text>
               <TouchableOpacity
@@ -192,6 +208,7 @@ export default function DuvidasScreen() {
     <ScreenLayout
       title="Dúvidas"
       currentRoute="duvidas"
+      onBack={() => router.replace('/menu')}
       overlay={
         isAdmin && (
           <TouchableOpacity

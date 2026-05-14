@@ -7,7 +7,7 @@ const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
 /** Verifica se a URI é de um arquivo local (não uma URL pública) */
 const isLocalUri = (uri: string): boolean =>
-  uri.startsWith("file://") || uri.startsWith("content://");
+  uri.startsWith("file://") || uri.startsWith("content://") || uri.startsWith("blob:") || uri.startsWith("data:");
 
 /** Converte uma URI local em Blob para upload */
 const uriToBlob = async (uri: string): Promise<Blob> => {
@@ -114,7 +114,7 @@ export function useMaterialForm(id?: string | string[]) {
       if (imagemCapa && isLocalUri(imagemCapa)) {
         const blob = await uriToBlob(imagemCapa);
         const fileName = getFileName(imagemCapa);
-        capaUrl = await uploadFile("materiais/capas", blob, fileName, setUploadProgress);
+        capaUrl = await uploadFile("Images-aula/capas", blob, fileName, setUploadProgress);
       }
 
       // 2. Upload das imagens dos blocos (se forem URIs locais)
@@ -123,7 +123,7 @@ export function useMaterialForm(id?: string | string[]) {
           if (bloco.tipo === "imagem" && bloco.url && isLocalUri(bloco.url)) {
             const blob = await uriToBlob(bloco.url);
             const fileName = getFileName(bloco.url);
-            const url = await uploadFile("materiais/imagens", blob, fileName);
+            const url = await uploadFile("Images-aula/imagens", blob, fileName);
             return { ...bloco, url };
           }
           return bloco;

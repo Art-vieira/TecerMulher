@@ -15,15 +15,13 @@ export default function TelaMenu() {
   const { duvidas } = useDuvidasList();
 
   const handleBack = async () => {
-    if (isAdmin) {
-      await logout();
-    }
+    // Estudantes voltam para a tela inicial
     router.replace('/');
   };
 
   const settingsButton = (
     <TouchableOpacity
-      onPress={() => alert('Configurações em breve!')}
+      onPress={() => router.push('/configuracoes')}
       activeOpacity={0.8}
       className="justify-center pl-4"
       accessible={true}
@@ -39,6 +37,7 @@ export default function TelaMenu() {
       onBack={handleBack}
       rightElement={isAdmin ? settingsButton : null}
       currentRoute="menu"
+      hideBack={isAdmin}
     >
       {isAdmin ? (
         /* ── Layout Admin ── */

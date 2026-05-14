@@ -27,6 +27,8 @@ interface ScreenLayoutProps {
   currentRoute?: Route;
   /** Elementos fora do container principal (ex: FABs com position absolute) */
   overlay?: ReactNode;
+  /** Oculta o botão de voltar */
+  hideBack?: boolean;
   /** Classes do container de conteúdo, incluindo a cor de fundo. Padrão: 'bg-surface' */
   containerClassName?: string;
 }
@@ -41,6 +43,7 @@ export default function ScreenLayout({
   showBackLabel,
   currentRoute,
   overlay,
+  hideBack,
   containerClassName = 'bg-surface',
 }: ScreenLayoutProps) {
   const router = useRouter();
@@ -56,19 +59,23 @@ export default function ScreenLayout({
 
       {/* ── Cabeçalho ── */}
       <View className={`flex-row items-center justify-between px-5 h-[88px] ${isAdmin ? 'bg-admin-dark' : 'bg-primary'}`}>
-        <TouchableOpacity
-          onPress={handleBack}
-          activeOpacity={0.8}
-          className="flex-row items-center min-h-[50px]"
-          accessible={true}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-        >
-          <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-          {shouldShowLabel && (
-            <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
-          )}
-        </TouchableOpacity>
+        {!hideBack ? (
+          <TouchableOpacity
+            onPress={handleBack}
+            activeOpacity={0.8}
+            className="flex-row items-center min-h-[50px]"
+            accessible={true}
+            accessibilityLabel="Voltar"
+            accessibilityRole="button"
+          >
+            <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
+            {shouldShowLabel && (
+              <Text className="text-white text-lg font-semibold ml-2 mr-3">Voltar</Text>
+            )}
+          </TouchableOpacity>
+        ) : (
+          <View className="min-w-[50px]" />
+        )}
 
         {title ? (
           <Text
