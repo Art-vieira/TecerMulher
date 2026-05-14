@@ -17,6 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useDuvidasList } from '../../hooks/useDuvidas';
 
 import { useConfig } from '../../context/ConfigContext';
+import { renderFormattedText } from '../../utils/textUtils';
 
 export default function DuvidasScreen() {
   const router = useRouter();
@@ -111,7 +112,7 @@ export default function DuvidasScreen() {
           className="font-bold text-primary mb-2"
           style={{ fontSize: fs(17), lineHeight: lh(17) }}
         >
-          {item.title}
+          {renderFormattedText(item.title)}
         </Text>
         
         <View className="flex-row items-start justify-between mb-4 gap-2">
@@ -121,7 +122,7 @@ export default function DuvidasScreen() {
             numberOfLines={2}
           >
             <Text className="font-semibold text-text-dark">Resposta: </Text>
-            {respostaText}
+            {renderFormattedText(respostaText)}
           </Text>
           <TouchableOpacity
             onPress={() => lerDuvida(item.title, respostaText)}
@@ -170,7 +171,7 @@ export default function DuvidasScreen() {
             className="font-bold text-primary flex-1 pr-4"
             style={{ fontSize: fs(16), lineHeight: lh(16) }}
           >
-            {item.title}
+            {renderFormattedText(item.title)}
           </Text>
           <Ionicons 
             name={isExpanded ? "chevron-up" : "chevron-down"} 
@@ -186,7 +187,7 @@ export default function DuvidasScreen() {
                 className="text-text-dark leading-[24px] flex-1"
                 style={{ fontSize: fs(15), lineHeight: lh(15) }}
               >
-                {item.respostaCurta || item.resposta || ''}
+                {renderFormattedText(item.respostaCurta || item.resposta || '')}
               </Text>
               <TouchableOpacity
                 onPress={() => lerDuvida(item.title, item.respostaCurta || item.resposta || '')}

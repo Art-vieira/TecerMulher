@@ -12,6 +12,7 @@ import ScreenLayout from '../../components/layout/ScreenLayout';
 import * as Repository from '../../services/DatabaseRepository';
 import { Duvida } from '../../types';
 import { useConfig } from '../../context/ConfigContext';
+import { renderFormattedText } from '../../utils/textUtils';
 
 export default function DuvidaExpandidaScreen() {
   const { id } = useLocalSearchParams();
@@ -56,14 +57,14 @@ export default function DuvidaExpandidaScreen() {
               className="font-bold text-primary mb-2"
               style={{ fontSize: fs(20), lineHeight: lh(20) }}
             >
-              {duvida.title}
+              {renderFormattedText(duvida.title)}
             </Text>
             <View className="h-[1px] bg-surface-muted my-4" />
             <Text 
               className="text-text-dark"
               style={{ fontSize: fs(15), lineHeight: lh(15) }}
             >
-              {duvida.respostaExpandida || duvida.resposta || duvida.respostaCurta}
+              {renderFormattedText(duvida.respostaExpandida || duvida.resposta || duvida.respostaCurta)}
             </Text>
           </View>
           {duvida.imagemDuvida ? (

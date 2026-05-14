@@ -20,6 +20,7 @@ import { useMaterial } from '../../hooks/useMateriais';
 import { useAuth } from '../../hooks/useAuth';
 
 import { useConfig } from '../../context/ConfigContext';
+import { renderFormattedText } from '../../utils/textUtils';
 
 const extractYouTubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -203,7 +204,7 @@ export default function AulaScreen() {
                         accessible={true} 
                         accessibilityRole="header"
                       >
-                        {bloco.titulo}
+                        {renderFormattedText(bloco.titulo)}
                       </Text>
                     ) : null}
                     <Text 
@@ -212,7 +213,7 @@ export default function AulaScreen() {
                       accessible={true} 
                       accessibilityLabel={bloco.conteudo}
                     >
-                      {bloco.conteudo}
+                      {renderFormattedText(bloco.conteudo)}
                     </Text>
                   </View>
                 );
@@ -226,7 +227,7 @@ export default function AulaScreen() {
                     accessible={true} 
                     accessibilityRole="header"
                   >
-                    {bloco.conteudo}
+                    {renderFormattedText(bloco.conteudo)}
                   </Text>
                 );
               }
