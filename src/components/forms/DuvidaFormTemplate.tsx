@@ -3,19 +3,18 @@ import { Stack, useRouter } from 'expo-router';
 import React from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useDuvidaForm } from '../../hooks/useDuvidaForm';
+import { useToast } from '../../context/ToastContext';
 
 interface DuvidaFormTemplateProps {
   /** ID da dúvida para edição. Omitir para modo criação. */
@@ -37,6 +36,8 @@ export default function DuvidaFormTemplate({ duvidaId }: DuvidaFormTemplateProps
     salvarDuvida
   } = useDuvidaForm(duvidaId);
 
+  const { showToast } = useToast();
+
   const headerTitle = isEditMode ? 'Editar Dúvida' : 'Nova Dúvida';
   const successMessage = isEditMode ? 'Edições salvas com sucesso!' : 'Dúvida salva com sucesso!';
   const cancelLabel = isEditMode ? 'Cancelar edições' : 'Cancelar criação';
@@ -46,21 +47,10 @@ export default function DuvidaFormTemplate({ duvidaId }: DuvidaFormTemplateProps
   const handleSave = async () => {
     const res = await salvarDuvida();
     if (res.success) {
-      if (Platform.OS === 'web') {
-        window.alert(`Sucesso! 🎉 ${successMessage}`);
-        router.back();
-      } else {
-        Alert.alert('Sucesso! 🎉', successMessage, [
-          { text: 'OK', onPress: () => router.back() },
-        ]);
-      }
+      showToast({ message: successMessage, type: 'success' });
+      router.back();
     } else {
-      const errorPrefix = isEditMode ? 'Erro' : 'Atenção';
-      if (Platform.OS === 'web') {
-        window.alert(`${errorPrefix}: ${res.error || 'Erro desconhecido.'}`);
-      } else {
-        Alert.alert(errorPrefix, res.error || 'Erro desconhecido.');
-      }
+      showToast({ message: res.error || 'Erro desconhecido.', type: 'error' });
     }
   };
 

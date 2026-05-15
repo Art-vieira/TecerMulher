@@ -7,8 +7,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Platform,
-  Alert
 } from 'react-native';
 import SearchBar from '../../components/ui/SearchBar';
 import ScreenLayout from '../../components/layout/ScreenLayout';
@@ -17,6 +15,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useDuvidasList } from '../../hooks/useDuvidas';
 
 import { useConfig } from '../../context/ConfigContext';
+import { useToast } from '../../context/ToastContext';
 import { renderFormattedText } from '../../utils/textUtils';
 
 export default function DuvidasScreen() {
@@ -26,6 +25,7 @@ export default function DuvidasScreen() {
   
   const { isAdmin } = useAuth();
   const { config } = useConfig();
+  const { showToast, showConfirm } = useToast();
   const { duvidas, apagarDuvida } = useDuvidasList();
 
   const fs = (size: number) => size * (config.fontSizeFactor || 1.0);
@@ -51,36 +51,20 @@ export default function DuvidasScreen() {
   );
 
   const handleApagar = async (id: string, titulo: string) => {
-    if (Platform.OS === 'web') {
-      const confirm = window.confirm(`Tem certeza que deseja apagar a dúvida "${titulo}"?`);
-      if (confirm) {
-        const { success, error } = await apagarDuvida(id);
-        if (success) {
-          window.alert(`✅ Dúvida removida com sucesso.`);
-        } else {
-          window.alert(`Erro: Não foi possível apagar.\n\nDetalhe: ${error.message}`);
-        }
+    const confirmado = await showConfirm({
+      title: 'Apagar Dúvida',
+      message: `Tem certeza que deseja apagar "${titulo}"?`,
+      confirmText: 'Apagar',
+      cancelText: 'Cancelar',
+      destructive: true,
+    });
+    if (confirmado) {
+      const { success, error } = await apagarDuvida(id);
+      if (success) {
+        showToast({ message: 'Dúvida removida com sucesso.', type: 'success' });
+      } else {
+        showToast({ message: `Não foi possível apagar: ${error?.message}`, type: 'error' });
       }
-    } else {
-      Alert.alert(
-        'Apagar Dúvida',
-        `Tem certeza que deseja apagar "${titulo}"?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Apagar',
-            style: 'destructive',
-            onPress: async () => {
-              const { success, error } = await apagarDuvida(id);
-              if (success) {
-                Alert.alert('✅ Apagada', `Dúvida removida com sucesso.`);
-              } else {
-                Alert.alert('Erro', `Não foi possível apagar.\n\nDetalhe: ${error.message}`);
-              }
-            },
-          },
-        ]
-      );
     }
   };
 

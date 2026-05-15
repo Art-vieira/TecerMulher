@@ -3,12 +3,10 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  Platform,
 } from 'react-native';
 import SearchBar from '../../components/ui/SearchBar';
 import ScreenLayout from '../../components/layout/ScreenLayout';
@@ -16,48 +14,34 @@ import MaterialCard from '../../components/ui/MaterialCard';
 
 import { useMateriaisList } from '../../hooks/useMateriais';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../context/ToastContext';
 
 export default function TelaMateriais() {
   const router = useRouter();
   const [pesquisa, setPesquisa] = useState('');
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
   const { isAdmin } = useAuth();
+  const { showToast, showConfirm } = useToast();
 
   const { materiais, carregando, apagarMaterial } = useMateriaisList();
 
   // ── Apagar material ──
   const handleApagar = async (id: string, titulo: string) => {
     setMenuAberto(null);
-    if (Platform.OS === 'web') {
-      const confirm = window.confirm(`Tem certeza que deseja apagar "${titulo}"?`);
-      if (confirm) {
-        const { success, error } = await apagarMaterial(id);
-        if (success) {
-          window.alert(`✅ "${titulo}" foi removido com sucesso.`);
-        } else {
-          window.alert(`Erro: Não foi possível apagar.\n\nDetalhe: ${error.message}`);
-        }
+    const confirmado = await showConfirm({
+      title: 'Apagar Material',
+      message: `Tem certeza que deseja apagar "${titulo}"?`,
+      confirmText: 'Apagar',
+      cancelText: 'Cancelar',
+      destructive: true,
+    });
+    if (confirmado) {
+      const { success, error } = await apagarMaterial(id);
+      if (success) {
+        showToast({ message: `"${titulo}" foi removido com sucesso.`, type: 'success' });
+      } else {
+        showToast({ message: `Não foi possível apagar: ${error?.message}`, type: 'error' });
       }
-    } else {
-      Alert.alert(
-        'Apagar Material',
-        `Tem certeza que deseja apagar "${titulo}"?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Apagar',
-            style: 'destructive',
-            onPress: async () => {
-              const { success, error } = await apagarMaterial(id);
-              if (success) {
-                Alert.alert('✅ Apagado', `"${titulo}" foi removido com sucesso.`);
-              } else {
-                Alert.alert('Erro', `Não foi possível apagar.\n\nDetalhe: ${error.message}`);
-              }
-            },
-          },
-        ]
-      );
     }
   };
 

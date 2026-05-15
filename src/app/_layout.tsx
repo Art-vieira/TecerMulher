@@ -21,6 +21,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
 import { ConfigProvider } from "../context/ConfigContext";
+import { ToastProvider } from "../context/ToastContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,15 +56,17 @@ export default function LayoutRaiz() {
 
   return (
     <ConfigProvider>
-      <Stack>
-        {/* Tela inicial pública */}
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        {/* Grupo de autenticação: /login */}
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        {/* Grupo protegido: /menu, /material, /duvidas, /aula, /admin/... */}
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="auto" />
+      <ToastProvider>
+        <Stack>
+          {/* Tela inicial pública */}
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          {/* Grupo de autenticação: /login */}
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          {/* Grupo protegido: /menu, /material, /duvidas, /aula, /admin/... */}
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </ToastProvider>
     </ConfigProvider>
   );
 }

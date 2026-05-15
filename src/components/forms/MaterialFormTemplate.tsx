@@ -3,19 +3,18 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Platform,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
+import { useToast } from '../../context/ToastContext';
 
 interface MaterialFormTemplateProps {
   id?: string;
@@ -36,24 +35,16 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
     salvarMaterial
   } = useMaterialForm(id);
 
+  const { showToast } = useToast();
+
   const handleSave = async () => {
     const res = await salvarMaterial();
     if (res.success) {
       const successMessage = isEdit ? 'Edições salvas com sucesso!' : 'Material salvo com sucesso!';
-      if (Platform.OS === 'web') {
-        window.alert(`Sucesso! 🎉 ${successMessage}`);
-        router.back();
-      } else {
-        Alert.alert('Sucesso! 🎉', successMessage, [
-          { text: 'OK', onPress: () => router.back() },
-        ]);
-      }
+      showToast({ message: successMessage, type: 'success' });
+      router.back();
     } else {
-      if (Platform.OS === 'web') {
-        window.alert('Atenção: ' + (res.error || 'Erro desconhecido.'));
-      } else {
-        Alert.alert('Atenção', res.error || 'Erro desconhecido.');
-      }
+      showToast({ message: res.error || 'Erro desconhecido.', type: 'error' });
     }
   };
 
