@@ -6,46 +6,50 @@ const MIN = 0.8;
 const MAX = 2.0;
 const STEP = 0.1;
 
+let globalFactor = 1.0;
+const listeners = new Set<(val: number) => void>();
+
 /**
  * Hook de tamanho de fonte local do usuário.
- * Persiste no AsyncStorage do dispositivo (não afeta o Firestore/admin).
- * 
- * Retorna:
- * - `userFontFactor` — fator atual (default 1.0)
- * - `increase` / `decrease` — funções para ajustar
- * - `canIncrease` / `canDecrease` — booleanos de limite
+ * Persiste no AsyncStorage do dispositivo e sincroniza o estado globalmente.
  */
 export function useFontSize() {
-  const [userFontFactor, setUserFontFactor] = useState(1.0);
+  const [userFontFactor, setUserFontFactor] = useState(globalFactor);
 
   useEffect(() => {
+    listeners.add(setUserFontFactor);
     AsyncStorage.getItem(STORAGE_KEY).then((val) => {
       if (val !== null) {
         const parsed = parseFloat(val);
-        if (!isNaN(parsed)) setUserFontFactor(parsed);
+        if (!isNaN(parsed)) {
+          globalFactor = parsed;
+          listeners.forEach(l => l(parsed));
+        }
       }
     });
+    return () => {
+      listeners.delete(setUserFontFactor);
+    };
   }, []);
 
   const save = useCallback(async (factor: number) => {
-    setUserFontFactor(factor);
+    globalFactor = factor;
+    listeners.forEach(l => l(factor));
     await AsyncStorage.setItem(STORAGE_KEY, factor.toString());
   }, []);
 
   const increase = useCallback(() => {
-    setUserFontFactor((prev) => {
-      const next = parseFloat(Math.min(MAX, prev + STEP).toFixed(1));
-      AsyncStorage.setItem(STORAGE_KEY, next.toString());
-      return next;
-    });
+    const next = parseFloat(Math.min(MAX, globalFactor + STEP).toFixed(1));
+    globalFactor = next;
+    listeners.forEach(l => l(next));
+    AsyncStorage.setItem(STORAGE_KEY, next.toString());
   }, []);
 
   const decrease = useCallback(() => {
-    setUserFontFactor((prev) => {
-      const next = parseFloat(Math.max(MIN, prev - STEP).toFixed(1));
-      AsyncStorage.setItem(STORAGE_KEY, next.toString());
-      return next;
-    });
+    const next = parseFloat(Math.max(MIN, globalFactor - STEP).toFixed(1));
+    globalFactor = next;
+    listeners.forEach(l => l(next));
+    AsyncStorage.setItem(STORAGE_KEY, next.toString());
   }, []);
 
   const canIncrease = userFontFactor < MAX;

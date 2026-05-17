@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState, useEffect } from 'react';
 import * as Speech from 'expo-speech';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import {
   ActivityIndicator,
   Linking,
@@ -12,6 +11,7 @@ import {
   View,
   Image,
   Modal,
+  Dimensions,
 } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import ProgressBar from '../../components/ui/ProgressBar';
@@ -56,22 +56,10 @@ export default function AulaScreen() {
   useEffect(() => {
     return () => {
       Speech.stop();
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     };
   }, []);
 
-  useEffect(() => {
-    if (imagemAmpliada) {
-      if (isLandscape) {
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-      } else {
-        ScreenOrientation.unlockAsync();
-      }
-    } else {
-      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-      setIsLandscape(false);
-    }
-  }, [imagemAmpliada, isLandscape]);
+
 
   const toggleSpeech = async () => {
     if (isSpeaking) {
@@ -315,16 +303,43 @@ export default function AulaScreen() {
         visible={!!imagemAmpliada} 
         transparent={true} 
         animationType="fade" 
-        onRequestClose={() => setImagemAmpliada(null)}
+        onRequestClose={() => {
+          setImagemAmpliada(null);
+          setIsLandscape(false);
+        }}
       >
-        <View className="flex-1 bg-black/95 justify-center items-center">
-          {imagemAmpliada && (
-            <Image 
-              source={{ uri: imagemAmpliada }} 
-              style={{ width: '100%', height: '80%' }} 
-              resizeMode="contain" 
-            />
-          )}
+        <View className="flex-1 bg-black/95 relative">
+          {imagemAmpliada && (() => {
+            const windowWidth = Dimensions.get('window').width;
+            const windowHeight = Dimensions.get('window').height;
+            const safeAreaHeight = windowHeight - 170; // Espaço vertical livre acima dos botões
+
+            const imageStyle = isLandscape
+              ? {
+                  position: 'absolute' as const,
+                  width: safeAreaHeight, // Largura de layout vira a altura visual rotacionada
+                  height: windowWidth,    // Altura de layout vira a largura visual rotacionada
+                  left: windowWidth / 2 - safeAreaHeight / 2,
+                  top: (20 + safeAreaHeight / 2) - windowWidth / 2,
+                  transform: [{ rotate: '90deg' }],
+                }
+              : {
+                  position: 'absolute' as const,
+                  width: windowWidth,
+                  height: safeAreaHeight,
+                  left: 0,
+                  top: 20,
+                  transform: [{ rotate: '0deg' }],
+                };
+
+            return (
+              <Image 
+                source={{ uri: imagemAmpliada }} 
+                style={imageStyle} 
+                resizeMode="contain" 
+              />
+            );
+          })()}
           <View className="absolute bottom-10 flex-row gap-4 px-4 w-full justify-center">
             <TouchableOpacity 
               onPress={() => setIsLandscape(!isLandscape)}
@@ -338,7 +353,10 @@ export default function AulaScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity 
-              onPress={() => setImagemAmpliada(null)}
+              onPress={() => {
+                setImagemAmpliada(null);
+                setIsLandscape(false);
+              }}
               className="bg-primary px-6 py-4 rounded-full flex-row items-center shadow-lg shadow-black/50"
               accessible={true}
               accessibilityLabel="Fechar imagem ampliada"
