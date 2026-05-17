@@ -163,7 +163,7 @@ export default function DuvidaFormTemplate({ duvidaId }: DuvidaFormTemplateProps
                 <Text className="text-text-subtle font-bold text-[14px]">Resposta curta</Text>
               </View>
               {tipoResposta === 'curta' && (
-                <Text className="text-text-subtle text-[12px]">{respostaCurta.length}/100</Text>
+                <Text className="text-text-subtle text-[12px]">{respostaCurta.length}/500</Text>
               )}
             </TouchableOpacity>
             
@@ -172,7 +172,7 @@ export default function DuvidaFormTemplate({ duvidaId }: DuvidaFormTemplateProps
                 <TextInput
                   value={respostaCurta}
                   onChangeText={(v) => {
-                    if (v.length <= 100) setRespostaCurta(v);
+                    if (v.length <= 500) setRespostaCurta(v);
                   }}
                   placeholder="Descreva a resposta resumida..."
                   placeholderTextColor="#6B5E80"
