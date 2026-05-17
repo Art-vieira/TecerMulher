@@ -17,6 +17,7 @@ import { useDuvidasList } from '../../hooks/useDuvidas';
 import { useConfig } from '../../context/ConfigContext';
 import { useToast } from '../../context/ToastContext';
 import { useFontSize } from '../../hooks/useFontSize';
+import FloatingFontControl from '../../components/ui/FloatingFontControl';
 import { renderFormattedText } from '../../utils/textUtils';
 
 export default function DuvidasScreen() {
@@ -28,8 +29,7 @@ export default function DuvidasScreen() {
   const { config } = useConfig();
   const { showToast, showConfirm } = useToast();
   const { duvidas, apagarDuvida } = useDuvidasList();
-  const { userFontFactor, increase, decrease, canIncrease, canDecrease } = useFontSize();
-  const [mostrarPainelFonte, setMostrarPainelFonte] = useState(false);
+  const { userFontFactor } = useFontSize();
 
   // Admin usa o fator global (Firestore); usuário comum usa o fator local (AsyncStorage)
   const effectiveFactor = isAdmin
@@ -223,101 +223,7 @@ export default function DuvidasScreen() {
           )}
 
           {!isAdmin && (
-            <>
-              {mostrarPainelFonte && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    bottom: 220,
-                    left: 20,
-                    right: 20,
-                    backgroundColor: '#1E1028',
-                    borderRadius: 20,
-                    padding: 20,
-                    borderWidth: 1,
-                    borderColor: '#3A2550',
-                    zIndex: 60,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.4,
-                    shadowRadius: 12,
-                    elevation: 15,
-                  }}
-                >
-                  <Text style={{ color: '#B39DCC', fontSize: 13, fontWeight: '600', marginBottom: 16, textAlign: 'center', letterSpacing: 1, textTransform: 'uppercase' }}>
-                    Tamanho da letra
-                  </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <TouchableOpacity
-                      onPress={decrease}
-                      disabled={!canDecrease}
-                      activeOpacity={0.7}
-                      accessibilityLabel="Diminuir letra"
-                      style={{
-                        width: 64, height: 64,
-                        borderRadius: 16,
-                        backgroundColor: canDecrease ? '#2A1A3A' : '#1A1028',
-                        borderWidth: 1, borderColor: '#3A2550',
-                        alignItems: 'center', justifyContent: 'center',
-                        opacity: canDecrease ? 1 : 0.4,
-                      }}
-                    >
-                      <Text style={{ color: '#FFFFFF', fontSize: 20, fontWeight: '800' }}>A-</Text>
-                    </TouchableOpacity>
-
-                    <View style={{ alignItems: 'center' }}>
-                      <Text style={{ color: '#FFFFFF', fontSize: 30, fontWeight: '900' }}>
-                        {Math.round(userFontFactor * 100)}%
-                      </Text>
-                      <Text style={{ color: '#B39DCC', fontSize: 11, fontWeight: '600', letterSpacing: 1 }}>TAMANHO</Text>
-                    </View>
-
-                    <TouchableOpacity
-                      onPress={increase}
-                      disabled={!canIncrease}
-                      activeOpacity={0.7}
-                      accessibilityLabel="Aumentar letra"
-                      style={{
-                        width: 64, height: 64,
-                        borderRadius: 16,
-                        backgroundColor: canIncrease ? '#391A65' : '#1A1028',
-                        alignItems: 'center', justifyContent: 'center',
-                        opacity: canIncrease ? 1 : 0.4,
-                      }}
-                    >
-                      <Text style={{ color: '#FFFFFF', fontSize: 22, fontWeight: '800' }}>A+</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
-
-              {/* Botão Aa flutuante */}
-              <TouchableOpacity
-                onPress={() => setMostrarPainelFonte(v => !v)}
-                activeOpacity={0.8}
-                accessibilityLabel="Ajustar tamanho da letra"
-                accessibilityRole="button"
-                style={{
-                  position: 'absolute',
-                  bottom: 150,
-                  left: 24,
-                  width: 56,
-                  height: 56,
-                  borderRadius: 28,
-                  backgroundColor: mostrarPainelFonte ? '#391A65' : '#7C3AED',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 60,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 3 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 6,
-                  elevation: 8,
-                }}
-              >
-                <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '900' }}>Aa</Text>
-              </TouchableOpacity>
-            </>
+            <FloatingFontControl bottomPosition={150} panelBottomPosition={220} />
           )}
         </>
       }
