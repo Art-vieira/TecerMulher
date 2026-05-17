@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
 import React from 'react';
-import { Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { Text, TouchableOpacity, View, ScrollView, useWindowDimensions } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useMateriaisList } from '../../hooks/useMateriais';
 import { useDuvidasList } from '../../hooks/useDuvidas';
@@ -13,6 +13,9 @@ export default function TelaMenu() {
   const { isAdmin } = useAuth();
   const { materiais } = useMateriaisList();
   const { duvidas } = useDuvidasList();
+  
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
 
   const handleBack = async () => {
     // Estudantes voltam para a tela inicial
@@ -97,14 +100,22 @@ export default function TelaMenu() {
       ) : (
         /* ── Layout Estudante ── */
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 32, paddingTop: 32, paddingBottom: 100, alignItems: 'center', justifyContent: 'space-between' }}
+          contentContainerStyle={{ 
+            flexGrow: 1, 
+            paddingHorizontal: isTablet ? 64 : 32, 
+            paddingTop: isTablet ? 64 : 32, 
+            paddingBottom: 100, 
+            alignItems: 'center', 
+            justifyContent: 'space-between' 
+          }}
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          <View className="w-full items-center">
+          <View style={{ width: '100%', flexDirection: isTablet ? 'row' : 'column', alignItems: 'center', justifyContent: 'center', gap: isTablet ? 32 : 20 }}>
             <Link href="/material" asChild>
               <TouchableOpacity
-                className="w-full max-w-[300px] h-[160px] bg-primary rounded-[30px] items-center justify-center mb-5 shadow-md shadow-primary/30"
+                style={{ width: '100%', maxWidth: isTablet ? 400 : 300, height: isTablet ? 220 : 160, flex: isTablet ? 1 : undefined }}
+                className="bg-primary rounded-[30px] items-center justify-center shadow-md shadow-primary/30"
                 activeOpacity={0.8}
                 accessible={true}
                 accessibilityLabel="Acessar sessão de Materiais"
@@ -112,16 +123,17 @@ export default function TelaMenu() {
               >
                 <Image
                   source={require("../../assets/images/aula.svg")}
-                  style={{ width: 45, height: 50, marginBottom: 12 }}
+                  style={{ width: isTablet ? 60 : 45, height: isTablet ? 65 : 50, marginBottom: isTablet ? 16 : 12 }}
                   contentFit="contain"
                 />
-                <Text className="text-white text-[26px] font-bold">Materiais</Text>
+                <Text className={`text-white font-bold ${isTablet ? 'text-[32px]' : 'text-[26px]'}`}>Materiais</Text>
               </TouchableOpacity>
             </Link>
 
             <Link href="/duvidas" asChild>
               <TouchableOpacity
-                className="w-full max-w-[300px] h-[160px] bg-primary rounded-[30px] items-center justify-center shadow-md shadow-primary/30"
+                style={{ width: '100%', maxWidth: isTablet ? 400 : 300, height: isTablet ? 220 : 160, flex: isTablet ? 1 : undefined }}
+                className="bg-primary rounded-[30px] items-center justify-center shadow-md shadow-primary/30"
                 activeOpacity={0.8}
                 accessible={true}
                 accessibilityLabel="Acessar sessão de Dúvidas"
@@ -129,17 +141,17 @@ export default function TelaMenu() {
               >
                 <Image
                   source={require("../../assets/images/duvidas.svg")}
-                  style={{ width: 50, height: 45, marginBottom: 12 }}
+                  style={{ width: isTablet ? 65 : 50, height: isTablet ? 60 : 45, marginBottom: isTablet ? 16 : 12 }}
                   contentFit="contain"
                 />
-                <Text className="text-white text-[26px] font-bold">Dúvidas</Text>
+                <Text className={`text-white font-bold ${isTablet ? 'text-[32px]' : 'text-[26px]'}`}>Dúvidas</Text>
               </TouchableOpacity>
             </Link>
           </View>
 
           <Image
             source={require("../../assets/images/Tecer-C.png")}
-            style={{ width: 250, height: 180, marginBottom: 9 }}
+            style={{ width: isTablet ? 350 : 250, height: isTablet ? 250 : 180, marginBottom: 9, marginTop: isTablet ? 40 : 20 }}
             contentFit="contain"
             accessible={true}
             accessibilityLabel="Logo Unifesspa Tecer"

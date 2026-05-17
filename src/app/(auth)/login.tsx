@@ -95,20 +95,14 @@ export default function TelaLogin() {
             </TouchableOpacity>
 
             {/* Logo e Título */}
-            <View className="items-center py-7">
+            <View className="items-center pt-2 pb-10">
               <Image
                 source={require('../../assets/images/Logo.png')}
-                style={{ width: 130, height: 130 }}
+                style={{ width: 220, height: 220 }}
                 contentFit="contain"
                 accessible={true}
                 accessibilityLabel="Logo Tecer Mulher"
               />
-              <Text className="text-white text-[42px] font-extrabold tracking-widest mt-2 leading-[44px]">
-                TECER
-              </Text>
-              <Text className="text-white text-[30px] font-normal tracking-[6px] leading-[34px]">
-                MULHER
-              </Text>
             </View>
           </View>
 

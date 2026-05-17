@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import SearchBar from '../../components/ui/SearchBar';
 import ScreenLayout from '../../components/layout/ScreenLayout';
@@ -22,6 +23,9 @@ export default function TelaMateriais() {
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
   const { isAdmin } = useAuth();
   const { showToast, showConfirm } = useToast();
+  
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
 
   const { materiais, carregando, apagarMaterial } = useMateriaisList();
 
@@ -100,18 +104,21 @@ export default function TelaMateriais() {
                 </Text>
               </View>
             ) : (
-              materiaisFiltrados.map((item) => (
-                <MaterialCard
-                  key={item.id}
-                  material={item}
-                  isAdmin={isAdmin}
-                  onPress={() => router.push({ pathname: '/aula', params: { id: item.id } } as any)}
-                  onEdit={(id) => handleEditar(id)}
-                  onDelete={(id, title) => handleApagar(id, title)}
-                  isMenuOpen={menuAberto === item.id}
-                  toggleMenu={() => setMenuAberto(menuAberto === item.id ? null : item.id)}
-                />
-              ))
+              <View style={{ flexDirection: isTablet ? 'row' : 'column', flexWrap: isTablet ? 'wrap' : 'nowrap', justifyContent: 'space-between' }}>
+                {materiaisFiltrados.map((item) => (
+                  <View key={item.id} style={{ width: isTablet ? '48%' : '100%' }}>
+                    <MaterialCard
+                      material={item}
+                      isAdmin={isAdmin}
+                      onPress={() => router.push({ pathname: '/aula', params: { id: item.id } } as any)}
+                      onEdit={(id) => handleEditar(id)}
+                      onDelete={(id, title) => handleApagar(id, title)}
+                      isMenuOpen={menuAberto === item.id}
+                      toggleMenu={() => setMenuAberto(menuAberto === item.id ? null : item.id)}
+                    />
+                  </View>
+                ))}
+              </View>
             )}
           </ScrollView>
         )}

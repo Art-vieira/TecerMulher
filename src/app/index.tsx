@@ -18,39 +18,17 @@ export default function TelaInicial() {
   return (
     <SafeAreaView className="flex-1 bg-primary">
       <View className="flex-1 relative items-center">
-        {/* Ícone de configuração / login */}
-        <TouchableOpacity
-          className="absolute top-6 right-6"
-          onPress={() => router.push('/login')}
-          activeOpacity={0.75}
-        >
-          <Image
-            source={require("../assets/images/login.svg")}
-            style={{ width: 35, height: 35 }}
-            contentFit="contain"
-          />
-        </TouchableOpacity>
-
         {/* texto central*/}
-        <View className="items-center mt-[120px]">
+        <View className="flex-1 justify-center items-center w-full mb-[120px]" pointerEvents="box-none">
           <Image
             source={require("../assets/images/Logo.png")}
-            style={{ width: 200, height: 200 }}
+            style={{ width: 320, height: 320 }}
             contentFit="contain"
           />
-
-          <View className="items-center">
-            <Text className="text-white text-[50px] font-bold leading-[50px]">
-              TECER
-            </Text>
-            <Text className="text-white text-[40px] font-normal leading-[40px]">
-              MULHER
-            </Text>
-          </View>
         </View>
 
         {/*botao de entra*/}
-        <View className="absolute bottom-[100px]">
+        <View className="absolute bottom-[100px] z-10">
           <TouchableOpacity
             onPress={handleEntrarEstudante}
             className="w-[291px] h-[80px] bg-background rounded-[16px] items-center justify-center"
@@ -63,6 +41,21 @@ export default function TelaInicial() {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Ícone de configuração / login */}
+        <TouchableOpacity
+          className="absolute top-6 right-6 z-50 p-2"
+          onPress={() => router.push('/login')}
+          activeOpacity={0.75}
+          accessible={true}
+          accessibilityLabel="Entrar como administrador"
+        >
+          <Image
+            source={require("../assets/images/login.svg")}
+            style={{ width: 35, height: 35 }}
+            contentFit="contain"
+          />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
