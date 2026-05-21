@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 import { useFontSize } from '../../hooks/useFontSize';
+import { OfflineService } from '../../services/OfflineService';
 
 export default function TelaConfiguracoes() {
   const router = useRouter();
@@ -14,6 +15,37 @@ export default function TelaConfiguracoes() {
   const handleLogout = async () => {
     await logout();
     router.replace('/');
+  };
+
+  const [hasOffline, setHasOffline] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState('');
+
+  useEffect(() => {
+    async function checkOfflineStatus() {
+      const status = await OfflineService.hasOfflineMateriais();
+      setHasOffline(status);
+    }
+    checkOfflineStatus();
+  }, []);
+
+  const handleSyncOffline = async () => {
+    setIsSyncing(true);
+    setSyncProgress('Iniciando...');
+    const success = await OfflineService.downloadAllMaterials((msg) => {
+      setSyncProgress(msg);
+    });
+    if (success) {
+      setHasOffline(true);
+    }
+    setIsSyncing(false);
+  };
+
+  const handleClearOffline = async () => {
+    setIsSyncing(true);
+    await OfflineService.clearOfflineMaterials();
+    setHasOffline(false);
+    setIsSyncing(false);
   };
 
   return (
@@ -91,6 +123,59 @@ export default function TelaConfiguracoes() {
                   Exemplo de texto com este tamanho
                 </Text>
               </View>
+            </View>
+          </View>
+        )}
+
+        {/* ── Offline Materials Management: só para estudantes ── */}
+        {!isAdmin && (
+          <View className="mb-6">
+            <Text className="text-primary text-[14px] font-bold mb-3 uppercase tracking-widest opacity-60 ml-2">
+              Armazenamento
+            </Text>
+            <View className="bg-white rounded-[24px] p-5 shadow-sm shadow-black/5 elevation-2">
+              <View className="flex-row items-center mb-4 gap-3">
+                <View className="w-10 h-10 bg-[#EBE5F1] rounded-full items-center justify-center">
+                  <Ionicons name="cloud-download-outline" size={20} color="#391A65" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-text-dark text-[16px] font-semibold">
+                    Aulas Offline
+                  </Text>
+                  <Text className="text-text-muted text-[13px]">
+                    {hasOffline ? 'Aulas baixadas no seu dispositivo' : 'Baixe as aulas para estudar sem internet'}
+                  </Text>
+                </View>
+              </View>
+
+              {isSyncing ? (
+                <View className="bg-surface-muted rounded-xl p-4 flex-row items-center justify-center gap-3">
+                  <ActivityIndicator size="small" color="#391A65" />
+                  <Text className="text-primary font-medium text-[14px]">
+                    {syncProgress}
+                  </Text>
+                </View>
+              ) : hasOffline ? (
+                <TouchableOpacity
+                  onPress={handleClearOffline}
+                  activeOpacity={0.8}
+                  className="bg-red-50 py-3.5 rounded-xl justify-center items-center border border-red-200/50"
+                >
+                  <Text className="text-red-600 font-bold text-[14px]">
+                    Apagar downloads e liberar espaço
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleSyncOffline}
+                  activeOpacity={0.8}
+                  className="bg-primary py-3.5 rounded-xl justify-center items-center shadow-sm"
+                >
+                  <Text className="text-white font-bold text-[14px]">
+                    Baixar todas as aulas agora
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         )}

@@ -47,14 +47,16 @@ export default function AulaScreen() {
 
   const scrollViewRef = useRef<ScrollView>(null);
   
-  const { material, carregando } = useMaterial(id);
+  const { material, carregando, isOffline } = useMaterial(id);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const isSpeakingRef = useRef(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null);
   const [isLandscape, setIsLandscape] = useState(false);
 
   useEffect(() => {
     return () => {
+      isSpeakingRef.current = false;
       Speech.stop();
     };
   }, []);
@@ -63,30 +65,60 @@ export default function AulaScreen() {
 
   const toggleSpeech = async () => {
     if (isSpeaking) {
+      isSpeakingRef.current = false;
       Speech.stop();
       setIsSpeaking(false);
     } else {
-      const textoParaLer = material?.blocos
-        ?.filter((b: any) => b.tipo === 'texto' || b.tipo === 'subtitulo' || b.tipo === 'alerta')
-        .map((b: any) => {
-           if (b.tipo === 'texto' && b.titulo) {
-              return `${b.titulo}. ${b.conteudo}`;
-           }
-           if (b.tipo === 'alerta') {
-              return `Atenção. ${b.conteudo}`;
-           }
-           return b.conteudo;
-        })
-        .join('. ') || '';
+      isSpeakingRef.current = true;
+      setIsSpeaking(true);
 
-      if (textoParaLer) {
-        Speech.speak(`${material?.title}. ${textoParaLer}`, {
-          language: 'pt-BR',
-          onDone: () => setIsSpeaking(false),
-          onStopped: () => setIsSpeaking(false),
-          onError: () => setIsSpeaking(false),
+      const blocos = material?.blocos || [];
+      const blocosLidos: string[] = [];
+
+      if (material?.title) {
+        blocosLidos.push(material.title);
+      }
+
+      blocos.forEach((b: any) => {
+        if (b.tipo === 'texto') {
+           blocosLidos.push((b.titulo ? b.titulo + '. ' : '') + (b.conteudo || ''));
+        } else if (b.tipo === 'alerta') {
+           blocosLidos.push('Atenção. ' + (b.conteudo || ''));
+        } else if (b.tipo === 'subtitulo') {
+           blocosLidos.push(b.conteudo || '');
+        } else if (b.tipo === 'imagem' && b.alt) {
+           blocosLidos.push('Descrição da imagem: ' + b.alt);
+        }
+      });
+
+      const textosParaLer = blocosLidos.filter((t) => t && t.trim().length > 0);
+      
+      if (textosParaLer.length === 0) {
+        setIsSpeaking(false);
+        isSpeakingRef.current = false;
+        return;
+      }
+
+      let startIndex = Math.floor((readingProgress / 100) * textosParaLer.length);
+      if (startIndex >= textosParaLer.length) startIndex = textosParaLer.length - 1;
+      if (readingProgress >= 95) startIndex = 0;
+
+      for (let i = startIndex; i < textosParaLer.length; i++) {
+        if (!isSpeakingRef.current) break;
+        
+        await new Promise((resolve) => {
+          Speech.speak(textosParaLer[i], {
+            language: 'pt-BR',
+            onDone: () => resolve(true),
+            onStopped: () => resolve(false),
+            onError: () => resolve(false),
+          });
         });
-        setIsSpeaking(true);
+      }
+
+      if (isSpeakingRef.current) {
+         setIsSpeaking(false);
+         isSpeakingRef.current = false;
       }
     }
   };
@@ -194,6 +226,14 @@ export default function AulaScreen() {
             >
               {material.title}
             </Text>
+            {isOffline && (
+              <View className="bg-amber-50 border border-amber-200 rounded-[14px] p-3.5 mb-6 flex-row items-center gap-3">
+                <Ionicons name="cloud-offline-outline" size={22} color="#D35400" />
+                <Text className="text-[#A04000] text-[14px] font-medium flex-1 leading-relaxed">
+                  Modo Offline ativado: as imagens salvas estão disponíveis. Vídeos e links externos precisam de internet.
+                </Text>
+              </View>
+            )}
             {material.blocos.map((bloco) => {
               if (bloco.tipo === 'texto') {
                 return (
