@@ -1,29 +1,47 @@
-import * as FileSystemImport from 'expo-file-system';
+import * as FileSystem from 'expo-file-system';
+
 import * as Network from 'expo-network';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DatabaseRepository from './DatabaseRepository';
 import { Material } from '../types';
-
-const FileSystem = FileSystemImport as any;
 
 const KEYS = {
   OFFLINE_MATERIAIS: '@TecerMulher:offline_materiais',
   PROMPT_ANSWERED: '@TecerMulher:prompt_download_answered',
 };
 
-const OFFLINE_DIR = `${FileSystem.documentDirectory}TecerMulher_Offline/`;
+const OFFLINE_DIR = (FileSystem as any).documentDirectory ? `${(FileSystem as any).documentDirectory}TecerMulher_Offline/` : null;
 
 // Garante que o diretório para armazenamento offline exista
 async function ensureDirExists() {
+  if (!OFFLINE_DIR) return;
   const dirInfo = await FileSystem.getInfoAsync(OFFLINE_DIR);
   if (!dirInfo.exists) {
     await FileSystem.makeDirectoryAsync(OFFLINE_DIR, { intermediates: true });
   }
 }
 
+// Extrai com segurança a extensão do arquivo a partir da URL
+function getSafeExtension(url: string): string {
+  try {
+    const cleanUrl = url.split('?')[0];
+    const parts = cleanUrl.split('.');
+    const ext = parts.length > 1 ? parts.pop()?.toLowerCase() : '';
+    if (ext && ext.length <= 5 && /^[a-z0-9]+$/.test(ext)) {
+      return ext;
+    }
+  } catch (e) {
+    console.error('Erro ao extrair extensão:', e);
+  }
+  return 'jpg';
+}
+
 // Baixa um arquivo individual e retorna o caminho local
 async function downloadFile(url: string, filename: string): Promise<string> {
   try {
+    if (!OFFLINE_DIR) {
+      return url;
+    }
     await ensureDirExists();
     const localUri = `${OFFLINE_DIR}${filename}`;
     
@@ -37,7 +55,7 @@ async function downloadFile(url: string, filename: string): Promise<string> {
     return uri;
   } catch (error) {
     console.error(`Falha ao baixar o arquivo (${url}):`, error);
-    return url; // Fallback para a URL online caso dê erro
+    throw error; // Repassa o erro para rastreamento de falhas parciais
   }
 }
 
@@ -82,6 +100,11 @@ export const OfflineService = {
   // Baixa todos os materiais e suas respectivas imagens
   async downloadAllMaterials(onProgress?: (msg: string) => void): Promise<boolean> {
     try {
+      if (!OFFLINE_DIR) {
+        if (onProgress) onProgress('Armazenamento offline não suportado nesta plataforma.');
+        return false;
+      }
+
       if (onProgress) onProgress('Buscando aulas da nuvem...');
       const materiais = await DatabaseRepository.getMateriais();
       
@@ -91,6 +114,7 @@ export const OfflineService = {
       }
 
       const offlineMateriais: Material[] = [];
+      let hasFailures = false;
 
       for (let i = 0; i < materiais.length; i++) {
         const m = materiais[i];
@@ -99,8 +123,13 @@ export const OfflineService = {
         // 1. Baixar Imagem de Capa se existir
         let localCapa = m.imagemCapa;
         if (m.imagemCapa && (m.imagemCapa.startsWith('http') || m.imagemCapa.startsWith('https'))) {
-          const ext = m.imagemCapa.split('.').pop()?.split('?')[0] || 'jpg';
-          localCapa = await downloadFile(m.imagemCapa, `capa_${m.id}.${ext}`);
+          const ext = getSafeExtension(m.imagemCapa);
+          try {
+            localCapa = await downloadFile(m.imagemCapa, `capa_${m.id}.${ext}`);
+          } catch (err) {
+            console.error(`Erro ao baixar imagem de capa do material ${m.id}:`, err);
+            hasFailures = true;
+          }
         }
 
         // 2. Baixar Imagens dentro dos Blocos
@@ -108,9 +137,15 @@ export const OfflineService = {
         if (m.blocos && Array.isArray(m.blocos)) {
           for (const b of m.blocos) {
             if (b.tipo === 'imagem' && b.url && (b.url.startsWith('http') || b.url.startsWith('https'))) {
-              const ext = b.url.split('.').pop()?.split('?')[0] || 'jpg';
-              const localUrl = await downloadFile(b.url, `bloco_${m.id}_${b.id}.${ext}`);
-              localBlocos.push({ ...b, url: localUrl });
+              const ext = getSafeExtension(b.url);
+              try {
+                const localUrl = await downloadFile(b.url, `bloco_${m.id}_${b.id}.${ext}`);
+                localBlocos.push({ ...b, url: localUrl });
+              } catch (err) {
+                console.error(`Erro ao baixar imagem do bloco ${b.id}:`, err);
+                hasFailures = true;
+                localBlocos.push(b); // Fallback para a URL online
+              }
             } else {
               localBlocos.push(b);
             }
@@ -157,8 +192,15 @@ export const OfflineService = {
 
       // Salva os metadados com caminhos atualizados no AsyncStorage
       await AsyncStorage.setItem(KEYS.OFFLINE_MATERIAIS, JSON.stringify(offlineMateriais));
-      if (onProgress) onProgress('Download concluído com sucesso!');
-      return true;
+      
+      if (onProgress) {
+        if (hasFailures) {
+          onProgress('Algumas imagens falharam, mas as demais foram salvas offline.');
+        } else {
+          onProgress('Download concluído com sucesso!');
+        }
+      }
+      return !hasFailures;
     } catch (e) {
       console.error('Erro ao baixar materiais offline:', e);
       if (onProgress) onProgress('Erro ao realizar download das aulas.');
@@ -170,6 +212,7 @@ export const OfflineService = {
   async clearOfflineMaterials(): Promise<void> {
     try {
       await AsyncStorage.removeItem(KEYS.OFFLINE_MATERIAIS);
+      if (!OFFLINE_DIR) return;
       const dirInfo = await FileSystem.getInfoAsync(OFFLINE_DIR);
       if (dirInfo.exists) {
         await FileSystem.deleteAsync(OFFLINE_DIR, { idempotent: true });
