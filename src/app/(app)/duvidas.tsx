@@ -163,21 +163,32 @@ export default function DuvidasScreen() {
   const renderUserDuvida = (item: any) => {
     const isExpanded = expandedId === item.id;
     const isExpandidaType = item.tipoResposta === "expandida";
+    const respostaTexto = item.respostaCurta || item.resposta || "";
 
     return (
       <View
         key={item.id}
-        className={`bg-white rounded-[16px] mb-4 shadow-sm shadow-black/10 elevation-2 overflow-hidden ${isExpanded ? "border border-primary" : ""}`}
+        style={[
+          {
+            backgroundColor: '#FFFFFF',
+            borderRadius: 16,
+            marginBottom: 16,
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 2,
+          },
+          isExpanded && { borderWidth: 1, borderColor: '#391A65' },
+        ]}
       >
-        <View className="flex-row items-center justify-between pr-5">
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 20 }}>
           <TouchableOpacity
             onPress={() => toggleAccordion(item)}
             activeOpacity={0.8}
-            className="flex-row justify-between items-center p-5 flex-1"
+            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, flex: 1 }}
           >
             <Text
-              className="font-bold text-primary flex-1 pr-4"
-              style={{ fontSize: fs(16), lineHeight: lh(16) }}
+              style={{ fontWeight: 'bold', color: '#391A65', flex: 1, paddingRight: 16, fontSize: fs(16), lineHeight: lh(16) }}
             >
               {renderFormattedText(item.title)}
             </Text>
@@ -193,10 +204,10 @@ export default function DuvidasScreen() {
                 item.title,
                 isExpandidaType
                   ? item.respostaExpandida
-                  : item.respostaCurta || item.resposta || "",
+                  : respostaTexto,
               )
             }
-            className="w-10 h-10 bg-surface-muted rounded-full items-center justify-center ml-2"
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3F0F7', alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}
             accessible={true}
             accessibilityLabel="Ouvir resposta"
           >
@@ -204,13 +215,20 @@ export default function DuvidasScreen() {
           </TouchableOpacity>
         </View>
 
-        {isExpanded && !isExpandidaType && (
-          <View className="px-5 pb-5">
+        {/* Resposta — renderizada sempre, mas visível só quando expandida */}
+        {!isExpandidaType && (
+          <View
+            style={{
+              paddingHorizontal: 20,
+              paddingBottom: isExpanded ? 20 : 0,
+              height: isExpanded ? undefined : 0,
+              overflow: 'hidden',
+            }}
+          >
             <Text
-              className="text-text-dark leading-[24px]"
-              style={{ fontSize: fs(15), lineHeight: lh(15) }}
+              style={{ color: '#3C3C3C', fontSize: fs(15), lineHeight: lh(15) }}
             >
-              {renderFormattedText(item.respostaCurta || item.resposta || "")}
+              {renderFormattedText(respostaTexto)}
             </Text>
           </View>
         )}
