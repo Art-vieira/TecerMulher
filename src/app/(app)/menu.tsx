@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
@@ -19,6 +19,7 @@ export default function TelaMenu() {
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
 
+  const [testFilePath, setTestFilePath] = useState<string | null>(null);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
@@ -230,6 +231,7 @@ export default function TelaMenu() {
               const testPath = `${targetDir}test.txt`;
               await FileSystem.writeAsStringAsync(testPath, 'Teste de escrita');
               console.log('✍️ Test file written to', testPath);
+              setTestFilePath(testPath);
             } catch (e) {
               console.error('Erro ao escrever arquivo de teste', e);
             }
@@ -239,6 +241,9 @@ export default function TelaMenu() {
         >
           <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Teste FS Write</Text>
         </TouchableOpacity>
+        {testFilePath ? (
+          <Text style={{ marginTop: 8, color: '#333', textAlign: 'center' }}>Arquivo escrito em:{'\n'}{testFilePath}</Text>
+        ) : null}
 
       {/* Modal de Download de Materiais Offline */}
       <Modal
