@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system';
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
@@ -12,7 +13,7 @@ import { OfflineService } from '../../services/OfflineService';
 export default function TelaMenu() {
   const router = useRouter();
   const { isAdmin } = useAuth();
-  const { materiais } = useMateriaisList();
+  const { materiais, refresh } = useMateriaisList();
   const { duvidas } = useDuvidasList();
   
   const { width } = useWindowDimensions();
@@ -26,16 +27,8 @@ export default function TelaMenu() {
     async function checkOfflineRequirements() {
       if (isAdmin) return; // Apenas para estudantes
       
-      const answered = await OfflineService.isPromptAnswered();
-      if (answered) return;
-
-      const hasOffline = await OfflineService.hasOfflineMateriais();
-      if (hasOffline) return;
-
-      const onWiFi = await OfflineService.isWiFiConnected();
-      if (onWiFi) {
-        setShowDownloadModal(true);
-      }
+      // O usuário ainda não tem materiais offline; exibe o modal de download imediatamente
+      setShowDownloadModal(true);
     }
     checkOfflineRequirements();
   }, [isAdmin]);
@@ -57,6 +50,8 @@ export default function TelaMenu() {
         setTimeout(() => {
           setIsDownloading(false);
           setShowDownloadModal(false);
+          // Refresh the material list to load the newly saved offline data
+          refresh();
         }, 1500);
       } else {
         setDownloadProgress('Falha ao baixar algumas aulas.');
@@ -75,7 +70,6 @@ export default function TelaMenu() {
   };
 
   const handleCancelDownload = async () => {
-    await OfflineService.setPromptAnswered();
     setShowDownloadModal(false);
   };
 
@@ -220,6 +214,31 @@ export default function TelaMenu() {
           />
         </ScrollView>
       )}
+
+        {/* Debug button to test filesystem write */}
+        <TouchableOpacity
+          onPress={async () => {
+            try {
+              const baseDir = (FileSystem as any).documentDirectory || (FileSystem as any).cacheDirectory;
+              if (!baseDir) {
+                console.warn('⚠️ Nenhum diretório disponível para escrita');
+                return;
+              }
+              const targetDir = `${baseDir}TecerMulher_Offline/`;
+              // Garante que o diretório exista
+              await FileSystem.makeDirectoryAsync(targetDir, { intermediates: true });
+              const testPath = `${targetDir}test.txt`;
+              await FileSystem.writeAsStringAsync(testPath, 'Teste de escrita');
+              console.log('✍️ Test file written to', testPath);
+            } catch (e) {
+              console.error('Erro ao escrever arquivo de teste', e);
+            }
+          }}
+          activeOpacity={0.8}
+          style={{ width: '100%', backgroundColor: '#FF5722', paddingVertical: 12, borderRadius: 12, marginTop: 12, alignItems: 'center' }}
+        >
+          <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Teste FS Write</Text>
+        </TouchableOpacity>
 
       {/* Modal de Download de Materiais Offline */}
       <Modal

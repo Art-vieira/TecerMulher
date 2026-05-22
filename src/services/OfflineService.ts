@@ -10,10 +10,11 @@ const KEYS = {
   PROMPT_ANSWERED: '@TecerMulher:prompt_download_answered',
 };
 
-const OFFLINE_DIR = (FileSystem as any).documentDirectory ? `${(FileSystem as any).documentDirectory}TecerMulher_Offline/` : null;
+const OFFLINE_DIR = (FileSystem as any).documentDirectory ? `${(FileSystem as any).documentDirectory}TecerMulher_Offline/` : ((FileSystem as any).cacheDirectory ? `${(FileSystem as any).cacheDirectory}TecerMulher_Offline/` : null); // Fallback to cacheDirectory if documentDirectory unavailable
 
 // Garante que o diretório para armazenamento offline exista
 async function ensureDirExists() {
+  console.log('✅ OFFLINE_DIR:', OFFLINE_DIR);
   if (!OFFLINE_DIR) return;
   const dirInfo = await FileSystem.getInfoAsync(OFFLINE_DIR);
   if (!dirInfo.exists) {
@@ -70,11 +71,16 @@ export const OfflineService = {
     }
   },
 
-  // Verifica se está conectado no Wi-Fi
+  // Verifica se está conectado no Wi‑Fi (compatível com diferentes valores de tipo)
   async isWiFiConnected(): Promise<boolean> {
     try {
       const state = await Network.getNetworkStateAsync();
-      return state.type === Network.NetworkStateType.WIFI;
+      // state.type can be enum number or string; handle both
+      if (typeof state.type === 'number') {
+        return state.type === (Network as any).NetworkStateType?.WIFI;
+      }
+      const typeStr = (state.type ?? '').toString().toLowerCase();
+      return typeStr === 'wifi' || typeStr === 'wlan';
     } catch (e) {
       return false;
     }
@@ -120,9 +126,10 @@ export const OfflineService = {
         const m = materiais[i];
         if (onProgress) onProgress(`Aulas: ${i + 1}/${materiais.length} - Baixando "${m.title}"...`);
 
-        // 1. Baixar Imagem de Capa se existir
+        // Skip YouTube URLs (they cannot be downloaded offline)
+        const isYouTube = (url: string) => /(?:youtube\.com|youtu\.be)/i.test(url);
         let localCapa = m.imagemCapa;
-        if (m.imagemCapa && (m.imagemCapa.startsWith('http') || m.imagemCapa.startsWith('https'))) {
+        if (m.imagemCapa && (m.imagemCapa.startsWith('http') || m.imagemCapa.startsWith('https')) && !isYouTube(m.imagemCapa)) {
           const ext = getSafeExtension(m.imagemCapa);
           try {
             localCapa = await downloadFile(m.imagemCapa, `capa_${m.id}.${ext}`);
@@ -136,7 +143,8 @@ export const OfflineService = {
         const localBlocos = [];
         if (m.blocos && Array.isArray(m.blocos)) {
           for (const b of m.blocos) {
-            if (b.tipo === 'imagem' && b.url && (b.url.startsWith('http') || b.url.startsWith('https'))) {
+            // Skip YouTube URLs for block images
+            if (b.tipo === 'imagem' && b.url && (b.url.startsWith('http') || b.url.startsWith('https')) && !isYouTube(b.url)) {
               const ext = getSafeExtension(b.url);
               try {
                 const localUrl = await downloadFile(b.url, `bloco_${m.id}_${b.id}.${ext}`);
