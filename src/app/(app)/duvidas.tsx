@@ -349,7 +349,7 @@ export default function DuvidasScreen() {
           <TouchableOpacity
             onPress={() =>
               Linking.openURL(
-                "https://wa.me/94991967184?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida",
+                "https://wa.me/NUMERO?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida",
               )
             }
             activeOpacity={0.8}
