@@ -8,6 +8,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -112,9 +114,13 @@ export default function DuvidaFormTemplate({ duvidaId }: DuvidaFormTemplateProps
       </View>
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-admin-dark rounded-t-[20px]">
-        <ScrollView
-          contentContainerClassName="p-6 pb-20"
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+      >
+        <View className="flex-1 bg-admin-dark rounded-t-[20px]">
+          <ScrollView
+            contentContainerClassName="p-6 pb-20"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -210,53 +216,12 @@ export default function DuvidaFormTemplate({ duvidaId }: DuvidaFormTemplateProps
                   textAlignVertical="top"
                   className="bg-transparent rounded-lg p-3 text-[14px] text-white min-h-[120px] mb-4 border border-admin-border"
                 />
-
-                <View className="border border-admin-border rounded-xl p-4">
-                  <View className="flex-row justify-between items-center mb-3">
-                    <Text className="text-white text-[14px] font-bold">Imagem</Text>
-                    {imagemDuvida ? (
-                      <TouchableOpacity onPress={() => setImagemDuvida('')}>
-                        <Ionicons name="trash-outline" size={20} color="#6B5E80" />
-                      </TouchableOpacity>
-                    ) : null}
-                  </View>
-
-                  {imagemDuvida && (imagemDuvida.startsWith('http') || imagemDuvida.startsWith('file')) ? (
-                    <View className="relative">
-                      <Image
-                        source={{ uri: imagemDuvida }}
-                        style={{ height: 160, resizeMode: 'cover' }}
-                        className="w-full rounded-xl mb-4"
-                      />
-                      <TouchableOpacity
-                        onPress={pickImage}
-                        className="absolute top-2 right-2 bg-black/60 rounded-full p-2"
-                      >
-                        <Ionicons name="pencil" size={20} color="#FFFFFF" />
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity onPress={pickImage} className="w-full h-[140px] rounded-xl mb-4 bg-transparent justify-center items-center border border-dashed border-admin-border">
-                      <Ionicons name="image-outline" size={28} color="#FFFFFF" />
-                      <Text className="text-white text-[12px] mt-2 font-medium">Upload da Imagem</Text>
-                    </TouchableOpacity>
-                  )}
-
-                  <TextInput
-                    value={imagemDuvida}
-                    onChangeText={setImagemDuvida}
-                    placeholder="Ou cole o link da imagem..."
-                    placeholderTextColor="#6B5E80"
-                    autoCapitalize="none"
-                    keyboardType="url"
-                    className="bg-transparent rounded-lg p-3 text-[13px] text-white border border-admin-border"
-                  />
-                </View>
               </View>
             )}
           </View>
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -9,12 +9,19 @@ import { useMateriaisList } from '../../hooks/useMateriais';
 import { useDuvidasList } from '../../hooks/useDuvidas';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 import { OfflineService } from '../../services/OfflineService';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FloatingFontControl from '../../components/ui/FloatingFontControl';
+
+let sessionPromptShown = false;
 
 export default function TelaMenu() {
   const router = useRouter();
   const { isAdmin } = useAuth();
   const { materiais, refresh } = useMateriaisList();
   const { duvidas } = useDuvidasList();
+  const insets = useSafeAreaInsets();
+  const fontBottom = 100 + insets.bottom + 16;
+  const fontPanelBottom = fontBottom + 70;
   
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -28,8 +35,15 @@ export default function TelaMenu() {
     async function checkOfflineRequirements() {
       if (isAdmin) return; // Apenas para estudantes
       
-      // O usuário ainda não tem materiais offline; exibe o modal de download imediatamente
-      setShowDownloadModal(true);
+      const answered = await OfflineService.isPromptAnswered();
+      if (answered) {
+        // Já aceitou antes: sincroniza automaticamente em background
+        OfflineService.downloadAllMaterials();
+      } else if (!sessionPromptShown) {
+        // Ainda não aceitou e não mostramos nesta sessão do app
+        setShowDownloadModal(true);
+        sessionPromptShown = true;
+      }
     }
     checkOfflineRequirements();
   }, [isAdmin]);
@@ -98,6 +112,14 @@ export default function TelaMenu() {
       rightElement={isAdmin ? settingsButton : null}
       currentRoute="menu"
       hideBack={isAdmin}
+      overlay={
+        !isAdmin && (
+          <FloatingFontControl
+            bottomPosition={fontBottom}
+            panelBottomPosition={fontPanelBottom}
+          />
+        )
+      }
     >
       {isAdmin ? (
         /* ── Layout Admin ── */
@@ -160,13 +182,14 @@ export default function TelaMenu() {
           contentContainerStyle={{ 
             flexGrow: 1, 
             paddingHorizontal: isTablet ? 64 : 32, 
-            paddingTop: isTablet ? 64 : 32, 
-            paddingBottom: 100, 
+            paddingTop: isTablet ? 40 : 32, 
+            paddingBottom: isTablet ? 120 : 85, 
             alignItems: 'center', 
             justifyContent: 'space-between' 
           }}
           showsVerticalScrollIndicator={false}
           bounces={false}
+          alwaysBounceVertical={false}
         >
           <View style={{ width: '100%', flexDirection: isTablet ? 'row' : 'column', alignItems: 'center', justifyContent: 'center', gap: isTablet ? 32 : 20 }}>
             <Link href="/material" asChild>
@@ -208,7 +231,7 @@ export default function TelaMenu() {
 
           <Image
             source={require("../../assets/images/Tecer-C.png")}
-            style={{ width: isTablet ? 350 : 250, height: isTablet ? 250 : 180, marginBottom: 9, marginTop: isTablet ? 40 : 20 }}
+            style={{ width: isTablet ? 350 : 250, height: isTablet ? 250 : 180, marginBottom: 30, marginTop: isTablet ? 30 : 10 }}
             contentFit="contain"
             accessible={true}
             accessibilityLabel="Logo Unifesspa Tecer"
@@ -216,34 +239,6 @@ export default function TelaMenu() {
         </ScrollView>
       )}
 
-        {/* Debug button to test filesystem write */}
-        <TouchableOpacity
-          onPress={async () => {
-            try {
-              const baseDir = (FileSystem as any).documentDirectory || (FileSystem as any).cacheDirectory;
-              if (!baseDir) {
-                console.warn('⚠️ Nenhum diretório disponível para escrita');
-                return;
-              }
-              const targetDir = `${baseDir}TecerMulher_Offline/`;
-              // Garante que o diretório exista
-              await FileSystem.makeDirectoryAsync(targetDir, { intermediates: true });
-              const testPath = `${targetDir}test.txt`;
-              await FileSystem.writeAsStringAsync(testPath, 'Teste de escrita');
-              console.log('✍️ Test file written to', testPath);
-              setTestFilePath(testPath);
-            } catch (e) {
-              console.error('Erro ao escrever arquivo de teste', e);
-            }
-          }}
-          activeOpacity={0.8}
-          style={{ width: '100%', backgroundColor: '#FF5722', paddingVertical: 12, borderRadius: 12, marginTop: 12, alignItems: 'center' }}
-        >
-          <Text style={{ color: '#FFF', fontWeight: 'bold' }}>Teste FS Write</Text>
-        </TouchableOpacity>
-        {testFilePath ? (
-          <Text style={{ marginTop: 8, color: '#333', textAlign: 'center' }}>Arquivo escrito em:{'\n'}{testFilePath}</Text>
-        ) : null}
 
       {/* Modal de Download de Materiais Offline */}
       <Modal

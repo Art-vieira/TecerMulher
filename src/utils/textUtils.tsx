@@ -1,11 +1,6 @@
 import React from 'react';
 import { Text } from 'react-native';
 
-/**
- * Renderiza um texto aplicando formatação básica:
- * **texto** -> Negrito
- * __texto__ ou _texto_ -> Itálico
- */
 export const renderFormattedText = (text: string = '') => {
   if (!text) return null;
 
@@ -42,4 +37,19 @@ export const renderFormattedText = (text: string = '') => {
     // Texto normal
     return part;
   });
+};
+
+/**
+ * Limpa o texto para leitura em voz alta, removendo caracteres especiais (asteriscos, sublinhados)
+ * e substituindo hifens por espaço para evitar que a voz atropele as palavras.
+ */
+export const cleanTextForSpeech = (text: string = '') => {
+  if (!text) return '';
+  return text
+    // Remove emojis e seus modificadores (tons de pele, junções, etc)
+    .replace(/[\p{Extended_Pictographic}\p{Emoji_Presentation}\p{Emoji_Modifier}\uFE0F\u200D]/gu, '')
+    // Remove asteriscos, sublinhados, hashtags, crases, tils e marcadores (bullets)
+    .replace(/[*_#~`•]/g, '')
+    // Substitui hifens por espaço
+    .replace(/-/g, ' ');
 };

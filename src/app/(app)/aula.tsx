@@ -1,33 +1,33 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useRef, useState, useEffect } from 'react';
-import * as Speech from 'expo-speech';
+import { Ionicons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
+import * as Speech from "expo-speech";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Dimensions,
+  Image,
   Linking,
+  Modal,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  Image,
-  Modal,
-  Dimensions,
-} from 'react-native';
-import YoutubeIframe from 'react-native-youtube-iframe';
-import ProgressBar from '../../components/ui/ProgressBar';
-import ScreenLayout from '../../components/layout/ScreenLayout';
-import { useMaterial } from '../../hooks/useMateriais';
-import { useAuth } from '../../hooks/useAuth';
-import { useFontSize } from '../../hooks/useFontSize';
-import FloatingFontControl from '../../components/ui/FloatingFontControl';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import YoutubeIframe from "react-native-youtube-iframe";
+import ScreenLayout from "../../components/layout/ScreenLayout";
+import ProgressBar from "../../components/ui/ProgressBar";
+import { useAuth } from "../../hooks/useAuth";
+import { useFontSize } from "../../hooks/useFontSize";
+import { useMaterial } from "../../hooks/useMateriais";
 
-import { useConfig } from '../../context/ConfigContext';
-import { renderFormattedText } from '../../utils/textUtils';
+import { useConfig } from "../../context/ConfigContext";
+import { cleanTextForSpeech, renderFormattedText } from "../../utils/textUtils";
 
 const extractYouTubeId = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+  return match && match[2].length === 11 ? match[2] : null;
 };
 
 export default function AulaScreen() {
@@ -36,17 +36,19 @@ export default function AulaScreen() {
   const { isAdmin } = useAuth();
   const { config } = useConfig();
   const { userFontFactor } = useFontSize();
+  const insets = useSafeAreaInsets();
+  const safeBottom = insets.bottom;
 
   // Admin usa o fator global (Firestore); usuário comum usa o fator local (AsyncStorage)
   const effectiveFactor = isAdmin
-    ? (config.fontSizeFactor || 1.0)
+    ? config.fontSizeFactor || 1.0
     : (config.fontSizeFactor || 1.0) * userFontFactor;
 
   const fs = (size: number) => size * effectiveFactor;
   const lh = (size: number) => size * 1.5;
 
   const scrollViewRef = useRef<ScrollView>(null);
-  
+
   const { material, carregando, isOffline } = useMaterial(id);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const isSpeakingRef = useRef(false);
@@ -60,8 +62,6 @@ export default function AulaScreen() {
       Speech.stop();
     };
   }, []);
-
-
 
   const toggleSpeech = async () => {
     if (isSpeaking) {
@@ -80,35 +80,41 @@ export default function AulaScreen() {
       }
 
       blocos.forEach((b: any) => {
-        if (b.tipo === 'texto') {
-           blocosLidos.push((b.titulo ? b.titulo + '. ' : '') + (b.conteudo || ''));
-        } else if (b.tipo === 'alerta') {
-           blocosLidos.push('Atenção. ' + (b.conteudo || ''));
-        } else if (b.tipo === 'subtitulo') {
-           blocosLidos.push(b.conteudo || '');
-        } else if (b.tipo === 'imagem' && b.alt) {
-           blocosLidos.push('Descrição da imagem: ' + b.alt);
+        if (b.tipo === "texto") {
+          blocosLidos.push(
+            (b.titulo ? b.titulo + ". " : "") + (b.conteudo || ""),
+          );
+        } else if (b.tipo === "alerta") {
+          blocosLidos.push("Atenção. " + (b.conteudo || ""));
+        } else if (b.tipo === "subtitulo") {
+          blocosLidos.push(b.conteudo || "");
+        } else if (b.tipo === "imagem" && b.alt) {
+          blocosLidos.push("Descrição da imagem: " + b.alt);
         }
       });
 
       const textosParaLer = blocosLidos.filter((t) => t && t.trim().length > 0);
-      
+
       if (textosParaLer.length === 0) {
         setIsSpeaking(false);
         isSpeakingRef.current = false;
         return;
       }
 
-      let startIndex = Math.floor((readingProgress / 100) * textosParaLer.length);
-      if (startIndex >= textosParaLer.length) startIndex = textosParaLer.length - 1;
+      let startIndex = Math.floor(
+        (readingProgress / 100) * textosParaLer.length,
+      );
+      if (startIndex >= textosParaLer.length)
+        startIndex = textosParaLer.length - 1;
       if (readingProgress >= 95) startIndex = 0;
 
       for (let i = startIndex; i < textosParaLer.length; i++) {
         if (!isSpeakingRef.current) break;
-        
+
         await new Promise((resolve) => {
-          Speech.speak(textosParaLer[i], {
-            language: 'pt-BR',
+          const textoLimpo = cleanTextForSpeech(textosParaLer[i]);
+          Speech.speak(textoLimpo, {
+            language: "pt-BR",
             onDone: () => resolve(true),
             onStopped: () => resolve(false),
             onError: () => resolve(false),
@@ -117,8 +123,8 @@ export default function AulaScreen() {
       }
 
       if (isSpeakingRef.current) {
-         setIsSpeaking(false);
-         isSpeakingRef.current = false;
+        setIsSpeaking(false);
+        isSpeakingRef.current = false;
       }
     }
   };
@@ -129,7 +135,10 @@ export default function AulaScreen() {
     const layoutHeight = event.nativeEvent.layoutMeasurement.height;
 
     if (contentHeight > layoutHeight) {
-      const progress = Math.max(0, Math.min(100, (offsetY / (contentHeight - layoutHeight)) * 100));
+      const progress = Math.max(
+        0,
+        Math.min(100, (offsetY / (contentHeight - layoutHeight)) * 100),
+      );
       setReadingProgress(Math.round(progress));
     } else {
       setReadingProgress(100);
@@ -151,16 +160,12 @@ export default function AulaScreen() {
       containerClassName="bg-background pt-5"
       overlay={
         <>
-          {/* ── Painel de tamanho de fonte (apenas usuário normal) ── */}
-          {!isAdmin && (
-            <FloatingFontControl bottomPosition={30} panelBottomPosition={110} />
-          )}
-
           {mostrarVoltarTopo && (
             <TouchableOpacity
               onPress={scrollToTop}
               activeOpacity={0.8}
-              className={`absolute bottom-[100px] right-8 ${isAdmin ? 'bg-primary' : 'bg-accent'} w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50`}
+              className={`absolute right-8 ${isAdmin ? "bg-primary" : "bg-accent"} w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50`}
+              style={{ bottom: safeBottom + 90 }}
               accessible={true}
               accessibilityLabel="Voltar ao início da página"
               accessibilityRole="button"
@@ -171,12 +176,17 @@ export default function AulaScreen() {
           <TouchableOpacity
             onPress={toggleSpeech}
             activeOpacity={0.8}
-            className="absolute bottom-[30px] right-8 bg-primary w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50"
+            className="absolute right-8 bg-primary w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50"
+            style={{ bottom: safeBottom + 20 }}
             accessible={true}
             accessibilityLabel={isSpeaking ? "Parar leitura" : "Ouvir aula"}
             accessibilityRole="button"
           >
-            <Ionicons name={isSpeaking ? "stop" : "volume-high"} size={32} color="#FFFFFF" />
+            <Ionicons
+              name={isSpeaking ? "stop" : "volume-high"}
+              size={32}
+              color="#FFFFFF"
+            />
           </TouchableOpacity>
         </>
       }
@@ -187,30 +197,37 @@ export default function AulaScreen() {
       {carregando ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#391A65" />
-          <Text className="text-primary mt-3 text-base font-semibold">Carregando aula...</Text>
+          <Text className="text-primary mt-3 text-base font-semibold">
+            Carregando aula...
+          </Text>
         </View>
       ) : !material ? (
         <View className="flex-1 justify-center items-center px-6">
-           <Ionicons name="alert-circle-outline" size={60} color="#E74C3C" />
-           <Text className="text-text-dark text-lg font-bold text-center mt-4">
-             Material não encontrado.
-           </Text>
-           <Text className="text-text-muted text-base text-center mt-2">
-             Esta aula pode ter sido removida ou não está mais disponível.
-           </Text>
+          <Ionicons name="alert-circle-outline" size={60} color="#E74C3C" />
+          <Text className="text-text-dark text-lg font-bold text-center mt-4">
+            Material não encontrado.
+          </Text>
+          <Text className="text-text-muted text-base text-center mt-2">
+            Esta aula pode ter sido removida ou não está mais disponível.
+          </Text>
         </View>
       ) : (
         <ScrollView
           ref={scrollViewRef}
           onScroll={handleScroll}
           scrollEventThrottle={16}
-          contentContainerClassName="pb-40"
+          contentContainerClassName="pb-[200px]"
           showsVerticalScrollIndicator={true}
         >
           {material.imagemCapa ? (
             <Image
               source={{ uri: material.imagemCapa }}
-              style={{ width: '100%', height: 200, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+              style={{
+                width: "100%",
+                height: 200,
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+              }}
               resizeMode="cover"
               className="w-full"
               accessible={true}
@@ -218,110 +235,164 @@ export default function AulaScreen() {
             />
           ) : null}
           <View className="px-6 pt-6">
-            <Text 
-              className="text-primary font-extrabold mb-8" 
+            <Text
+              className="text-primary font-extrabold mb-8"
               style={{ fontSize: fs(28), lineHeight: lh(28) }}
-              accessible={true} 
+              accessible={true}
               accessibilityRole="header"
             >
               {material.title}
             </Text>
             {isOffline && (
               <View className="bg-amber-50 border border-amber-200 rounded-[14px] p-3.5 mb-6 flex-row items-center gap-3">
-                <Ionicons name="cloud-offline-outline" size={22} color="#D35400" />
+                <Ionicons
+                  name="cloud-offline-outline"
+                  size={22}
+                  color="#D35400"
+                />
                 <Text className="text-[#A04000] text-[14px] font-medium flex-1 leading-relaxed">
-                  Modo Offline ativado: as imagens salvas estão disponíveis. Vídeos e links externos precisam de internet.
+                  Modo Offline ativado: as imagens salvas estão disponíveis.
+                  Vídeos e links externos precisam de internet.
                 </Text>
               </View>
             )}
             {material.blocos.map((bloco) => {
-              if (bloco.tipo === 'texto') {
+              if (bloco.tipo === "texto") {
                 return (
-                  <View key={bloco.id} className="bg-surface-sheet rounded-2xl border border-border-active/50 pt-[23px] pb-6 px-6 mb-6 flex-col items-start gap-4 shadow-sm elevation-1 w-full">
+                  <View
+                    key={bloco.id}
+                    className="bg-surface-sheet rounded-2xl border border-border-active/50 pt-[23px] pb-6 px-6 mb-6 flex-col items-start gap-4 shadow-sm elevation-1 w-full"
+                  >
                     {bloco.titulo ? (
-                      <Text 
-                        className="text-primary font-bold" 
+                      <Text
+                        className="text-primary font-bold"
                         style={{ fontSize: fs(22), lineHeight: lh(22) }}
-                        accessible={true} 
+                        accessible={true}
                         accessibilityRole="header"
                       >
                         {renderFormattedText(bloco.titulo)}
                       </Text>
                     ) : null}
-                    <Text 
-                      className="text-text-dark font-medium" 
-                      style={{ fontSize: fs(18), lineHeight: lh(18) }}
-                      accessible={true} 
-                      accessibilityLabel={bloco.conteudo}
-                    >
-                      {renderFormattedText(bloco.conteudo)}
-                    </Text>
+                    {bloco.conteudo ? (
+                      <Text
+                        className="text-text-dark font-medium"
+                        style={{ fontSize: fs(18), lineHeight: lh(18) }}
+                        accessible={true}
+                        accessibilityLabel={bloco.conteudo}
+                      >
+                        {renderFormattedText(bloco.conteudo)}
+                      </Text>
+                    ) : null}
                   </View>
                 );
               }
-              if (bloco.tipo === 'subtitulo') {
+              if (bloco.tipo === "subtitulo") {
                 return (
-                  <Text 
-                    key={bloco.id} 
-                    className="text-primary font-bold mt-2 mb-4" 
+                  <Text
+                    key={bloco.id}
+                    className="text-primary font-bold mt-2 mb-4"
                     style={{ fontSize: fs(24), lineHeight: lh(24) }}
-                    accessible={true} 
+                    accessible={true}
                     accessibilityRole="header"
                   >
                     {renderFormattedText(bloco.conteudo)}
                   </Text>
                 );
               }
-              if (bloco.tipo === 'separador') {
-                return <View key={bloco.id} className="h-[2px] bg-border-light my-6 mx-auto w-[80%] rounded" />;
+              if (bloco.tipo === "separador") {
+                return (
+                  <View
+                    key={bloco.id}
+                    className="h-[2px] bg-border-light my-6 mx-auto w-[80%] rounded"
+                  />
+                );
               }
-              if (bloco.tipo === 'imagem') {
-                const hasUrl = bloco.url && (bloco.url.startsWith('http') || bloco.url.startsWith('file') || bloco.url.startsWith('data'));
+              if (bloco.tipo === "imagem") {
+                const hasUrl =
+                  bloco.url &&
+                  (bloco.url.startsWith("http") ||
+                    bloco.url.startsWith("file") ||
+                    bloco.url.startsWith("data"));
                 if (!hasUrl) return null;
                 return (
                   <View key={bloco.id} className="mb-6">
-                    <TouchableOpacity 
-                      activeOpacity={0.8} 
+                    <TouchableOpacity
+                      activeOpacity={0.8}
                       onPress={() => setImagemAmpliada(bloco.url || null)}
                       className="relative"
-                      accessible={true} 
-                      accessibilityLabel={bloco.alt ? `Ampliar: ${bloco.alt}` : "Ampliar imagem ilustrativa da aula"}
+                      accessible={true}
+                      accessibilityLabel={
+                        bloco.alt
+                          ? `Ampliar: ${bloco.alt}`
+                          : "Ampliar imagem ilustrativa da aula"
+                      }
                       accessibilityRole="button"
                     >
-                      <Image source={{ uri: bloco.url }} style={{ width: '100%', height: 220 }} resizeMode="contain" className="w-full rounded-xl shadow-sm elevation-2 bg-surface-card" />
+                      <Image
+                        source={{ uri: bloco.url }}
+                        style={{ width: "100%", height: 220 }}
+                        resizeMode="contain"
+                        className="w-full rounded-xl shadow-sm elevation-2 bg-surface-card"
+                      />
                       <View className="absolute bottom-3 right-3 bg-black/70 px-4 py-2 rounded-full flex-row items-center">
                         <Ionicons name="expand" size={24} color="#FFFFFF" />
-                        <Text className="text-white ml-2 font-bold text-base">Ampliar Imagem</Text>
+                        <Text className="text-white ml-2 font-bold text-base">
+                          Ampliar Imagem
+                        </Text>
                       </View>
                     </TouchableOpacity>
-                    {bloco.alt ? <Text className="text-text-muted text-sm text-center mt-2 italic font-medium">{bloco.alt}</Text> : null}
+                    {bloco.alt ? (
+                      <Text className="text-text-muted text-sm text-center mt-2 italic font-medium">
+                        {bloco.alt}
+                      </Text>
+                    ) : null}
                   </View>
                 );
               }
-              if (bloco.tipo === 'video') {
+              if (bloco.tipo === "video") {
                 const videoId = bloco.url ? extractYouTubeId(bloco.url) : null;
                 if (videoId) {
                   return (
-                    <View key={bloco.id} className="w-full mb-6 rounded-xl overflow-hidden shadow-sm elevation-2 bg-black">
-                      <YoutubeIframe height={210} videoId={videoId} initialPlayerParams={{ preventFullScreen: false, showClosedCaptions: false, controls: true }} />
+                    <View
+                      key={bloco.id}
+                      className="w-full mb-6 rounded-xl overflow-hidden shadow-sm elevation-2 bg-black"
+                    >
+                      <YoutubeIframe
+                        height={210}
+                        videoId={videoId}
+                        initialPlayerParams={{
+                          preventFullScreen: false,
+                          showClosedCaptions: false,
+                          controls: true,
+                        }}
+                      />
                     </View>
                   );
                 } else {
                   return (
-                    <TouchableOpacity key={bloco.id} onPress={() => Linking.openURL(bloco.url || '')} className="bg-[#FF0000] rounded-xl p-4 flex-row items-center justify-center mb-6 gap-2">
+                    <TouchableOpacity
+                      key={bloco.id}
+                      onPress={() => Linking.openURL(bloco.url || "")}
+                      className="bg-[#FF0000] rounded-xl p-4 flex-row items-center justify-center mb-6 gap-2"
+                    >
                       <Ionicons name="logo-youtube" size={24} color="#FFFFFF" />
-                      <Text className="text-white text-base font-bold">Assistir Vídeo Externo</Text>
+                      <Text className="text-white text-base font-bold">
+                        Assistir Vídeo Externo
+                      </Text>
                     </TouchableOpacity>
                   );
                 }
               }
-              if (bloco.tipo === 'alerta') {
+              if (bloco.tipo === "alerta") {
                 return (
-                  <View key={bloco.id} className="bg-white rounded-[12px] mb-6 flex-row overflow-hidden shadow-sm elevation-2">
+                  <View
+                    key={bloco.id}
+                    className="bg-white rounded-[12px] mb-6 flex-row overflow-hidden shadow-sm elevation-2"
+                  >
                     <View className="w-[6px] bg-error" />
                     <View className="p-4 flex-row flex-1 items-center">
                       <Ionicons name="warning" size={fs(28)} color="#C0392B" />
-                      <Text 
+                      <Text
                         className="text-text-dark font-medium ml-3 flex-1"
                         style={{ fontSize: fs(18), lineHeight: lh(18) }}
                       >
@@ -339,60 +410,67 @@ export default function AulaScreen() {
       )}
 
       {/* Modal de Imagem Ampliada */}
-      <Modal 
-        visible={!!imagemAmpliada} 
-        transparent={true} 
-        animationType="fade" 
+      <Modal
+        visible={!!imagemAmpliada}
+        transparent={true}
+        animationType="fade"
         onRequestClose={() => {
           setImagemAmpliada(null);
           setIsLandscape(false);
         }}
       >
         <View className="flex-1 bg-black/95 relative">
-          {imagemAmpliada && (() => {
-            const windowWidth = Dimensions.get('window').width;
-            const windowHeight = Dimensions.get('window').height;
-            const safeAreaHeight = windowHeight - 170; // Espaço vertical livre acima dos botões
+          {imagemAmpliada &&
+            (() => {
+              const windowWidth = Dimensions.get("window").width;
+              const windowHeight = Dimensions.get("window").height;
+              const safeAreaHeight = windowHeight - 170; // Espaço vertical livre acima dos botões
 
-            const imageStyle = isLandscape
-              ? {
-                  position: 'absolute' as const,
-                  width: safeAreaHeight, // Largura de layout vira a altura visual rotacionada
-                  height: windowWidth,    // Altura de layout vira a largura visual rotacionada
-                  left: windowWidth / 2 - safeAreaHeight / 2,
-                  top: (20 + safeAreaHeight / 2) - windowWidth / 2,
-                  transform: [{ rotate: '90deg' }],
-                }
-              : {
-                  position: 'absolute' as const,
-                  width: windowWidth,
-                  height: safeAreaHeight,
-                  left: 0,
-                  top: 20,
-                  transform: [{ rotate: '0deg' }],
-                };
+              const imageStyle = isLandscape
+                ? {
+                    position: "absolute" as const,
+                    width: safeAreaHeight, // Largura de layout vira a altura visual rotacionada
+                    height: windowWidth, // Altura de layout vira a largura visual rotacionada
+                    left: windowWidth / 2 - safeAreaHeight / 2,
+                    top: 20 + safeAreaHeight / 2 - windowWidth / 2,
+                    transform: [{ rotate: "90deg" }],
+                  }
+                : {
+                    position: "absolute" as const,
+                    width: windowWidth,
+                    height: safeAreaHeight,
+                    left: 0,
+                    top: 20,
+                    transform: [{ rotate: "0deg" }],
+                  };
 
-            return (
-              <Image 
-                source={{ uri: imagemAmpliada }} 
-                style={imageStyle} 
-                resizeMode="contain" 
-              />
-            );
-          })()}
+              return (
+                <Image
+                  source={{ uri: imagemAmpliada }}
+                  style={imageStyle}
+                  resizeMode="contain"
+                />
+              );
+            })()}
           <View className="absolute bottom-10 flex-row gap-4 px-4 w-full justify-center">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setIsLandscape(!isLandscape)}
               className="bg-[#D35400] px-6 py-4 rounded-full flex-row items-center shadow-lg shadow-black/50"
               accessible={true}
-              accessibilityLabel={isLandscape ? "Voltar para retrato" : "Girar para deitado"}
+              accessibilityLabel={
+                isLandscape ? "Voltar para retrato" : "Girar para deitado"
+              }
               accessibilityRole="button"
             >
-              <Ionicons name="phone-landscape-outline" size={32} color="#FFFFFF" />
+              <Ionicons
+                name="phone-landscape-outline"
+                size={32}
+                color="#FFFFFF"
+              />
               <Text className="text-white ml-3 font-bold text-xl">Girar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => {
                 setImagemAmpliada(null);
                 setIsLandscape(false);
@@ -411,7 +489,3 @@ export default function AulaScreen() {
     </ScreenLayout>
   );
 }
-
-
-
-

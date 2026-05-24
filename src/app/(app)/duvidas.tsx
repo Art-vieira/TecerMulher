@@ -2,7 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as Speech from "expo-speech";
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Linking,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ScreenLayout from "../../components/layout/ScreenLayout";
 import SearchBar from "../../components/ui/SearchBar";
 import { useAuth } from "../../hooks/useAuth";
@@ -13,10 +20,14 @@ import FloatingFontControl from "../../components/ui/FloatingFontControl";
 import { useConfig } from "../../context/ConfigContext";
 import { useToast } from "../../context/ToastContext";
 import { useFontSize } from "../../hooks/useFontSize";
-import { renderFormattedText } from "../../utils/textUtils";
+import { cleanTextForSpeech, renderFormattedText } from "../../utils/textUtils";
 
 export default function DuvidasScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const fabBottom = 100 + insets.bottom + 10;
+  const fontBottom = 100 + insets.bottom + 16;
+  const fontPanelBottom = fontBottom + 70;
   const [pesquisa, setPesquisa] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -45,7 +56,8 @@ export default function DuvidasScreen() {
     if (isSpeaking) {
       Speech.stop();
     } else if (resposta) {
-      Speech.speak(`${titulo}. ${resposta}`, { language: "pt-BR" });
+      const textoLimpo = cleanTextForSpeech(`${titulo}. ${resposta}`);
+      Speech.speak(textoLimpo, { language: "pt-BR" });
     }
   };
 
@@ -168,27 +180,46 @@ export default function DuvidasScreen() {
     return (
       <View
         key={item.id}
-        style={[
-          {
-            backgroundColor: '#FFFFFF',
-            borderRadius: 16,
-            marginBottom: 16,
-            shadowColor: '#000',
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 2,
-          },
-          isExpanded && { borderWidth: 1, borderColor: '#391A65' },
-        ]}
+        style={{
+          backgroundColor: "#FFFFFF",
+          borderRadius: 16,
+          marginBottom: 16,
+          shadowColor: "#000",
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 2,
+          borderWidth: isExpanded ? 1 : 0,
+          borderColor: isExpanded ? "#391A65" : "transparent",
+        }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingRight: 20 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingRight: 20,
+          }}
+        >
           <TouchableOpacity
             onPress={() => toggleAccordion(item)}
             activeOpacity={0.8}
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, flex: 1 }}
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: 20,
+              flex: 1,
+            }}
           >
             <Text
-              style={{ fontWeight: 'bold', color: '#391A65', flex: 1, paddingRight: 16, fontSize: fs(16), lineHeight: lh(16) }}
+              style={{
+                fontWeight: "bold",
+                color: "#391A65",
+                flex: 1,
+                paddingRight: 16,
+                fontSize: fs(16),
+                lineHeight: lh(16),
+              }}
             >
               {renderFormattedText(item.title)}
             </Text>
@@ -202,12 +233,18 @@ export default function DuvidasScreen() {
             onPress={() =>
               lerDuvida(
                 item.title,
-                isExpandidaType
-                  ? item.respostaExpandida
-                  : respostaTexto,
+                isExpandidaType ? item.respostaExpandida : respostaTexto,
               )
             }
-            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#F3F0F7', alignItems: 'center', justifyContent: 'center', marginLeft: 8 }}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: "#F3F0F7",
+              alignItems: "center",
+              justifyContent: "center",
+              marginLeft: 8,
+            }}
             accessible={true}
             accessibilityLabel="Ouvir resposta"
           >
@@ -222,11 +259,11 @@ export default function DuvidasScreen() {
               paddingHorizontal: 20,
               paddingBottom: isExpanded ? 20 : 0,
               height: isExpanded ? undefined : 0,
-              overflow: 'hidden',
+              overflow: "hidden",
             }}
           >
             <Text
-              style={{ color: '#3C3C3C', fontSize: fs(15), lineHeight: lh(15) }}
+              style={{ color: "#3C3C3C", fontSize: fs(15), lineHeight: lh(15) }}
             >
               {renderFormattedText(respostaTexto)}
             </Text>
@@ -246,7 +283,8 @@ export default function DuvidasScreen() {
           {isAdmin && (
             <TouchableOpacity
               onPress={() => router.push("/admin/add-duvida")}
-              className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+              className="absolute right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+              style={{ bottom: fabBottom }}
               accessible={true}
               accessibilityLabel="Adicionar nova dúvida"
             >
@@ -256,8 +294,8 @@ export default function DuvidasScreen() {
 
           {!isAdmin && (
             <FloatingFontControl
-              bottomPosition={150}
-              panelBottomPosition={220}
+              bottomPosition={fontBottom}
+              panelBottomPosition={fontPanelBottom}
             />
           )}
         </>
@@ -303,6 +341,34 @@ export default function DuvidasScreen() {
           duvidasFiltradas.map((item) =>
             isAdmin ? renderAdminDuvida(item) : renderUserDuvida(item),
           )
+        )}
+
+        {/* Botão de contato via WhatsApp (apenas alunos) */}
+        {/* Mude o numero aqui */}
+        {!isAdmin && (
+          <TouchableOpacity
+            onPress={() =>
+              Linking.openURL(
+                "https://wa.me/94991967184?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida",
+              )
+            }
+            activeOpacity={0.8}
+            className="mt-8 mb-4 bg-[#25D366] rounded-2xl py-4 px-5 flex-row items-center justify-center gap-3 shadow-sm shadow-black/10 elevation-2"
+            accessible={true}
+            accessibilityLabel="Enviar dúvida pelo WhatsApp"
+            accessibilityRole="button"
+          >
+            <Ionicons name="logo-whatsapp" size={24} color="#FFFFFF" />
+            <View className="flex-1">
+              <Text className="text-white font-bold text-[15px]">
+                Tem outra dúvida?
+              </Text>
+              <Text className="text-white/80 text-[13px]">
+                Toque aqui para perguntar
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
         )}
       </ScrollView>
     </ScreenLayout>

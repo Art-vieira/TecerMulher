@@ -9,6 +9,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ScreenLayout from "../../components/layout/ScreenLayout";
 import MaterialCard from "../../components/ui/MaterialCard";
 import SearchBar from "../../components/ui/SearchBar";
@@ -19,6 +20,8 @@ import { useMateriaisList } from "../../hooks/useMateriais";
 
 export default function TelaMateriais() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const fabBottom = 100 + insets.bottom + 10;
   const [pesquisa, setPesquisa] = useState("");
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
   const { isAdmin } = useAuth();
@@ -75,7 +78,8 @@ export default function TelaMateriais() {
           <TouchableOpacity
             onPress={() => router.push("/admin/add-material")}
             activeOpacity={0.8}
-            className="absolute right-6 bottom-[140px] w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+            className="absolute right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/50 elevation-5"
+            style={{ bottom: fabBottom }}
             accessible={true}
             accessibilityLabel="Adicionar nova aula"
           >

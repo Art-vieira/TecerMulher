@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import * as Speech from 'expo-speech';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 import * as Repository from '../../services/DatabaseRepository';
@@ -17,7 +18,7 @@ import { useConfig } from '../../context/ConfigContext';
 import { useAuth } from '../../hooks/useAuth';
 import { useFontSize } from '../../hooks/useFontSize';
 import FloatingFontControl from '../../components/ui/FloatingFontControl';
-import { renderFormattedText } from '../../utils/textUtils';
+import { renderFormattedText, cleanTextForSpeech } from '../../utils/textUtils';
 
 export default function DuvidaExpandidaScreen() {
   const { id } = useLocalSearchParams();
@@ -27,6 +28,10 @@ export default function DuvidaExpandidaScreen() {
   const { config } = useConfig();
   const { userFontFactor } = useFontSize();
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const insets = useSafeAreaInsets();
+  const safeBottom = insets.bottom;
+  const bottomPos = 100 + safeBottom + 16;
+  const panelBottomPos = bottomPos + 70;
 
   // Admin usa o fator global (Firestore); usuário comum usa o fator local (AsyncStorage)
   const effectiveFactor = isAdmin
@@ -62,7 +67,8 @@ export default function DuvidaExpandidaScreen() {
     } else {
       setIsSpeaking(true);
       const textToSpeak = `${duvida.title}. ${duvida.respostaExpandida || duvida.resposta || duvida.respostaCurta || ''}`;
-      Speech.speak(textToSpeak, { 
+      const textoLimpo = cleanTextForSpeech(textToSpeak);
+      Speech.speak(textoLimpo, { 
         language: 'pt-BR',
         onDone: () => setIsSpeaking(false),
         onStopped: () => setIsSpeaking(false),
@@ -78,7 +84,7 @@ export default function DuvidaExpandidaScreen() {
       overlay={
         <>
           {!isAdmin && (
-            <FloatingFontControl bottomPosition={150} panelBottomPosition={220} />
+            <FloatingFontControl bottomPosition={bottomPos} panelBottomPosition={panelBottomPos} />
           )}
 
         {/* Botão de Áudio (Para todos: Admin e Usuário) */}
@@ -86,7 +92,8 @@ export default function DuvidaExpandidaScreen() {
           <TouchableOpacity
             onPress={toggleSpeech}
             activeOpacity={0.8}
-            className="absolute bottom-[150px] right-8 bg-primary w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50"
+            className="absolute right-8 bg-primary w-[60px] h-[60px] rounded-full justify-center items-center shadow-lg shadow-black/30 elevation-5 z-50"
+            style={{ bottom: bottomPos }}
             accessible={true}
             accessibilityLabel={isSpeaking ? "Parar leitura" : "Ouvir dúvida"}
             accessibilityRole="button"
@@ -138,12 +145,6 @@ export default function DuvidaExpandidaScreen() {
               accessibilityLabel="Imagem ilustrativa da dúvida"
             />
           ) : null}
-          <View className="items-center mt-8 mb-10">
-            <View className="w-16 h-16 rounded-2xl bg-surface-muted items-center justify-center mb-3">
-              <Text className="text-primary text-[28px] font-bold opacity-60">?</Text>
-            </View>
-            <Text className="text-text-placeholder font-medium text-[15px]">Estamos aqui para ajudar</Text>
-          </View>
         </ScrollView>
       )}
     </ScreenLayout>

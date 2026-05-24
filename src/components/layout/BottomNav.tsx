@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../../hooks/useAuth';
 
 type Route = 'menu' | 'material' | 'duvidas';
@@ -13,6 +14,8 @@ interface BottomNavProps {
 export default function BottomNav({ currentRoute }: BottomNavProps) {
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const insets = useSafeAreaInsets();
+  const safeBottom = insets.bottom;
 
   const handlePress = (route: Route) => {
     if (route === currentRoute) return;
@@ -66,8 +69,8 @@ export default function BottomNav({ currentRoute }: BottomNavProps) {
         left: 0,
         right: 0,
         width: '100%',
-        height: 130,
-        paddingBottom: 30,
+        height: 100 + safeBottom,
+        paddingBottom: safeBottom,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -5 },
         shadowOpacity: 0.25,

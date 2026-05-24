@@ -22,7 +22,7 @@ export default function TelaInicial() {
         <View className="flex-1 justify-center items-center w-full mb-[120px]" pointerEvents="box-none">
           <Image
             source={require("../assets/images/Logo.png")}
-            style={{ width: 320, height: 320 }}
+            style={{ width: 400, height: 400 }}
             contentFit="contain"
           />
         </View>

@@ -3,10 +3,11 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Network from 'expo-network';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as DatabaseRepository from './DatabaseRepository';
-import { Material } from '../types';
+import { Material, Duvida } from '../types';
 
 const KEYS = {
   OFFLINE_MATERIAIS: '@TecerMulher:offline_materiais',
+  OFFLINE_DUVIDAS: '@TecerMulher:offline_duvidas',
   PROMPT_ANSWERED: '@TecerMulher:prompt_download_answered',
 };
 
@@ -97,6 +98,17 @@ export const OfflineService = {
     }
   },
 
+  // Retorna as dúvidas armazenadas em modo offline
+  async getOfflineDuvidas(): Promise<Duvida[]> {
+    try {
+      const data = await AsyncStorage.getItem(KEYS.OFFLINE_DUVIDAS);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      console.error('Erro ao ler dúvidas offline:', e);
+      return [];
+    }
+  },
+
   // Verifica se já existem materiais baixados offline
   async hasOfflineMateriais(): Promise<boolean> {
     const materiais = await this.getOfflineMateriais();
@@ -111,11 +123,12 @@ export const OfflineService = {
         return false;
       }
 
-      if (onProgress) onProgress('Buscando aulas da nuvem...');
+      if (onProgress) onProgress('Buscando aulas e dúvidas da nuvem...');
       const materiais = await DatabaseRepository.getMateriais();
+      const duvidas = await DatabaseRepository.getDuvidas();
       
-      if (!materiais || materiais.length === 0) {
-        if (onProgress) onProgress('Nenhum material encontrado para baixar.');
+      if ((!materiais || materiais.length === 0) && (!duvidas || duvidas.length === 0)) {
+        if (onProgress) onProgress('Nenhum dado encontrado para baixar.');
         return true;
       }
 
@@ -167,6 +180,27 @@ export const OfflineService = {
         });
       }
 
+      // 2.5 Baixar Imagens das Dúvidas
+      const offlineDuvidas: Duvida[] = [];
+      if (duvidas && duvidas.length > 0) {
+        for (let i = 0; i < duvidas.length; i++) {
+          const d = duvidas[i];
+          let localImage = d.imagemDuvida;
+          
+          if (d.imagemDuvida && d.imagemDuvida.startsWith('http')) {
+            const ext = getSafeExtension(d.imagemDuvida);
+            try {
+              localImage = await downloadFile(d.imagemDuvida, `duvida_${d.id}.${ext}`);
+            } catch (err) {
+              console.error(`Erro ao baixar imagem da dúvida ${d.id}:`, err);
+              hasFailures = true;
+            }
+          }
+          
+          offlineDuvidas.push({ ...d, imagemDuvida: localImage });
+        }
+      }
+
       // 3. Limpeza de arquivos órfãos (imagens de aulas que foram apagadas do servidor)
       if (onProgress) onProgress('Otimizando espaço e limpando arquivos antigos...');
       const activeLocalUris = new Set<string>();
@@ -180,6 +214,11 @@ export const OfflineService = {
               activeLocalUris.add(b.url);
             }
           });
+        }
+      });
+      offlineDuvidas.forEach(d => {
+        if (d.imagemDuvida && d.imagemDuvida.startsWith('file://')) {
+          activeLocalUris.add(d.imagemDuvida);
         }
       });
 
@@ -200,6 +239,7 @@ export const OfflineService = {
 
       // Salva os metadados com caminhos atualizados no AsyncStorage
       await AsyncStorage.setItem(KEYS.OFFLINE_MATERIAIS, JSON.stringify(offlineMateriais));
+      await AsyncStorage.setItem(KEYS.OFFLINE_DUVIDAS, JSON.stringify(offlineDuvidas));
       
       if (onProgress) {
         if (hasFailures) {
