@@ -1,21 +1,41 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Text, TouchableOpacity, View, ActivityIndicator, TextInput } from 'react-native';
+import { getWhatsAppNumber, updateWhatsAppNumber } from '../../services/DatabaseRepository';
 import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '../../context/ToastContext';
 import ScreenLayout from '../../components/layout/ScreenLayout';
 import { useFontSize } from '../../hooks/useFontSize';
 import { OfflineService } from '../../services/OfflineService';
+// Removed invalid toast import
 
 export default function TelaConfiguracoes() {
-  const router = useRouter();
   const { logout, isAdmin } = useAuth();
+  const { showToast } = useToast();
+  const router = useRouter();
   const { userFontFactor, increase, decrease, canIncrease, canDecrease } = useFontSize();
-
+  
+  // Logout handler used by the "Sair da Conta" button
   const handleLogout = async () => {
-    await logout();
-    router.replace('/');
+    try {
+      await logout();
+      router.replace('/login'); // Adjust route as needed
+    } catch (e) {
+      showToast({ message: 'Erro ao sair da conta.', type: 'error' });
+    }
   };
+
+  const [whatsappNumber, setWhatsAppNumber] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchNumber = async () => {
+      const num = await getWhatsAppNumber();
+      setWhatsAppNumber(num);
+    };
+    fetchNumber();
+  }, []);
 
   const [hasOffline, setHasOffline] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -57,7 +77,39 @@ export default function TelaConfiguracoes() {
     >
       <View className="flex-1 px-6 pt-10 pb-[150px]">
 
-        {/* ── Seção de fonte: só para usuários comuns ── */}
+        {/* Admin section: Change WhatsApp number */}
+        {isAdmin && (
+          <View className="mt-8 mb-4 bg-white rounded-[24px] p-6 shadow-sm">
+            <Text className="text-primary text-[16px] font-bold mb-2">Número do WhatsApp de contato</Text>
+            <TextInput
+              value={whatsappNumber}
+              onChangeText={setWhatsAppNumber}
+              placeholder="Número com código do país, ex: 55..."
+              className="bg-surface-muted rounded-xl p-3 mb-4"
+            />
+            <TouchableOpacity
+              onPress={async () => {
+                setSaving(true);
+                try {
+                  await updateWhatsAppNumber(whatsappNumber);
+                  showToast({ message: 'Número atualizado com sucesso.', type: 'success' });
+                } catch (e) {
+                  showToast({ message: 'Erro ao atualizar número.', type: 'error' });
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              disabled={saving}
+              className="bg-primary rounded-xl py-3 items-center justify-center"
+            >
+              {saving ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text className="text-white font-bold text-[16px]">Salvar número</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
         {!isAdmin && (
           <View className="mb-8">
             <Text className="text-primary text-[14px] font-bold mb-3 uppercase tracking-widest opacity-60 ml-2">

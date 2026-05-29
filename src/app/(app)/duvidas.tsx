@@ -17,6 +17,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useDuvidasList } from "../../hooks/useDuvidas";
 
 import FloatingFontControl from "../../components/ui/FloatingFontControl";
+import { getWhatsAppNumber } from "../../services/DatabaseRepository";
 import { useConfig } from "../../context/ConfigContext";
 import { useToast } from "../../context/ToastContext";
 import { useFontSize } from "../../hooks/useFontSize";
@@ -32,24 +33,43 @@ export default function DuvidasScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { isAdmin } = useAuth();
-  const { config } = useConfig();
+  const { config, loadingConfig } = useConfig();
+  const [whatsappNumber, setWhatsAppNumber] = useState<string>("");
+
+  useEffect(() => {
+    const fetchNumber = async () => {
+      const num = await getWhatsAppNumber();
+      setWhatsAppNumber(num);
+    };
+    fetchNumber();
+  }, []);
+
   const { showToast, showConfirm } = useToast();
   const { duvidas, apagarDuvida } = useDuvidasList();
   const { userFontFactor } = useFontSize();
 
   // Admin usa o fator global (Firestore); usuário comum usa o fator local (AsyncStorage)
   const effectiveFactor = isAdmin
-    ? config.fontSizeFactor || 1.0
-    : (config.fontSizeFactor || 1.0) * userFontFactor;
+    ? (config?.fontSizeFactor ?? 1.0)
+    : ((config?.fontSizeFactor ?? 1.0) * userFontFactor);
 
   const fs = (size: number) => size * effectiveFactor;
   const lh = (size: number) => size * 1.5;
 
+  // Garante parar o Speech ao sair da tela — deve ficar ANTES de qualquer early return
   useEffect(() => {
     return () => {
       Speech.stop();
     };
   }, []);
+
+  if (loadingConfig) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-lg">Carregando...</Text>
+      </View>
+    );
+  }
 
   const lerDuvida = async (titulo: string, resposta: string) => {
     const isSpeaking = await Speech.isSpeakingAsync();
@@ -348,9 +368,11 @@ export default function DuvidasScreen() {
         {!isAdmin && (
           <TouchableOpacity
             onPress={() =>
-              Linking.openURL(
-                "https://wa.me/NUMERO?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida",
-              )
+            Linking.openURL(
+              whatsappNumber
+                ? `https://wa.me/${whatsappNumber}?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida`
+                : "https://wa.me/94991967184?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida"
+            )
             }
             activeOpacity={0.8}
             className="mt-8 mb-4 bg-[#25D366] rounded-2xl py-4 px-5 flex-row items-center justify-center gap-3 shadow-sm shadow-black/10 elevation-2"

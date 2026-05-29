@@ -14,6 +14,7 @@ import {
   getDocument,
   updateDocument,
   deleteDocument,
+  setDocument,
 } from '../firebase/firestore';
 import { Material, Duvida } from '../types';
 
@@ -97,4 +98,17 @@ export const getAppConfig = async (): Promise<AppConfig> => {
 
 export const updateAppConfig = async (data: Partial<AppConfig>): Promise<void> => {
   await updateDocument('app_config/settings', data);
+};
+
+// -------- WhatsApp Configuration --------
+export const getWhatsAppNumber = async (): Promise<string> => {
+  const snap = await getDocument('configuracoes', 'whatsapp');
+  if (!snap.exists()) return '';
+  const data = snap.data() as { numeroWhatsapp?: string };
+  return data.numeroWhatsapp ?? '';
+};
+
+export const updateWhatsAppNumber = async (numero: string): Promise<void> => {
+  // Store the number in the document; creates if missing.
+  await setDocument('configuracoes/whatsapp', { numeroWhatsapp: numero });
 };
