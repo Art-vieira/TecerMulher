@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { Material } from '../../types';
+import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { Material } from "../../types";
 
 interface MaterialCardProps {
   material: Material;
@@ -24,7 +24,9 @@ const MaterialCard: React.FC<MaterialCardProps> = ({
   toggleMenu,
 }) => {
   return (
-    <View className={`mb-6 relative ${isMenuOpen ? 'z-50 elevation-5' : 'z-1'}`}>
+    <View
+      className={`mb-6 relative ${isMenuOpen ? "z-50 elevation-5" : "z-1"}`}
+    >
       {/* Card */}
       <TouchableOpacity
         activeOpacity={0.85}
@@ -44,13 +46,22 @@ const MaterialCard: React.FC<MaterialCardProps> = ({
         {material.imagemCapa ? (
           <Image
             source={{ uri: material.imagemCapa }}
-            style={{ width: '100%', height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}
+            style={{
+              width: "100%",
+              height: 146,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
             resizeMode="cover"
             className="w-full"
           />
         ) : (
-          <View 
-            style={{ height: 146, borderTopLeftRadius: 20, borderTopRightRadius: 20 }} 
+          <View
+            style={{
+              height: 146,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
             className="w-full bg-surface-card justify-center items-center"
           >
             <Ionicons name="image-outline" size={40} color="#C5BFD0" />
@@ -58,9 +69,11 @@ const MaterialCard: React.FC<MaterialCardProps> = ({
         )}
 
         {/* Título */}
-        <View className={`flex-1 flex-row items-center px-4 ${isAdmin ? 'justify-between' : 'justify-center'}`}>
+        <View
+          className={`flex-1 flex-row items-center px-4 ${isAdmin ? "justify-between" : "justify-center"}`}
+        >
           <Text
-            className={`text-primary text-[16px] font-bold leading-[20px] ${isAdmin ? 'text-left flex-1 mr-4' : 'text-center'}`}
+            className={`text-primary text-[16px] font-bold leading-[20px] ${isAdmin ? "text-left flex-1 mr-4" : "text-center"}`}
             numberOfLines={2}
           >
             {material.title}
@@ -80,8 +93,14 @@ const MaterialCard: React.FC<MaterialCardProps> = ({
 
       {/* Dropdown do menu */}
       {isMenuOpen && (
-        <View 
-          style={{ position: 'absolute', top: 160, right: 30, zIndex: 999, elevation: 10 }}
+        <View
+          style={{
+            position: "absolute",
+            top: 160,
+            right: 30,
+            zIndex: 999,
+            elevation: 10,
+          }}
           className="bg-white rounded-2xl py-2 shadow-xl min-w-[160px] border border-gray-100"
         >
           <TouchableOpacity

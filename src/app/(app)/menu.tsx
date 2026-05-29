@@ -1,21 +1,92 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
-import React from 'react';
-import { Text, TouchableOpacity, View, ScrollView, useWindowDimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, TouchableOpacity, View, ScrollView, useWindowDimensions, Modal, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useMateriaisList } from '../../hooks/useMateriais';
 import { useDuvidasList } from '../../hooks/useDuvidas';
 import ScreenLayout from '../../components/layout/ScreenLayout';
+import { OfflineService } from '../../services/OfflineService';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import FloatingFontControl from '../../components/ui/FloatingFontControl';
+
+let sessionPromptShown = false;
 
 export default function TelaMenu() {
   const router = useRouter();
   const { isAdmin } = useAuth();
-  const { materiais } = useMateriaisList();
+  const { materiais, refresh } = useMateriaisList();
   const { duvidas } = useDuvidasList();
+  const insets = useSafeAreaInsets();
+  const fontBottom = 100 + insets.bottom + 16;
+  const fontPanelBottom = fontBottom + 70;
   
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
+
+  const [testFilePath, setTestFilePath] = useState<string | null>(null);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    async function checkOfflineRequirements() {
+      if (isAdmin) return; // Apenas para estudantes
+      
+      const answered = await OfflineService.isPromptAnswered();
+      if (answered) {
+        // Já aceitou antes: sincroniza automaticamente em background
+        OfflineService.downloadAllMaterials();
+      } else if (!sessionPromptShown) {
+        // Ainda não aceitou e não mostramos nesta sessão do app
+        setShowDownloadModal(true);
+        sessionPromptShown = true;
+      }
+    }
+    checkOfflineRequirements();
+  }, [isAdmin]);
+
+  const handleStartDownload = async () => {
+    setIsDownloading(true);
+    setDownloadProgress('Iniciando...');
+    
+    // Marca o prompt como respondido imediatamente para que não reapareça
+    await OfflineService.setPromptAnswered();
+
+    try {
+      const success = await OfflineService.downloadAllMaterials((msg) => {
+        setDownloadProgress(msg);
+      });
+      
+      if (success) {
+        setDownloadProgress('Download concluído com sucesso!');
+        setTimeout(() => {
+          setIsDownloading(false);
+          setShowDownloadModal(false);
+          // Refresh the material list to load the newly saved offline data
+          refresh();
+        }, 1500);
+      } else {
+        setDownloadProgress('Falha ao baixar algumas aulas.');
+        setTimeout(() => {
+          setIsDownloading(false);
+          setShowDownloadModal(false);
+        }, 2000);
+      }
+    } catch (error) {
+      setDownloadProgress('Erro ao realizar download.');
+      setTimeout(() => {
+        setIsDownloading(false);
+        setShowDownloadModal(false);
+      }, 2000);
+    }
+  };
+
+  const handleCancelDownload = async () => {
+    setShowDownloadModal(false);
+  };
 
   const handleBack = async () => {
     // Estudantes voltam para a tela inicial
@@ -41,6 +112,14 @@ export default function TelaMenu() {
       rightElement={isAdmin ? settingsButton : null}
       currentRoute="menu"
       hideBack={isAdmin}
+      overlay={
+        !isAdmin && (
+          <FloatingFontControl
+            bottomPosition={fontBottom}
+            panelBottomPosition={fontPanelBottom}
+          />
+        )
+      }
     >
       {isAdmin ? (
         /* ── Layout Admin ── */
@@ -103,13 +182,14 @@ export default function TelaMenu() {
           contentContainerStyle={{ 
             flexGrow: 1, 
             paddingHorizontal: isTablet ? 64 : 32, 
-            paddingTop: isTablet ? 64 : 32, 
-            paddingBottom: 100, 
+            paddingTop: isTablet ? 40 : 32, 
+            paddingBottom: isTablet ? 120 : 85, 
             alignItems: 'center', 
             justifyContent: 'space-between' 
           }}
           showsVerticalScrollIndicator={false}
           bounces={false}
+          alwaysBounceVertical={false}
         >
           <View style={{ width: '100%', flexDirection: isTablet ? 'row' : 'column', alignItems: 'center', justifyContent: 'center', gap: isTablet ? 32 : 20 }}>
             <Link href="/material" asChild>
@@ -151,13 +231,75 @@ export default function TelaMenu() {
 
           <Image
             source={require("../../assets/images/Tecer-C.png")}
-            style={{ width: isTablet ? 350 : 250, height: isTablet ? 250 : 180, marginBottom: 9, marginTop: isTablet ? 40 : 20 }}
+            style={{ width: isTablet ? 350 : 250, height: isTablet ? 250 : 180, marginBottom: 30, marginTop: isTablet ? 30 : 10 }}
             contentFit="contain"
             accessible={true}
             accessibilityLabel="Logo Unifesspa Tecer"
           />
         </ScrollView>
       )}
+
+
+      {/* Modal de Download de Materiais Offline */}
+      <Modal
+        visible={showDownloadModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => {
+          if (!isDownloading) setShowDownloadModal(false);
+        }}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+          <View style={{ backgroundColor: '#FFFFFF', width: '100%', maxWidth: 340, borderRadius: 24, padding: 24, alignItems: 'center' }}>
+            {!isDownloading ? (
+              <>
+                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(57, 26, 101, 0.1)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+                  <Ionicons name="cloud-download-outline" size={36} color="#391A65" />
+                </View>
+                <Text style={{ color: '#391A65', fontWeight: 'bold', fontSize: 18, textAlign: 'center', marginBottom: 8 }}>
+                  Materiais Offline
+                </Text>
+                <Text style={{ color: '#777777', fontSize: 14, textAlign: 'center', marginBottom: 24, lineHeight: 20 }}>
+                  Identificamos que você está conectado ao Wi-Fi. Deseja baixar os materiais para estudar mesmo sem internet?
+                </Text>
+                
+                <TouchableOpacity
+                  onPress={handleStartDownload}
+                  activeOpacity={0.8}
+                  style={{ width: '100%', backgroundColor: '#391A65', paddingVertical: 14, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginBottom: 12 }}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 }}>Baixar agora</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  onPress={handleCancelDownload}
+                  activeOpacity={0.8}
+                  style={{ width: '100%', paddingVertical: 12, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#EEEEEE' }}
+                >
+                  <Text style={{ color: '#3C3C3C', fontWeight: '600', fontSize: 16 }}>Depois</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: 'rgba(57, 26, 101, 0.05)', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
+                  <ActivityIndicator size="large" color="#391A65" />
+                </View>
+                <Text style={{ color: '#391A65', fontWeight: 'bold', fontSize: 18, textAlign: 'center', marginBottom: 8 }}>
+                  Baixando Aulas...
+                </Text>
+                <Text style={{ color: '#777777', fontSize: 14, textAlign: 'center', marginBottom: 16, paddingHorizontal: 8, lineHeight: 20 }}>
+                  Por favor, não feche o aplicativo enquanto realizamos o download.
+                </Text>
+                <View style={{ backgroundColor: '#F9F9F9', width: '100%', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#EEEEEE', alignItems: 'center' }}>
+                  <Text style={{ color: '#391A65', fontWeight: '600', fontSize: 14, textAlign: 'center' }}>
+                    {downloadProgress}
+                  </Text>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </ScreenLayout>
   );
 }

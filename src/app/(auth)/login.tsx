@@ -25,7 +25,6 @@ export default function TelaLogin() {
   const [erro, setErro] = useState('');
 
   React.useEffect(() => {
-    // Se já estiver logado (e não estiver carregando a auth), vai direto pro menu Admin
     if (!carregandoAuth && user) {
       router.replace('/menu');
     }
@@ -65,40 +64,42 @@ export default function TelaLogin() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#391A65' }}>
       <Stack.Screen options={{ headerShown: false }} />
 
       <KeyboardAvoidingView
-        className="flex-1"
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'android' ? -100 : 0}
       >
         <ScrollView
-          contentContainerClassName="flex-grow"
+          contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           {/* ───── CABEÇALHO ROXO ───── */}
-          <View className="bg-primary">
+          <View style={{ backgroundColor: '#391A65' }}>
             {/* Botão Voltar */}
             <TouchableOpacity
               onPress={() => router.back()}
               activeOpacity={0.8}
-              className="flex-row items-center px-6 pt-4 pb-2"
+              style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingTop: 16, paddingBottom: 8 }}
               accessible={true}
               accessibilityLabel="Voltar para a tela anterior"
               accessibilityRole="button"
             >
               <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
-              <Text className="text-white text-lg font-semibold ml-2">
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600', marginLeft: 8 }}>
                 Voltar
               </Text>
             </TouchableOpacity>
 
-            {/* Logo e Título */}
-            <View className="items-center pt-2 pb-10">
+            {/* Logo */}
+            <View style={{ alignItems: 'center', paddingTop: 8, paddingBottom: 24 }}>
               <Image
                 source={require('../../assets/images/Logo.png')}
-                style={{ width: 220, height: 220 }}
+                style={{ width: 180, height: 180 }}
                 contentFit="contain"
                 accessible={true}
                 accessibilityLabel="Logo Tecer Mulher"
@@ -107,12 +108,13 @@ export default function TelaLogin() {
           </View>
 
           {/* ───── PAINEL BRANCO ───── */}
-          <View className="flex-1 bg-background rounded-t-[30px] px-7 pt-9 pb-10">
+          <View style={{ flex: 1, backgroundColor: '#F5F0FA', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 28, paddingTop: 36, paddingBottom: 48 }}>
+
             {/* Campo Email */}
-            <Text className="text-text-dark text-lg font-semibold mb-2">
+            <Text style={{ color: '#1A0B35', fontSize: 17, fontWeight: '600', marginBottom: 8 }}>
               Email :
             </Text>
-            <View className="bg-white rounded-xl border border-border-light mb-6">
+            <View style={{ backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E0D8EA', marginBottom: 24 }}>
               <TextInput
                 value={email}
                 onChangeText={setEmail}
@@ -121,17 +123,18 @@ export default function TelaLogin() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                className="px-4 py-4 text-lg text-text-dark"
+                returnKeyType="next"
+                style={{ paddingHorizontal: 16, paddingVertical: 16, fontSize: 17, color: '#1A0B35' }}
                 accessible={true}
                 accessibilityLabel="Campo de entrada de email"
               />
             </View>
 
             {/* Campo Senha */}
-            <Text className="text-text-dark text-lg font-semibold mb-2">
+            <Text style={{ color: '#1A0B35', fontSize: 17, fontWeight: '600', marginBottom: 8 }}>
               Senha :
             </Text>
-            <View className="bg-white rounded-xl border border-border-light flex-row items-center mb-3">
+            <View style={{ backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E0D8EA', flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
               <TextInput
                 value={senha}
                 onChangeText={setSenha}
@@ -140,16 +143,18 @@ export default function TelaLogin() {
                 secureTextEntry={!mostrarSenha}
                 autoCapitalize="none"
                 autoCorrect={false}
-                className="flex-1 px-4 py-4 text-lg text-text-dark"
+                returnKeyType="done"
+                onSubmitEditing={handleEntrar}
+                style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 16, fontSize: 17, color: '#1A0B35' }}
                 accessible={true}
                 accessibilityLabel="Campo de entrada de senha"
               />
               <TouchableOpacity
                 onPress={() => setMostrarSenha(!mostrarSenha)}
                 activeOpacity={0.7}
-                className="px-4 py-4"
+                style={{ paddingHorizontal: 16, paddingVertical: 16 }}
                 accessible={true}
-                accessibilityLabel={mostrarSenha ? "Esconder senha" : "Mostrar senha"}
+                accessibilityLabel={mostrarSenha ? 'Esconder senha' : 'Mostrar senha'}
                 accessibilityRole="button"
               >
                 <Ionicons
@@ -162,19 +167,26 @@ export default function TelaLogin() {
 
             {/* Mensagem de erro */}
             {erro !== '' && (
-              <Text className="text-error text-sm mb-2 text-center font-medium">
+              <Text style={{ color: '#D32F2F', fontSize: 14, marginBottom: 8, textAlign: 'center', fontWeight: '500' }}>
                 {erro}
               </Text>
             )}
 
-            <View className="mb-5" />
+            <View style={{ height: 20 }} />
 
             {/* Botão ENTRAR */}
             <TouchableOpacity
               onPress={handleEntrar}
               activeOpacity={0.85}
               disabled={carregando}
-              className="bg-primary rounded-xl py-4 items-center justify-center shadow-md shadow-primary/40 min-h-[58px]"
+              style={{
+                backgroundColor: '#391A65',
+                borderRadius: 12,
+                paddingVertical: 16,
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: 58,
+              }}
               accessible={true}
               accessibilityLabel="Botão de Entrar"
               accessibilityRole="button"
@@ -182,7 +194,7 @@ export default function TelaLogin() {
               {carregando ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
-                <Text className="text-white text-[18px] font-extrabold tracking-widest">
+                <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800', letterSpacing: 2 }}>
                   ENTRAR
                 </Text>
               )}
@@ -193,7 +205,3 @@ export default function TelaLogin() {
     </SafeAreaView>
   );
 }
-
-
-
-

@@ -9,8 +9,10 @@ import {
   TouchableOpacity,
   View,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 
 import { useMaterialForm } from '../../hooks/useMaterialForm';
@@ -23,6 +25,8 @@ interface MaterialFormTemplateProps {
 
 export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFormTemplateProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const safeBottom = insets.bottom;
   
   const {
     titulo, setTitulo,
@@ -48,7 +52,7 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
     }
   };
 
-  const { addBlocoTexto, addBlocoImagem, addBlocoVideo, addBlocoAlerta, removeBloco, updateBloco, moverBloco } = acoesBloco;
+  const { addBlocoTexto, addBlocoSubtitulo, addBlocoImagem, addBlocoVideo, addBlocoAlerta, removeBloco, updateBloco, moverBloco } = acoesBloco;
 
   const pickImageForCapa = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -135,9 +139,13 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
       )}
 
       {/* ── Corpo ── */}
-      <View className="flex-1 bg-admin-dark rounded-t-[20px]">
-        <ScrollView
-          contentContainerClassName="p-6 pb-36"
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+      >
+        <View className="flex-1 bg-admin-dark rounded-t-[20px]">
+          <ScrollView
+            contentContainerClassName="p-6 pb-36"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -387,13 +395,14 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
           ))}
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
 
       {/* ── Botões Flutuantes: Adicionar Bloco em Horizontal ── */}
       <View className="absolute bottom-0 left-0 right-0 bg-primary border-t border-white/20">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: safeBottom + 16 }}
         >
           <TouchableOpacity
             onPress={addBlocoTexto}
@@ -401,6 +410,14 @@ export default function MaterialFormTemplate({ id, isEdit = false }: MaterialFor
           >
             <Ionicons name="document-text-outline" size={24} color="#FFFFFF" />
             <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">CONTEÚDO</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={addBlocoSubtitulo}
+            className="w-[76px] h-[76px] rounded-xl border border-white/20 items-center justify-center bg-primary-deep mr-3"
+          >
+            <Ionicons name="text-outline" size={24} color="#FFFFFF" />
+            <Text className="text-white font-bold text-[10px] mt-2 tracking-wider">TÍTULO</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
