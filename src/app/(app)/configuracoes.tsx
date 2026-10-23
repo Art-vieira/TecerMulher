@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View, ActivityIndicator, TextInput } from 'react-native';
+import { Text, TouchableOpacity, View, ActivityIndicator, TextInput, Modal } from 'react-native';
 import { getWhatsAppNumber, updateWhatsAppNumber } from '../../services/DatabaseRepository';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../context/ToastContext';
@@ -28,6 +28,7 @@ export default function TelaConfiguracoes() {
 
   const [whatsappNumber, setWhatsAppNumber] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showDevModal, setShowDevModal] = useState(false);
 
   useEffect(() => {
     const fetchNumber = async () => {
@@ -234,6 +235,7 @@ export default function TelaConfiguracoes() {
 
         {/* Card Alterar Senha */}
         <TouchableOpacity
+          onPress={() => setShowDevModal(true)}
           className="bg-white rounded-[20px] p-5 flex-row items-center shadow-sm mb-6"
           activeOpacity={0.8}
         >
@@ -258,6 +260,35 @@ export default function TelaConfiguracoes() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal Em Desenvolvimento */}
+      <Modal
+        visible={showDevModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowDevModal(false)}
+      >
+        <View className="flex-1 bg-black/50 items-center justify-center px-6">
+          <View className="bg-white rounded-[24px] p-8 items-center shadow-lg w-full max-w-[320px]">
+            <View className="w-16 h-16 bg-[#EBE5F1] rounded-full items-center justify-center mb-4">
+              <Ionicons name="construct-outline" size={32} color="#391A65" />
+            </View>
+            <Text className="text-primary text-[20px] font-bold text-center mb-2">
+              Em Desenvolvimento
+            </Text>
+            <Text className="text-text-muted text-[15px] text-center mb-6">
+              Esta funcionalidade estará disponível nas próximas atualizações.
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowDevModal(false)}
+              className="bg-primary w-full py-3.5 rounded-xl items-center"
+              activeOpacity={0.8}
+            >
+              <Text className="text-white font-bold text-[16px]">Entendi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScreenLayout>
   );
 }

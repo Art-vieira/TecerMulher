@@ -67,7 +67,7 @@ export const OfflineService = {
     try {
       const state = await Network.getNetworkStateAsync();
       return !!state.isConnected && !!state.isInternetReachable;
-    } catch (e) {
+    } catch {
       return false;
     }
   },
@@ -82,7 +82,7 @@ export const OfflineService = {
       }
       const typeStr = (state.type ?? '').toString().toLowerCase();
       return typeStr === 'wifi' || typeStr === 'wlan';
-    } catch (e) {
+    } catch {
       return false;
     }
   },
@@ -260,6 +260,7 @@ export const OfflineService = {
   async clearOfflineMaterials(): Promise<void> {
     try {
       await AsyncStorage.removeItem(KEYS.OFFLINE_MATERIAIS);
+      await AsyncStorage.removeItem(KEYS.PROMPT_ANSWERED);
       if (!OFFLINE_DIR) return;
       const dirInfo = await FileSystem.getInfoAsync(OFFLINE_DIR);
       if (dirInfo.exists) {
@@ -275,7 +276,7 @@ export const OfflineService = {
     try {
       const val = await AsyncStorage.getItem(KEYS.PROMPT_ANSWERED);
       return val === 'true';
-    } catch (e) {
+    } catch {
       return false;
     }
   },
